@@ -1,0 +1,21 @@
+# http://www.nfd.com.tw/lottery/49-year/49-2004.htm
+# http://www.nfd.com.tw/lottery/power-38/2008.htm
+# http://www.nfd.com.tw/lottery/39-year/39-2007.htm
+# http://www.nfd.com.tw/lottery/4-star/2003.htm
+http:
+  base: "http://www.nfd.com.tw/lottery"
+  infos: 
+    - label: "39-%d.htm"
+      path: "39-year"
+      baseyear: "2007"
+    - label: "49-%d.htm"
+      path: "49-year"
+      baseyear: "2004"
+    - label: "%d.htm"
+      path: "power-38"
+      baseyear: "2008"
+    - label: "%d.htm"
+      path: "4-star"
+      baseyear: "2003"
+local:
+  path: "/Users/tak 1/Desktop/0_塔克專用/台灣彩券/csv"

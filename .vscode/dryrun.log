@@ -1,0 +1,7 @@
+make --dry-run --always-make --keep-going --print-directory
+make: Entering directory `/Users/tak 1/Documents/gitlab_project/lottery'
+rm -rf ./build
+rm -rf ./release
+CGO_ENABLED=0 go build -ldflags "-w -s" -o ./build/linux/mongodb .
+make: Leaving directory `/Users/tak 1/Documents/gitlab_project/lottery'
+ 

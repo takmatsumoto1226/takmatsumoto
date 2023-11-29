@@ -1,0 +1,5 @@
+build/
+debug/
+~$*
+.DS_Store*
+nohup.out
