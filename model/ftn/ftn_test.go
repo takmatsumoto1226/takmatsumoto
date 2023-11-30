@@ -1,7 +1,6 @@
 package ftn
 
 import (
-	"fmt"
 	"lottery/config"
 	"sort"
 	"testing"
@@ -64,13 +63,19 @@ func Test_findnumbers(t *testing.T) {
 	// as.findNumbers([]string{"11", "22", "23", "38"}, true).List()
 	// as.findNumbers([]string{"01", "38"}, true).List()
 	// as.findNumbers([]string{"02", "36", "37"}, true).List()
+	as.list()
+	// fmt.Println("===============================================================================================================================")
+	// fmt.Println("")
+	// as.findNumbers([]string{"15", "17", "28"}, true).List()
+	// fmt.Println("")
+	// fmt.Println("")
+	// as.findNumbers([]string{"28", "35", "38"}, true).List()
+	// fmt.Println("")
+	// fmt.Println("")
+	// as.findNumbers([]string{"15", "35", "38"}, true).List()
+	// // as.findNumbers([]string{"04", "20", "22"}, true).List()
+	// fmt.Println("")
+	// fmt.Println("")
+	// as.findNumbers([]string{"15", "17", "35"}, true).List()
 
-	as.findNumbers([]string{"04", "11", "22"}, true).List()
-	fmt.Println("")
-	fmt.Println("")
-	as.findNumbers([]string{"04", "16", "22"}, true).List()
-	// as.findNumbers([]string{"04", "20", "22"}, true).List()
-	fmt.Println("")
-	fmt.Println("")
-	as.findNumbers([]string{"16", "20", "22"}, true).List()
 }

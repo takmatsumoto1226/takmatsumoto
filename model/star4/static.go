@@ -31,3 +31,15 @@ func (ar *Star4Manager) findNumbers(numbers []string, combo bool) Star4s {
 
 	return intersection
 }
+
+// func removeDuplicates(s Star4s) Star4s {
+// 	bucket := make(map[string]bool)
+// 	var result []string
+// 	for _, str := range s {
+// 		if _, ok := bucket[str]; !ok {
+// 			bucket[str] = true
+// 			result = append(result, str)
+// 		}
+// 	}
+// 	return result
+// }

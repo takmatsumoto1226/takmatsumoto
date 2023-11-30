@@ -3,6 +3,7 @@ package star4
 import (
 	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/sirupsen/logrus"
 )
@@ -98,4 +99,42 @@ func NewStar4(year string, arr []string) []Star4 {
 
 func Empty() *Star4 {
 	return &Star4{"====", "====", "==", "==", "==", "==", "==", "=="}
+}
+
+func (fa *Star4) toInts() []int {
+	p1, _ := strconv.Atoi(fa.P1)
+	p2, _ := strconv.Atoi(fa.P2)
+	p3, _ := strconv.Atoi(fa.P3)
+	p4, _ := strconv.Atoi(fa.P4)
+	return []int{p1, p2, p3, p4}
+}
+
+func (fa Star4) Permutation() [][]int {
+	var helper func([]int, int)
+	res := [][]int{}
+
+	helper = func(arr []int, n int) {
+		if n == 1 {
+			tmp := make([]int, len(arr))
+			copy(tmp, arr)
+			// if _, ok := trims[tmp]; !ok {
+			res = append(res, tmp)
+			// }
+		} else {
+			for i := 0; i < n; i++ {
+				helper(arr, n-1)
+				if n%2 == 1 {
+					tmp := arr[i]
+					arr[i] = arr[n-1]
+					arr[n-1] = tmp
+				} else {
+					tmp := arr[0]
+					arr[0] = arr[n-1]
+					arr[n-1] = tmp
+				}
+			}
+		}
+	}
+	helper(fa.toInts(), 4)
+	return res
 }

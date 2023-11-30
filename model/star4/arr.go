@@ -20,3 +20,7 @@ func (fa Star4s) Less(i, j int) bool {
 func (fa Star4s) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
+
+// func NewStar4s(arr []int)Star4s {
+
+// }
