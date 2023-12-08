@@ -25,20 +25,6 @@ func (ar *Star4Manager) Prepare() error {
 	return nil
 }
 
-func (ar *Star4Manager) list() {
-	for _, f := range ar.RevList {
-		f.formRow()
-	}
-}
-
-func (ar *Star4Manager) least() Star4 {
-	return ar.List[len(ar.List)-1]
-}
-
-func (ar *Star4Manager) first() Star4 {
-	return ar.List[0]
-}
-
 func (ar *Star4Manager) loadAllData() {
 	info := config.Config.HTTP.Infos[df.Info4STAR]
 	now := time.Now()

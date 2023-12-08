@@ -16,14 +16,14 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = Star4Manager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.list()
+	as.List.Presentation()
 }
 
 func Test_start4Permutations(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = Star4Manager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	arr := as.least().Permutation()
+	arr := as.List.Least().Permutation()
 	for _, ar := range arr {
 		fmt.Println(ar)
 	}
@@ -34,4 +34,12 @@ func Test_permutations(t *testing.T) {
 	for _, ar := range arr {
 		fmt.Println(ar)
 	}
+}
+
+func Test_findnumber(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = Star4Manager{numberToIndex: map[string]int{}}
+	as.Prepare()
+	fmt.Println(as.findNumbers("5538"))
+
 }

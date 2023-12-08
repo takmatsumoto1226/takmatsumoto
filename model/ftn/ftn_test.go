@@ -1,7 +1,10 @@
 package ftn
 
 import (
+	"fmt"
+	"lottery/algorithm"
 	"lottery/config"
+	"lottery/model/df"
 	"sort"
 	"testing"
 
@@ -30,20 +33,20 @@ func Test_calculateTotalCount(t *testing.T) {
 	var as = FTNsManager{}
 	as.Prepare()
 	// interval := uint(len(as.FTNs) - 1)
-	counts := PickParams{
+	params := PickParams{
 		// {SortType: descending, Interval: 360, Whichfront: biggerfront},
 		// {SortType: descending, Interval: 180, Whichfront: biggerfront},
 		// {SortType: descending, Interval: 60, Whichfront: biggerfront},
 		// {SortType: descending, Interval: 48, Whichfront: biggerfront},
 		// {SortType: descending, Interval: 36, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 24, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 12, Whichfront: biggerfront},
+		// {SortType: df.Descending, Interval: 24, Whichfront: df.Biggerfront},
+		{SortType: df.Descending, Interval: 12, Whichfront: df.Normal},
 		// {SortType: descending, Interval: 5, Whichfront: biggerfront},
 		// {SortType: descending, Interval: 2, Whichfront: biggerfront},
 		// {SortType: descending, Interval: 1, Whichfront: biggerfront},
 	}
-	as.intervalBallsCountStatic(counts)
-	as.picknumber(counts)
+	as.intervalBallsCountStatic(params)
+	as.Picknumber(params)["0_12_2"].Presentation()
 	// for k, v := range ballPools {
 	// 	logrus.Infof("%s:%v", k, v)
 	// }
@@ -53,29 +56,61 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	as.list()
+	as.List.Presentation()
 }
 
 func Test_findnumbers(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	// as.findNumbers([]string{"11", "22", "23", "38"}, true).List()
-	// as.findNumbers([]string{"01", "38"}, true).List()
-	// as.findNumbers([]string{"02", "36", "37"}, true).List()
-	as.list()
-	// fmt.Println("===============================================================================================================================")
-	// fmt.Println("")
-	// as.findNumbers([]string{"15", "17", "28"}, true).List()
-	// fmt.Println("")
-	// fmt.Println("")
-	// as.findNumbers([]string{"28", "35", "38"}, true).List()
-	// fmt.Println("")
-	// fmt.Println("")
-	// as.findNumbers([]string{"15", "35", "38"}, true).List()
-	// // as.findNumbers([]string{"04", "20", "22"}, true).List()
-	// fmt.Println("")
-	// fmt.Println("")
-	// as.findNumbers([]string{"15", "17", "35"}, true).List()
+	fmt.Println("")
+	fmt.Println("")
+	// as.findNumbers([]string{"01", "38"}, true).Presentation()
+	// as.findNumbers([]string{"02", "36", "37"}, true).Presentation()
+	// as.List.Head()
 
+	// as.findNumbers([]string{"11", "22"}, true).Presentation()
+	// fmt.Println("")
+	// fmt.Println("")
+	// as.findNumbers([]string{"10", "20", "30"}, true).Presentation()
+	// fmt.Println("")
+	// fmt.Println("")
+	// as.findNumbers([]string{"11", "22", "33"}, true).Presentation()
+	// fmt.Println("")
+	// fmt.Println("")
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
+	as.List.ListWithRange(int(p.Interval))
+	// fmt.Println("===============================================================================================================================")
+	params := PickParams{
+		// {SortType: descending, Interval: 360, Whichfront: biggerfront},
+		// {SortType: descending, Interval: 180, Whichfront: biggerfront},
+		// {SortType: descending, Interval: 60, Whichfront: biggerfront},
+		// {SortType: descending, Interval: 48, Whichfront: biggerfront},
+		// {SortType: descending, Interval: 36, Whichfront: biggerfront},
+		// {SortType: df.Descending, Interval: 24, Whichfront: df.Biggerfront},
+		p,
+		// {SortType: descending, Interval: 5, Whichfront: biggerfront},
+		// {SortType: descending, Interval: 2, Whichfront: biggerfront},
+		// {SortType: descending, Interval: 1, Whichfront: biggerfront},
+	}
+	as.intervalBallsCountStatic(params)
+	as.Picknumber(params)[p.GetKey()].Presentation()
+	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
+	for _, v := range result {
+		fmt.Println("")
+		fmt.Println("")
+		fmt.Printf("=================== %s ================\n", v)
+		as.findNumbers(v, true).Presentation()
+	}
+	fmt.Println("")
+	fmt.Println("")
+	as.findNumbers([]string{"06", "10", "19", "30", "35"}, true).Presentation()
+}
+
+func Test_combination(t *testing.T) {
+	fmt.Println(algorithm.All([]string{"09", "14", "30"}))
+}
+
+func Test_combination2(t *testing.T) {
+	fmt.Println(algorithm.Combinations([]string{"09", "11", "14", "30", "35"}, 3))
 }

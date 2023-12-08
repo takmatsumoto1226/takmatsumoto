@@ -16,7 +16,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var ballPools = map[string]Balls{}
+var ballPools = map[string]BallsInfo{}
 
 // PickParams ...
 type PickParams []PickParam
@@ -28,7 +28,7 @@ type PickParam struct {
 	Interval   uint
 	Whichfront uint
 	Spliter    uint
-	Hot        uint
+	Hot        uint // 熱門號碼
 }
 
 // GetKey 取得key
@@ -43,13 +43,14 @@ type Balls []Ball
 
 // Ball 球
 type Ball struct {
-	Number string
+	Number   string
+	Position int // 由小到大排序後的位置
 }
 
 // BallsCount ...
 type BallsCount []BallInfo
 type NormalizeInfo struct {
-	NorBalls BallsCount
+	NorBalls BallsCount // 統計號碼多久沒出現
 	Param    PickParam
 }
 
@@ -74,6 +75,16 @@ type BallInfo struct {
 	Ball  Ball
 }
 
+type BallsInfo []BallInfo
+
+func (bsi BallsInfo) Presentation() {
+	rowmsg := "          "
+	for _, bi := range bsi {
+		rowmsg = rowmsg + fmt.Sprintf("%2d ", bi.Count)
+	}
+	fmt.Println(rowmsg)
+}
+
 /*
 FTN
 */
@@ -92,6 +103,15 @@ const (
 
 // FTNArray ...
 type FTNArray []FTN
+
+func (fa *FTNArray) Head() {
+	rowmsg := "====|====|"
+	for i := 1; i <= ballsCountFTN; i++ {
+		rowmsg = rowmsg + fmt.Sprintf("%02d|", i)
+	}
+	fmt.Println(rowmsg)
+	fmt.Println("")
+}
 
 // FTNsManager ...
 type FTNsManager struct {
@@ -116,8 +136,17 @@ func (fa FTNArray) Less(i, j int) bool {
 func (fa FTNArray) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
-func (fa FTNArray) List() {
-	for _, ftn := range fa {
+func (fa FTNArray) Presentation() {
+	fa.ListWithRange(0)
+}
+
+func (fa FTNArray) ListWithRange(r int) {
+	tmp := fa
+	al := len(fa)
+	if r > 0 {
+		tmp = fa[al-r : al]
+	}
+	for _, ftn := range tmp {
 		ftn.formRow()
 	}
 }
@@ -203,29 +232,30 @@ func (ar *FTNsManager) intervalBallsCountStatic(params PickParams) {
 		}
 		arr := BallsCount{}
 		for i, count := range FTNIntervalCount {
-			b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1)}}
+			b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i}}
 			arr = append(arr, b)
 		}
 		ar.ballsCount[p.Interval] = NormalizeInfo{NorBalls: arr, Param: p}
-		sort.Sort(ar.ballsCount[p.Interval].NorBalls)
 	}
 }
 
-func (ar *FTNsManager) picknumber(params PickParams) map[string]Balls {
+func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 	for _, p := range params {
 		norball := ar.ballsCount[p.Interval]
 		if p.Whichfront == df.Biggerfront {
 			sort.Sort(sort.Reverse(norball.NorBalls))
+		} else if p.Whichfront == df.Smallfront {
+			sort.Sort(norball.NorBalls)
+		} else {
+
 		}
 
-		logrus.Info(norball.NorBalls)
 		if len(norball.NorBalls) > 5 {
-			pool := Balls{}
+			pool := BallsInfo{}
 			// logrus.Infof("%s %s %s %s %s", balls[blIdx].Ball.Number, balls[blIdx-1].Ball.Number, balls[blIdx-2].Ball.Number, balls[blIdx-3].Ball.Number, balls[blIdx-4].Ball.Number)
 			for _, ball := range norball.NorBalls {
-				if ball.Count > 0 {
-					pool = append(pool, Ball{Number: ball.Ball.Number})
-				}
+
+				pool = append(pool, ball)
 			}
 			ballPools[p.GetKey()] = pool
 		} else {
@@ -236,9 +266,9 @@ func (ar *FTNsManager) picknumber(params PickParams) map[string]Balls {
 	return ballPools
 }
 
-func (ar *FTNsManager) list() {
-	ar.List.List()
-}
+// func (ar *FTNsManager) list() {
+// 	ar.List.List()
+// }
 
 // FTN ...
 type FTN struct {

@@ -22,6 +22,7 @@ const (
 )
 
 const (
-	Biggerfront = iota
-	Smallfront
+	Biggerfront = iota // 球數出現次數統計後, 出現次數多得在前面
+	Smallfront         // 球數出現次數統計後, 出現次數少的在前面
+	Normal             // ball的數字由小到大排序
 )

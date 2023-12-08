@@ -21,6 +21,20 @@ func (fa Star4s) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
 
+func (ar Star4s) Presentation() {
+	for _, f := range ar {
+		f.formRow()
+	}
+}
+
+func (ar Star4s) Least() Star4 {
+	return ar[len(ar)-1]
+}
+
+func (ar Star4s) First() Star4 {
+	return ar[0]
+}
+
 // func NewStar4s(arr []int)Star4s {
 
 // }

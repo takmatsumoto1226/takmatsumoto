@@ -1,29 +1,17 @@
 package star4
 
-func (ar *Star4Manager) findNumbers(numbers []string, combo bool) Star4s {
+import "fmt"
+
+func (ar *Star4Manager) findNumbers(numbers string) Star4s {
 	intersection := Star4s{}
-	set := make(map[string]bool)
 
+	fmt.Println(len(ar.List))
 	for i, ns := range ar.List {
-		for _, num := range numbers {
-			set[num] = true // setting the initial value to true
-		}
-
-		// Check elements in the second array against the set
-		count := 0
-		for _, num := range ns.toStringArray() {
-			if set[num] {
-				count++
-			}
-		}
-
-		if len(set) == count {
-			if combo {
-				intersection = append(intersection, ns)
-				if i+1 < len(ar.List) {
-					intersection = append(intersection, ar.List[i+1])
-					intersection = append(intersection, *Empty())
-				}
+		if ns.Balls == numbers {
+			intersection = append(intersection, ns)
+			if i+1 < len(ar.List) {
+				intersection = append(intersection, ar.List[i+1])
+				intersection = append(intersection, *Empty())
 			}
 		}
 	}

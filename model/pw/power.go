@@ -106,8 +106,14 @@ func (fa PowerList) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
 
+func (fa PowerList) Presentation() {
+	for _, f := range fa {
+		f.formRow()
+	}
+}
+
 /*
- Power38 索引
+Power38 索引
 */
 const (
 	arrIdxYear = iota
@@ -129,12 +135,6 @@ type PowerManager struct {
 	RevList PowerList
 	// ballsCount    map[uint]NormalizeInfo
 	numberToIndex map[string]int
-}
-
-func (ar *PowerManager) list() {
-	for _, f := range ar.List {
-		f.formRow()
-	}
 }
 
 // LoadAllData ...
