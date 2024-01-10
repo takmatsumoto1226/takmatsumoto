@@ -204,6 +204,9 @@ func (ar *BigLotterysManager) loadAllData() {
 		}
 		for _, yd := range yearDatas {
 			bl := NewBigLottery(yd)
+			if bl.B1 == "" || bl.B1 == "00" {
+				continue
+			}
 			bll = append(bll, *bl)
 		}
 	}

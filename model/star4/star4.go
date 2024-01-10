@@ -65,7 +65,7 @@ func (fa Star4) formRow() {
 func NewStar4(year string, arr []string) []Star4 {
 	if len(arr) == RawStar4Total {
 		result := []Star4{}
-		if len(arr[arrIdxDate1]) > 0 {
+		if len(arr[arrIdxDate1]) > 0 && len(arr[arrIdxBalls1]) > 0 {
 			result = append(result, Star4{
 				Year:      year,
 				Date:      arr[arrIdxDate1],
@@ -78,7 +78,7 @@ func NewStar4(year string, arr []string) []Star4 {
 			})
 		}
 
-		if len(arr[arrIdxDate2]) > 0 {
+		if len(arr[arrIdxDate2]) > 0 && len(arr[arrIdxBalls2]) > 0 {
 			result = append(result, Star4{
 				Year:      year,
 				Date:      arr[arrIdxDate2],

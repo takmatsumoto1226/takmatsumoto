@@ -29,7 +29,7 @@ func Test_start4Permutations(t *testing.T) {
 	}
 }
 func Test_permutations(t *testing.T) {
-	arr := permutations([]int{5, 5, 3, 8})
+	arr := permutations([]int{1, 2, 2, 6})
 	fmt.Println(len(arr))
 	for _, ar := range arr {
 		fmt.Println(ar)
@@ -40,6 +40,9 @@ func Test_findnumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = Star4Manager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	fmt.Println(as.findNumbers("5538"))
+	arr := permutations([]int{2, 0, 2, 4})
+	for _, v := range arr {
+		fmt.Println(as.findNumbers(fmt.Sprintf("%d%d%d%d", v[0], v[1], v[2], v[3])))
+	}
 
 }

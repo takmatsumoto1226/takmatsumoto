@@ -68,7 +68,7 @@ func GetPath(info *config.Info, year int) (string, error) {
 	dirpath := filepath.Join(config.Config.Local.Path, info.Path)
 	err := os.MkdirAll(dirpath, 0755)
 	if err != nil {
-		return "", nil
+		return "", err
 	}
 	fullpath := filepath.Join(dirpath, filename)
 	return fullpath, nil

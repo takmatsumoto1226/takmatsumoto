@@ -80,37 +80,37 @@ func Test_findnumbers(t *testing.T) {
 	// fmt.Println("")
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
 	as.List.ListWithRange(int(p.Interval))
-	// fmt.Println("===============================================================================================================================")
 	params := PickParams{
-		// {SortType: descending, Interval: 360, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 180, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 60, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 48, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 36, Whichfront: biggerfront},
-		// {SortType: df.Descending, Interval: 24, Whichfront: df.Biggerfront},
 		p,
-		// {SortType: descending, Interval: 5, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 2, Whichfront: biggerfront},
-		// {SortType: descending, Interval: 1, Whichfront: biggerfront},
 	}
 	as.intervalBallsCountStatic(params)
 	as.Picknumber(params)[p.GetKey()].Presentation()
 	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
+	// result := algorithm.Combinations([]string{"01", "30", "31", "38", "39"}, 3)
 	for _, v := range result {
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Printf("=================== %s ================\n", v)
 		as.findNumbers(v, true).Presentation()
 	}
-	fmt.Println("")
-	fmt.Println("")
-	as.findNumbers([]string{"06", "10", "19", "30", "35"}, true).Presentation()
+	// as.findNumbers([]string{"02", "16"}, true).Presentation()
+	// as.findNumbers([]string{"16", "17"}, true).Presentation()
 }
 
 func Test_combination(t *testing.T) {
-	fmt.Println(algorithm.All([]string{"09", "14", "30"}))
+	// fmt.Println(algorithm.All([]string{"09", "14", "30"}))
+	// fmt.Println(Ball39())
+	combarr := algorithm.Combinations(Ball39(), 3)
+	for i, comb := range combarr {
+		fmt.Println(comb)
+		fmt.Println(i + 1)
+	}
 }
 
 func Test_combination2(t *testing.T) {
-	fmt.Println(algorithm.Combinations([]string{"09", "11", "14", "30", "35"}, 3))
+	// fmt.Println(algorithm.Combinations([]string{"09", "11", "14", "30", "35"}, 3))
+	config.LoadConfig("../../config.yaml")
+	var as = FTNsManager{}
+	as.Prepare()
+	as.findNumbers([]string{"12", "23", "26"}, true).Presentation()
 }

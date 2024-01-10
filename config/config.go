@@ -28,8 +28,14 @@ type Local struct {
 
 // Param ...
 type Param struct {
-	HTTP  HTTP  `yaml:"http"`
-	Local Local `yaml:"local"`
+	HTTP    HTTP      `yaml:"http"`
+	Local   Local     `yaml:"local"`
+	AokURLs []DocInfo `yaml:"aokurls"`
+}
+
+type DocInfo struct {
+	URL      string `yaml:"url"`
+	LocaPath string `yaml:"local_path"`
 }
 
 // Config ...

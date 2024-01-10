@@ -37,3 +37,8 @@ func (ar *FTNsManager) findNumbers(numbers []string, nextplus bool) FTNArray {
 
 	return intersection
 }
+
+// Number MA - 移動平均數字
+type BallMA struct {
+	Interval int
+}

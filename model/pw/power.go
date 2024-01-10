@@ -2,13 +2,7 @@ package pw
 
 import (
 	"fmt"
-	"lottery/config"
-	"lottery/csv"
-	"lottery/model/common"
-	"lottery/model/df"
-	"sort"
 	"strconv"
-	"time"
 
 	"github.com/sirupsen/logrus"
 )
@@ -17,6 +11,17 @@ const ballsCountPower = 38
 const ballsCountPowerS2 = 8
 
 var numberToIndex = map[string]int{}
+
+// PickParam ...
+type PickParam struct {
+	Ball       Power
+	Key        string
+	SortType   uint
+	Interval   uint
+	Whichfront uint
+	Spliter    uint
+	Hot        uint // 熱門號碼
+}
 
 func NewPower(arr []string) *Power {
 	if len(arr) == arrPowerCount {
@@ -51,6 +56,14 @@ type Power struct {
 	B6       string
 	S1       string
 	TIdx     string
+}
+
+func (fa *Power) toStringArray() []string {
+	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5, fa.B6}
+}
+
+func Empty() *Power {
+	return &Power{"====", "====", "==", "==", "==", "==", "==", "==", "==", "==", "=="}
 }
 
 func (fa Power) formRow() {
@@ -129,54 +142,6 @@ const (
 	arrIdxTIdx
 	arrPowerCount
 )
-
-type PowerManager struct {
-	List    PowerList
-	RevList PowerList
-	// ballsCount    map[uint]NormalizeInfo
-	numberToIndex map[string]int
-}
-
-// LoadAllData ...
-func (ar *PowerManager) loadAllData() {
-	info := config.Config.HTTP.Infos[df.InfoPOWER]
-	now := time.Now()
-
-	iyear, err := strconv.Atoi(info.BaseYear)
-	if err != nil {
-		logrus.Error(err)
-		return
-	}
-	var ftns PowerList
-	for year := iyear; year <= now.Year(); year++ {
-		fpath, err := csv.GetPath(&info, year)
-		if err != nil {
-			logrus.Error(err)
-		}
-		yearDatas, err := common.ReadCSV(fpath)
-		if err != nil {
-			logrus.Error(err)
-			break
-		}
-		for _, yd := range yearDatas {
-			ftn := NewPower(yd)
-			ftns = append(ftns, *ftn)
-		}
-	}
-	ar.RevList = make(PowerList, len(ftns))
-	copy(ar.RevList, ftns)
-	ar.List = ftns
-	sort.Sort(ar.RevList)
-}
-
-func (ar *PowerManager) Prepare() error {
-
-	initNumberToIndex()
-
-	// LoadAllData
-	ar.loadAllData()
-	return nil
-}
 
 func initNumberToIndex() {
 	for i := 0; i < ballsCountPower; i++ {
