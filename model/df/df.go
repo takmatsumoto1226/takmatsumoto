@@ -38,3 +38,9 @@ const (
 	ContinueNumber4              // 同一期出現相連號碼(3個) ex: 01 05 06 07 08
 	ContinueNumber5              // 同一期出現相連號碼(3個) ex: 04 05 06 07 08
 )
+
+const (
+	Next = iota
+	Before
+	Both
+)

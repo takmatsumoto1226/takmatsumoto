@@ -1,6 +1,8 @@
 package ftn
 
-func (ar *FTNsManager) findNumbers(numbers []string, nextplus bool) FTNArray {
+import "lottery/model/df"
+
+func (ar *FTNsManager) findNumbers(numbers []string, t int) FTNArray {
 	intersection := FTNArray{}
 	set := make(map[string]bool)
 
@@ -18,18 +20,19 @@ func (ar *FTNsManager) findNumbers(numbers []string, nextplus bool) FTNArray {
 		}
 
 		if len(set) == count {
-			if nextplus {
-				intersection = append(intersection, ns)
-				if i+1 < len(ar.List) {
-					intersection = append(intersection, ar.List[i+1])
-					intersection = append(intersection, *Empty())
-				}
-			} else {
+
+			if t == df.Before || t == df.Both {
 				intersection = append(intersection, ar.List[i-1])
-				intersection = append(intersection, ns)
-				intersection = append(intersection, *Empty())
 			}
 
+			intersection = append(intersection, ns)
+
+			if t == df.Next || t == df.Both {
+				if i+1 < len(ar.List) {
+					intersection = append(intersection, ar.List[i+1])
+				}
+			}
+			intersection = append(intersection, *Empty())
 		}
 
 	}

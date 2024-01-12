@@ -91,7 +91,7 @@ func Test_findnumbers(t *testing.T) {
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Printf("=================== %s ================\n", v)
-		as.findNumbers(v, true).Presentation()
+		as.findNumbers(v, df.Next).Presentation()
 	}
 	// as.findNumbers([]string{"02", "16"}, true).Presentation()
 	// as.findNumbers([]string{"16", "17"}, true).Presentation()
@@ -112,5 +112,5 @@ func Test_combination2(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	as.findNumbers([]string{"12", "23", "26"}, true).Presentation()
+	as.findNumbers([]string{"12", "23", "26"}, df.Next).Presentation()
 }
