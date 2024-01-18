@@ -7,11 +7,62 @@ package ftn
 	   依照此方法, 找出特徵
 */
 /*
-	一組2連號
+	一組2連號, 3連號
 */
+func (fa FTNArray) Continue2(p PickParam) FTNArray {
+	result := FTNArray{}
+	l := uint(0)
+
+	for _, v := range fa {
+		if l > p.Interval {
+			break
+		}
+
+		if v.IsContinue2() {
+			result = append(result, v)
+			l++
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) Continue3(p PickParam) FTNArray {
+	result := FTNArray{}
+	l := uint(0)
+
+	for _, v := range fa {
+		if l > p.Interval {
+			break
+		}
+
+		if v.IsContinue3() {
+			result = append(result, v)
+			l++
+		}
+	}
+	return result
+}
+
 /*
-	二組2連號
+二組2連號
 */
+func (fa FTNArray) Continue22(p PickParam) FTNArray {
+	result := FTNArray{}
+	l := uint(0)
+
+	for _, v := range fa {
+		if l > p.Interval {
+			break
+		}
+
+		if v.IsContinue22() {
+			result = append(result, v)
+			l++
+		}
+	}
+	return result
+}
+
 /*
 	2個號碼的組合號出現次數
 */

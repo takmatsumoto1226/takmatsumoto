@@ -78,7 +78,7 @@ func Test_findnumbers(t *testing.T) {
 	// as.findNumbers([]string{"11", "22", "33"}, true).Presentation()
 	// fmt.Println("")
 	// fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 25, Whichfront: df.Normal}
 	as.List.ListWithRange(int(p.Interval))
 	params := PickParams{
 		p,
@@ -113,4 +113,23 @@ func Test_combination2(t *testing.T) {
 	var as = FTNsManager{}
 	as.Prepare()
 	as.findNumbers([]string{"12", "23", "26"}, df.Next).Presentation()
+}
+
+func Test_continue(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = FTNsManager{}
+	as.Prepare()
+	fmt.Println("")
+	fmt.Println("")
+
+	p := PickParam{SortType: df.Descending, Interval: 25, Whichfront: df.Normal}
+	as.List.ListWithRange(int(p.Interval))
+	params := PickParams{
+		p,
+	}
+	as.intervalBallsCountStatic(params)
+	as.Picknumber(params)[p.GetKey()].Presentation()
+	fmt.Println("")
+	fmt.Println("")
+	as.RevList.Continue22(p).Presentation()
 }

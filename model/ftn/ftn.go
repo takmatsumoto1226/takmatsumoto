@@ -169,6 +169,50 @@ func AdjacentNumberRecordCount() error {
 	return nil
 }
 
+func (fa *FTN) IsContinue2() bool {
+	i1, _ := strconv.Atoi(fa.B1)
+	i2, _ := strconv.Atoi(fa.B2)
+	i3, _ := strconv.Atoi(fa.B3)
+	i4, _ := strconv.Atoi(fa.B4)
+	i5, _ := strconv.Atoi(fa.B5)
+	return i2-i1 == 1 || i3-i2 == 1 || i4-i3 == 1 || i5-i4 == 1
+}
+func (fa *FTN) IsContinue3() bool {
+	i1, _ := strconv.Atoi(fa.B1)
+	i2, _ := strconv.Atoi(fa.B2)
+	i3, _ := strconv.Atoi(fa.B3)
+	i4, _ := strconv.Atoi(fa.B4)
+	i5, _ := strconv.Atoi(fa.B5)
+	return (i2-i1 == 1 && i3-i2 == 1) || (i3-i2 == 1 && i4-i3 == 1) || (i4-i3 == 1 && i5-i4 == 1)
+}
+
+func (fa *FTN) IsContinue22() bool {
+	i1, _ := strconv.Atoi(fa.B1)
+	i2, _ := strconv.Atoi(fa.B2)
+	i3, _ := strconv.Atoi(fa.B3)
+	i4, _ := strconv.Atoi(fa.B4)
+	i5, _ := strconv.Atoi(fa.B5)
+
+	count := 0
+	if i2-i1 == 1 {
+		count++
+	}
+
+	if i3-i2 == 1 {
+		count++
+	}
+
+	if i4-i3 == 1 {
+		count++
+	}
+
+	if i5-i4 == 1 {
+		count++
+	}
+
+	return count == 2 && !fa.IsContinue3()
+}
+
 type Options struct {
 	next bool
 }
