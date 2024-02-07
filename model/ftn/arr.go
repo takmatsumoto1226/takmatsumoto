@@ -33,10 +33,10 @@ func (fa FTNArray) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
 func (fa FTNArray) Presentation() {
-	fa.ListWithRange(0)
+	fa.PresentationWithRange(0)
 }
 
-func (fa FTNArray) ListWithRange(r int) {
+func (fa FTNArray) PresentationWithRange(r int) {
 	tmp := fa
 	al := len(fa)
 	if r > 0 {

@@ -43,6 +43,40 @@ func (fa FTNArray) Continue3(p PickParam) FTNArray {
 	return result
 }
 
+func (fa FTNArray) Continue4(p PickParam) FTNArray {
+	result := FTNArray{}
+	l := uint(0)
+
+	for _, v := range fa {
+		if l > p.Interval {
+			break
+		}
+
+		if v.IsContinue4() {
+			result = append(result, v)
+			l++
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) Continue5(p PickParam) FTNArray {
+	result := FTNArray{}
+	l := uint(0)
+
+	for _, v := range fa {
+		if l > p.Interval {
+			break
+		}
+
+		if v.IsContinue5() {
+			result = append(result, v)
+			l++
+		}
+	}
+	return result
+}
+
 /*
 二組2連號
 */
@@ -66,9 +100,52 @@ func (fa FTNArray) Continue22(p PickParam) FTNArray {
 /*
 	2個號碼的組合號出現次數
 */
+
 /*
 	3個號碼的組合號出現次數
 */
 /*
 	4個號碼的組合號出現次數
 */
+
+/**!SECTION
+model
+*/
+
+func (fa FTNArray) DTree(p PickParam) FTNArray {
+	result := FTNArray{}
+	l := uint(0)
+
+	for i, v := range fa {
+		if l > p.Interval || i == len(fa)-1 {
+			break
+		}
+
+		if fa[i+1].IsDTree(&v) {
+			result = append(result, fa[i+1])
+			result = append(result, v)
+			result = append(result, *Empty())
+			l++
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) UTree(p PickParam) FTNArray {
+	result := FTNArray{}
+	l := uint(0)
+
+	for i, v := range fa {
+		if l > p.Interval || i == len(fa)-1 {
+			break
+		}
+
+		if v.IsUTree(&fa[i+1]) {
+			result = append(result, v)
+			result = append(result, fa[i+1])
+			result = append(result, *Empty())
+			l++
+		}
+	}
+	return result
+}

@@ -15,12 +15,12 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = BigLotterysManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.list()
+	as.RevList.Presentation()
 }
 
 func Test_findnumbers(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = BigLotterysManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.RevList.findNumbers([]string{"03", "08"}, true).List()
+	as.RevList.findNumbers([]string{"01", "03", "07"}, true).Presentation()
 }

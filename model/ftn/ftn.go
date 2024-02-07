@@ -2,6 +2,7 @@ package ftn
 
 import (
 	"fmt"
+	"math"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
@@ -115,6 +116,7 @@ type FTN struct {
 	B4       string
 	B5       string
 	TIdx     string
+	IBalls   []int
 }
 
 func Ball39() []string {
@@ -129,40 +131,58 @@ func (fa *FTN) toStringArray() []string {
 	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5}
 }
 
-func (fa *FTN) formRow() {
-	rowmsg := fmt.Sprintf("%s|", fa.Year)
-	rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
+func (fa *FTN) ArrInt() []int {
 	iB1, _ := strconv.Atoi(fa.B1)
 	iB2, _ := strconv.Atoi(fa.B2)
 	iB3, _ := strconv.Atoi(fa.B3)
 	iB4, _ := strconv.Atoi(fa.B4)
 	iB5, _ := strconv.Atoi(fa.B5)
-	ballarr := []int{iB1, iB2, iB3, iB4, iB5}
-	bi := 0
-	for i := 1; i <= ballsCountFTN; i++ {
-		if ballarr[bi] == i {
-			rowmsg = rowmsg + fmt.Sprintf("%02d|", ballarr[bi])
-			if bi < 4 {
-				bi++
-			}
-		} else {
-			rowmsg = rowmsg + "  |"
+	return []int{iB1, iB2, iB3, iB4, iB5}
+}
+
+func (fa *FTN) formRow() {
+	if fa.Year == "====" {
+		rowmsg := fmt.Sprintf("%s|", fa.Year)
+		rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
+		for i := 1; i <= ballsCountFTN; i++ {
+			rowmsg = rowmsg + "==="
 		}
+		fmt.Println(rowmsg)
+	} else {
+		rowmsg := fmt.Sprintf("%s|", fa.Year)
+		rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
+		bi := 0
+		for i := 1; i <= ballsCountFTN; i++ {
+			if fa.IBalls[bi] == i {
+				rowmsg = rowmsg + fmt.Sprintf("%02d|", fa.IBalls[bi])
+				if bi < 4 {
+					bi++
+				}
+			} else {
+				rowmsg = rowmsg + "  |"
+			}
+		}
+		fmt.Println(rowmsg)
 	}
-	fmt.Println(rowmsg)
+
 }
 
 // NewFTN ...
 func NewFTN(arr []string) *FTN {
 	if len(arr) == arrFTNCount {
-		return &FTN{arr[arrIdxYear], arr[arrIdxMonthDay], arr[arrIdxLIdx], arr[arrIdxB1], arr[arrIdxB2], arr[arrIdxB3], arr[arrIdxB4], arr[arrIdxB5], arr[arrIdxTIdx]}
+		i1, _ := strconv.Atoi(arr[arrIdxB1])
+		i2, _ := strconv.Atoi(arr[arrIdxB2])
+		i3, _ := strconv.Atoi(arr[arrIdxB3])
+		i4, _ := strconv.Atoi(arr[arrIdxB4])
+		i5, _ := strconv.Atoi(arr[arrIdxB5])
+		return &FTN{arr[arrIdxYear], arr[arrIdxMonthDay], arr[arrIdxLIdx], arr[arrIdxB1], arr[arrIdxB2], arr[arrIdxB3], arr[arrIdxB4], arr[arrIdxB5], arr[arrIdxTIdx], []int{i1, i2, i3, i4, i5}}
 	}
 	logrus.Error("FTN 資料格式錯誤")
 	return Empty()
 }
 
 func Empty() *FTN {
-	return &FTN{"====", "====", "==", "==", "==", "==", "==", "==", "=="}
+	return &FTN{"====", "====", "==", "==", "==", "==", "==", "==", "==", []int{}}
 }
 
 func AdjacentNumberRecordCount() error {
@@ -170,28 +190,46 @@ func AdjacentNumberRecordCount() error {
 }
 
 func (fa *FTN) IsContinue2() bool {
-	i1, _ := strconv.Atoi(fa.B1)
-	i2, _ := strconv.Atoi(fa.B2)
-	i3, _ := strconv.Atoi(fa.B3)
-	i4, _ := strconv.Atoi(fa.B4)
-	i5, _ := strconv.Atoi(fa.B5)
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
 	return i2-i1 == 1 || i3-i2 == 1 || i4-i3 == 1 || i5-i4 == 1
 }
 func (fa *FTN) IsContinue3() bool {
-	i1, _ := strconv.Atoi(fa.B1)
-	i2, _ := strconv.Atoi(fa.B2)
-	i3, _ := strconv.Atoi(fa.B3)
-	i4, _ := strconv.Atoi(fa.B4)
-	i5, _ := strconv.Atoi(fa.B5)
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
 	return (i2-i1 == 1 && i3-i2 == 1) || (i3-i2 == 1 && i4-i3 == 1) || (i4-i3 == 1 && i5-i4 == 1)
 }
 
+func (fa *FTN) IsContinue4() bool {
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
+	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1) || (i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1)
+}
+
+func (fa *FTN) IsContinue5() bool {
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
+	return i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1
+}
+
 func (fa *FTN) IsContinue22() bool {
-	i1, _ := strconv.Atoi(fa.B1)
-	i2, _ := strconv.Atoi(fa.B2)
-	i3, _ := strconv.Atoi(fa.B3)
-	i4, _ := strconv.Atoi(fa.B4)
-	i5, _ := strconv.Atoi(fa.B5)
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
 
 	count := 0
 	if i2-i1 == 1 {
@@ -215,4 +253,27 @@ func (fa *FTN) IsContinue22() bool {
 
 type Options struct {
 	next bool
+}
+
+/* 本期號碼有出現34, 上一期或下一期出現35 36*/
+func (fa *FTN) IsDTree(next *FTN) bool {
+	for i := 0; i < 5; i++ {
+		for j := 0; j < 4; j++ {
+			if math.Abs(float64(fa.IBalls[i]-next.IBalls[j])) == 1 && math.Abs(float64(fa.IBalls[i]-next.IBalls[j+1])) == 1 {
+				return true
+			}
+		}
+	}
+	return false
+}
+
+func (fa *FTN) IsUTree(before *FTN) bool {
+	for i := 0; i < 4; i++ {
+		for j := 0; j < 5; j++ {
+			if math.Abs(float64(fa.IBalls[j]-before.IBalls[i])) == 1 && math.Abs(float64(fa.IBalls[j]-before.IBalls[i+1])) == 1 {
+				return true
+			}
+		}
+	}
+	return false
 }

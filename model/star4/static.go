@@ -1,11 +1,8 @@
 package star4
 
-import "fmt"
-
 func (ar *Star4Manager) findNumbers(numbers string) Star4s {
 	intersection := Star4s{}
 
-	fmt.Println(len(ar.List))
 	for i, ns := range ar.List {
 		if ns.Balls == numbers {
 			intersection = append(intersection, ns)

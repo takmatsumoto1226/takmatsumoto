@@ -79,7 +79,7 @@ func Test_findnumbers(t *testing.T) {
 	// fmt.Println("")
 	// fmt.Println("")
 	p := PickParam{SortType: df.Descending, Interval: 25, Whichfront: df.Normal}
-	as.List.ListWithRange(int(p.Interval))
+	as.List.PresentationWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
@@ -122,8 +122,8 @@ func Test_continue(t *testing.T) {
 	fmt.Println("")
 	fmt.Println("")
 
-	p := PickParam{SortType: df.Descending, Interval: 25, Whichfront: df.Normal}
-	as.List.ListWithRange(int(p.Interval))
+	p := PickParam{SortType: df.Descending, Interval: 60, Whichfront: df.Normal}
+	as.List.PresentationWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
@@ -131,5 +131,43 @@ func Test_continue(t *testing.T) {
 	as.Picknumber(params)[p.GetKey()].Presentation()
 	fmt.Println("")
 	fmt.Println("")
-	as.RevList.Continue22(p).Presentation()
+	as.RevList.Continue4(p).Presentation()
+}
+
+func Test_findDTree(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = FTNsManager{}
+	as.Prepare()
+	fmt.Println("")
+	fmt.Println("")
+
+	p := PickParam{SortType: df.Descending, Interval: 60, Whichfront: df.Normal}
+	as.List.PresentationWithRange(int(p.Interval))
+	params := PickParams{
+		p,
+	}
+	as.intervalBallsCountStatic(params)
+	as.Picknumber(params)[p.GetKey()].Presentation()
+	fmt.Println("")
+	fmt.Println("")
+	as.RevList.DTree(p).Presentation()
+}
+
+func Test_findUTree(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = FTNsManager{}
+	as.Prepare()
+	fmt.Println("")
+	fmt.Println("")
+
+	p := PickParam{SortType: df.Descending, Interval: 60, Whichfront: df.Normal}
+	as.List.PresentationWithRange(int(p.Interval))
+	params := PickParams{
+		p,
+	}
+	as.intervalBallsCountStatic(params)
+	as.Picknumber(params)[p.GetKey()].Presentation()
+	fmt.Println("")
+	fmt.Println("")
+	as.RevList.DTree(p).Presentation()
 }
