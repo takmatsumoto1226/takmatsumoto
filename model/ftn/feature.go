@@ -141,8 +141,8 @@ func (fa FTNArray) UTree(p PickParam) FTNArray {
 		}
 
 		if v.IsUTree(&fa[i+1]) {
-			result = append(result, v)
 			result = append(result, fa[i+1])
+			result = append(result, v)
 			result = append(result, *Empty())
 			l++
 		}
