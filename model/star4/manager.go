@@ -15,13 +15,18 @@ import (
 type Star4Manager struct {
 	List    Star4s
 	RevList Star4s
-	// ballsCount    map[uint]NormalizeInfo
-	numberToIndex map[string]int
+	info    *StaticInfo
+}
+
+func NewStar4Manager() *Star4Manager {
+	return &Star4Manager{info: NewStaticInfo()}
 }
 
 func (ar *Star4Manager) Prepare() error {
 
 	ar.loadAllData()
+
+	ar.info.prepare()
 	return nil
 }
 
@@ -51,6 +56,11 @@ func (ar *Star4Manager) loadAllData() {
 				if err := bl[i].Normalize(); err != nil {
 					logrus.Error(err)
 				}
+				if v, ok := ar.info.numberStatic[bl[i].Balls]; ok {
+					ar.info.numberStatic[bl[i].Balls] = v + 1
+				} else {
+					ar.info.numberStatic[bl[i].Balls] = 1
+				}
 			}
 			star4s = append(star4s, bl...)
 		}
@@ -60,4 +70,8 @@ func (ar *Star4Manager) loadAllData() {
 	copy(ar.RevList, star4s)
 	ar.List = star4s
 
+}
+
+func (ar *Star4Manager) StaticPresentation() {
+	ar.info.formRow()
 }

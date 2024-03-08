@@ -14,14 +14,14 @@ func init() {
 
 func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
-	var as = Star4Manager{numberToIndex: map[string]int{}}
+	var as = NewStar4Manager()
 	as.Prepare()
 	as.List.Presentation()
 }
 
 func Test_start4Permutations(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
-	var as = Star4Manager{numberToIndex: map[string]int{}}
+	var as = NewStar4Manager()
 	as.Prepare()
 	arr := as.List.Least().Permutation()
 	for _, ar := range arr {
@@ -38,7 +38,7 @@ func Test_permutations(t *testing.T) {
 
 func Test_findnumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
-	var as = Star4Manager{numberToIndex: map[string]int{}}
+	var as = NewStar4Manager()
 	as.Prepare()
 	// arr := permutations([]int{9, 5, 2, 7})
 	arr := [][]int{{1, 6, 7, 8}}
@@ -50,8 +50,16 @@ func Test_findnumber(t *testing.T) {
 
 func Test_quickSort(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
-	var as = Star4Manager{numberToIndex: map[string]int{}}
+	var as = NewStar4Manager()
 	as.Prepare()
 
 	as.List.quickSort().Presentation()
+}
+
+func Test_statics(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = NewStar4Manager()
+	as.Prepare()
+	as.info.formRow()
+	fmt.Println(as.info.Len())
 }

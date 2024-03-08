@@ -149,3 +149,74 @@ func (fa Star4) Less(c Star4) bool {
 	n2 := c.toInt()
 	return n1 <= n2
 }
+
+func NewStaticInfo() *StaticInfo {
+	return &StaticInfo{numberStatic: map[string]int{}}
+}
+
+type Data struct {
+	Key   string
+	Value int
+}
+
+func (d Data) toInt() int {
+	i, _ := strconv.Atoi(d.Key)
+	return i
+}
+
+func (d Data) Less(c Data) bool {
+	n1 := d.toInt()
+	n2 := c.toInt()
+	return n1 <= n2
+}
+
+func NewData(k string, v int) *Data {
+	return &Data{Key: k, Value: v}
+}
+
+type NumberStaticMap map[string]int
+type Datas []Data
+
+func (ar Datas) quickSort() Datas {
+	if len(ar) <= 1 {
+		return ar
+	}
+
+	pivot := ar[len(ar)-1]
+	var left, right Datas
+
+	for i := 0; i < len(ar)-1; i++ {
+		if ar[i].Less(pivot) {
+			left = append(left, ar[i])
+		} else {
+			right = append(right, ar[i])
+		}
+	}
+
+	left = left.quickSort()
+	right = right.quickSort()
+
+	return append(append(left, pivot), right...)
+}
+
+type StaticInfo struct {
+	numberStatic    NumberStaticMap
+	numberStaticArr Datas
+}
+
+func (s *StaticInfo) prepare() {
+	for k, v := range s.numberStatic {
+		s.numberStaticArr = append(s.numberStaticArr, *NewData(k, v))
+	}
+	s.numberStaticArr = s.numberStaticArr.quickSort()
+}
+
+func (s *StaticInfo) formRow() {
+	for _, v := range s.numberStaticArr {
+		fmt.Println(fmt.Sprintf("%s|%d", v.Key, v.Value))
+	}
+}
+
+func (s *StaticInfo) Len() int {
+	return len(s.numberStaticArr)
+}

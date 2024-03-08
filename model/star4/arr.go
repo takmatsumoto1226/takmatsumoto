@@ -57,6 +57,13 @@ func (ar Star4s) quickSort() Star4s {
 	return append(append(left, pivot), right...)
 }
 
+func (ar Star4s) Statics() StaticInfos {
+	infos := StaticInfos{}
+	return infos
+}
+
+type StaticInfos []StaticInfo
+
 // func NewStar4s(arr []int)Star4s {
 
 // }
