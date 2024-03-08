@@ -138,3 +138,14 @@ func (fa Star4) Permutation() [][]int {
 	helper(fa.toInts(), 4)
 	return res
 }
+
+func (fa Star4) toInt() int {
+	i, _ := strconv.Atoi(fa.Balls)
+	return i
+}
+
+func (fa Star4) Less(c Star4) bool {
+	n1 := fa.toInt()
+	n2 := c.toInt()
+	return n1 <= n2
+}

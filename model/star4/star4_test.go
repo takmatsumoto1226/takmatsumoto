@@ -41,9 +41,17 @@ func Test_findnumber(t *testing.T) {
 	var as = Star4Manager{numberToIndex: map[string]int{}}
 	as.Prepare()
 	// arr := permutations([]int{9, 5, 2, 7})
-	arr := [][]int{{5, 5, 3, 8}}
+	arr := [][]int{{1, 6, 7, 8}}
 	for _, v := range arr {
 		str := fmt.Sprintf("%d%d%d%d", v[0], v[1], v[2], v[3])
 		as.findNumbers(str).Presentation()
 	}
+}
+
+func Test_quickSort(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = Star4Manager{numberToIndex: map[string]int{}}
+	as.Prepare()
+
+	as.List.quickSort().Presentation()
 }

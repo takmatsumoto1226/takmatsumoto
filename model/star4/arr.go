@@ -35,6 +35,32 @@ func (ar Star4s) First() Star4 {
 	return ar[0]
 }
 
+func (ar Star4s) quickSort() Star4s {
+	if len(ar) <= 1 {
+		return ar
+	}
+
+	pivot := ar[len(ar)-1]
+	var left, right Star4s
+
+	for i := 0; i < len(ar)-1; i++ {
+		if ar[i].Less(pivot) {
+			left = append(left, ar[i])
+		} else {
+			right = append(right, ar[i])
+		}
+	}
+
+	left = left.quickSort()
+	right = right.quickSort()
+
+	return append(append(left, pivot), right...)
+}
+
 // func NewStar4s(arr []int)Star4s {
 
+// }
+
+// func (ar Star4s) SortByNumber() Star4s {
+// 	sortedList := Star4s{}
 // }
