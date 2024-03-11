@@ -63,3 +63,7 @@ func Test_statics(t *testing.T) {
 	as.info.formRow()
 	fmt.Println(as.info.Len())
 }
+
+func Test_bitsTest(t *testing.T) {
+	// bits.Len8(00100100)
+}
