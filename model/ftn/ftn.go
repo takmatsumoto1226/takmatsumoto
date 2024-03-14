@@ -36,7 +36,7 @@ type Balls []Ball
 // Ball 球
 type Ball struct {
 	Number   string
-	Position int // 由小到大排序後的位置
+	Position int // 出球的順序
 }
 
 // BallsCount ...
@@ -121,7 +121,7 @@ type FTN struct {
 
 func Ball39() []string {
 	arr := []string{}
-	for i := 0; i < 30; i++ {
+	for i := 0; i < 39; i++ {
 		arr = append(arr, fmt.Sprintf("%02d", i+1))
 	}
 	return arr

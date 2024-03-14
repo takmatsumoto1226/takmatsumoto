@@ -98,8 +98,11 @@ func (fa FTNArray) Continue22(p PickParam) FTNArray {
 }
 
 /*
-	2個號碼的組合號出現次數
+2個號碼的組合號出現次數
 */
+// func (fa FTNArray) CountOf2Balls(p PickParam) FTNArray {
+
+// }
 
 /*
 	3個號碼的組合號出現次數

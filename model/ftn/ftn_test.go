@@ -1,10 +1,12 @@
 package ftn
 
 import (
+	"encoding/json"
 	"fmt"
 	"lottery/algorithm"
 	"lottery/config"
 	"lottery/model/df"
+	"os"
 	"sort"
 	"testing"
 
@@ -85,7 +87,7 @@ func Test_findnumbers(t *testing.T) {
 	}
 	as.intervalBallsCountStatic(params)
 	as.Picknumber(params)[p.GetKey()].Presentation()
-	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
+	result := algorithm.Combinations(as.RevList[0].toStringArray(), 5)
 	// result := algorithm.Combinations([]string{"01", "30", "31", "38", "39"}, 3)
 	for _, v := range result {
 		fmt.Println("")
@@ -100,11 +102,24 @@ func Test_findnumbers(t *testing.T) {
 func Test_combination(t *testing.T) {
 	// fmt.Println(algorithm.All([]string{"09", "14", "30"}))
 	// fmt.Println(Ball39())
-	combarr := algorithm.Combinations(Ball39(), 3)
+	balls := 1
+	combarr := algorithm.Combinations(Ball39(), balls)
 	for i, comb := range combarr {
 		fmt.Println(comb)
 		fmt.Println(i + 1)
 	}
+	bytes, err := json.Marshal(combarr)
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
+
+	err = os.WriteFile(fmt.Sprintf("./combination%d.json", balls), bytes, 0777)
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
+
 }
 
 func Test_combination2(t *testing.T) {
@@ -170,4 +185,8 @@ func Test_findUTree(t *testing.T) {
 	fmt.Println("")
 	fmt.Println("")
 	as.RevList.UTree(p).Presentation()
+}
+
+func Test_readwordFile(t *testing.T) {
+
 }
