@@ -67,19 +67,6 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	// as.findNumbers([]string{"01", "38"}, true).Presentation()
-	// as.findNumbers([]string{"02", "36", "37"}, true).Presentation()
-	// as.List.Head()
-
-	// as.findNumbers([]string{"11", "22"}, true).Presentation()
-	// fmt.Println("")
-	// fmt.Println("")
-	// as.findNumbers([]string{"10", "20", "30"}, true).Presentation()
-	// fmt.Println("")
-	// fmt.Println("")
-	// as.findNumbers([]string{"11", "22", "33"}, true).Presentation()
-	// fmt.Println("")
-	// fmt.Println("")
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
 	as.List.PresentationWithRange(int(p.Interval))
 	params := PickParams{
@@ -87,16 +74,13 @@ func Test_findnumbers(t *testing.T) {
 	}
 	as.intervalBallsCountStatic(params)
 	as.Picknumber(params)[p.GetKey()].Presentation()
-	result := algorithm.Combinations(as.RevList[0].toStringArray(), 5)
-	// result := algorithm.Combinations([]string{"01", "30", "31", "38", "39"}, 3)
+	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
 	for _, v := range result {
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Printf("=================== %s ================\n", v)
 		as.findNumbers(v, df.Next).Presentation()
 	}
-	// as.findNumbers([]string{"02", "16"}, true).Presentation()
-	// as.findNumbers([]string{"16", "17"}, true).Presentation()
 }
 
 func Test_combination(t *testing.T) {
