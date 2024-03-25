@@ -6,6 +6,7 @@ import (
 	"lottery/algorithm"
 	"lottery/config"
 	"lottery/model/df"
+	"math"
 	"os"
 	"sort"
 	"testing"
@@ -79,7 +80,7 @@ func Test_findnumbers(t *testing.T) {
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Printf("=================== %s ================\n", v)
-		as.findNumbers(v, df.Next).Presentation()
+		as.findNumbers(v, df.Both).Presentation()
 	}
 }
 
@@ -172,5 +173,57 @@ func Test_findUTree(t *testing.T) {
 }
 
 func Test_readwordFile(t *testing.T) {
+	var i I
 
+	i = &T{"Hello"}                // 把 type T 的值賦予給變數 i
+	fmt.Printf("(%v, %T)\n", i, i) // i 的 dynamic value 是 &{Hello}、 dynamic type 是 *main.T
+	i.M()                          // 意思是將 type T 對應的 value （&{Hello}） 來執行 type T 對應的 Ｍ 方法
+
+	i = F(math.Pi)                 // 把 type F 的值賦予給變數 i
+	fmt.Printf("(%v, %T)\n", i, i) // i 的 dynamic value 是 3.141、dynamic type 是 main.F
+	i.M()                          // 意思是將 type F 對應的 value （3.1415） 去執行 type F 對應的 Ｍ 方法
+}
+
+type I interface {
+	M()
+}
+
+// Type T 實作了 I interface
+type T struct {
+	S string
+}
+
+func (t *T) M() {
+	fmt.Println(t.S)
+}
+
+// Type F 實作了 I interface
+type F float64
+
+func (f F) M() {
+	fmt.Println(f)
+}
+
+func Test_loadCombination(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	loadCombination()
+}
+
+func Test_findDate(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = FTNsManager{}
+	as.Prepare()
+	fmt.Println("")
+	fmt.Println("")
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
+	as.List.PresentationWithRange(int(p.Interval))
+	params := PickParams{
+		p,
+	}
+	as.intervalBallsCountStatic(params)
+	as.Picknumber(params)[p.GetKey()].Presentation()
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Printf("=================== %s ================\n", "0322")
+	as.findDate("0322", df.None).Presentation()
 }

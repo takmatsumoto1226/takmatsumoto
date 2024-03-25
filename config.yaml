@@ -29,3 +29,8 @@ aokurls:
     local_path: /Users/tak 1/Documents/gitlab_project/lottery/data/doc/威力
   - url: "http://www.aok.url.tw/yomj/112/112%E5%B9%B4%E5%BA%A63%E3%80%814%E6%98%9F%E5%BD%A9%E9%96%8B%E7%8D%8E%E8%A1%A8.doc"
     local_path: /Users/tak 1/Documents/gitlab_project/lottery/data/doc/三四星彩
+
+combinations:
+  - path: "../../data/statics"
+    template: "combination%v.json"
+    

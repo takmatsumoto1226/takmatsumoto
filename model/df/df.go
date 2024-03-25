@@ -43,4 +43,5 @@ const (
 	Next = iota
 	Before
 	Both
+	None
 )

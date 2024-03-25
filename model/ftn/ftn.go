@@ -37,6 +37,7 @@ type Balls []Ball
 type Ball struct {
 	Number   string
 	Position int // 出球的順序
+	Digit    int // int的球號
 }
 
 // BallsCount ...

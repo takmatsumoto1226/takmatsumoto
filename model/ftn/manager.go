@@ -96,7 +96,7 @@ func (ar *FTNsManager) intervalBallsCountStatic(params PickParams) {
 		}
 		arr := BallsCount{}
 		for i, count := range FTNIntervalCount {
-			b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i}}
+			b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1}}
 			arr = append(arr, b)
 		}
 		ar.ballsCount[p.Interval] = NormalizeInfo{NorBalls: arr, Param: p}

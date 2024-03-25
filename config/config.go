@@ -26,11 +26,17 @@ type Local struct {
 	Path string `yaml:"path"`
 }
 
+type Combination struct {
+	Path     string `yaml:"path"`
+	Template string `yaml:"template"`
+}
+
 // Param ...
 type Param struct {
-	HTTP    HTTP      `yaml:"http"`
-	Local   Local     `yaml:"local"`
-	AokURLs []DocInfo `yaml:"aokurls"`
+	HTTP             HTTP          `yaml:"http"`
+	Local            Local         `yaml:"local"`
+	AokURLs          []DocInfo     `yaml:"aokurls"`
+	CombinationsInfo []Combination `yaml:"combinations"`
 }
 
 type DocInfo struct {
