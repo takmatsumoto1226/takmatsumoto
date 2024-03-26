@@ -1,6 +1,9 @@
 package algorithm
 
-import "math/bits"
+import (
+	"fmt"
+	"math/bits"
+)
 
 // All returns all combinations for a given string array.
 // This is essentially a powerset of the given set except that the empty set is disregarded.
@@ -35,6 +38,8 @@ func Combinations[T any](set []T, n int) (subsets [][]T) {
 		n = len(set)
 	}
 
+	count := 0
+
 	// Go through all possible combinations of objects
 	// from 1 (only first object in subset) to 2^length (all objects in subset)
 	for subsetBits := 1; subsetBits < (1 << length); subsetBits++ {
@@ -51,6 +56,10 @@ func Combinations[T any](set []T, n int) (subsets [][]T) {
 				// add object to subset
 				subset = append(subset, set[object])
 			}
+		}
+		count++
+		if count%100000 == 0 {
+			fmt.Println(count)
 		}
 		// add subset to subsets
 		subsets = append(subsets, subset)

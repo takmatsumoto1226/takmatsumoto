@@ -4,3 +4,4 @@ debug/
 ~$*
 .DS_Store*
 nohup.out
+*.json

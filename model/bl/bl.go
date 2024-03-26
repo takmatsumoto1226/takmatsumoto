@@ -124,3 +124,11 @@ func NewBigLottery(arr []string) *BigLottery {
 	logrus.Error("NewBigLottery 資料格式錯誤")
 	return nil
 }
+
+func Ball49() []int {
+	arr := []int{}
+	for i := 0; i < 49; i++ {
+		arr = append(arr, i+1)
+	}
+	return arr
+}
