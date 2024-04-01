@@ -278,3 +278,19 @@ func (fa *FTN) IsUTree(before *FTN) bool {
 	}
 	return false
 }
+
+type IBalls struct {
+	B1 int
+	B2 int
+	B3 int
+	B4 int
+	B5 int
+}
+
+func (b *IBalls) Key() string {
+	return fmt.Sprintf("%02d_%02d_%02d_%02d_%02d", b.B1, b.B2, b.B3, b.B4, b.B5)
+}
+
+func NewBalls(n []int) *IBalls {
+	return &IBalls{B1: n[0], B2: n[1], B3: n[2], B4: n[3], B5: n[4]}
+}

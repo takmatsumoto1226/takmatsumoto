@@ -1,6 +1,8 @@
 package pw
 
-func (ar *PowerManager) findNumbers(numbers []string, nextplus bool) PowerList {
+import "lottery/model/df"
+
+func (ar *PowerManager) findNumbers(numbers []string, nextplus int) PowerList {
 	intersection := PowerList{}
 	set := make(map[string]bool)
 
@@ -18,7 +20,7 @@ func (ar *PowerManager) findNumbers(numbers []string, nextplus bool) PowerList {
 		}
 
 		if len(set) == count {
-			if nextplus {
+			if nextplus == df.Next {
 				intersection = append(intersection, ns)
 				if i+1 < len(ar.List) {
 					intersection = append(intersection, ar.List[i+1])

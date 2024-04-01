@@ -45,3 +45,24 @@ const (
 	Both
 	None
 )
+
+/*
+*
+
+	特徵值定義
+*/
+const (
+	FeatureTenGroup1 = iota // 1~10
+	FeatureTenGroup2        // 11~20
+	FeatureTenGroup3        // 21~30
+	FeatureTenGroup4        // 31~39
+)
+
+const (
+	FiveDoubleZeroSingle = iota //
+	FourDoubleOneSingle
+	ThreeDoubleTwoSingle
+	TwoDoubleThreeSingle
+	OneDoublFourSingle
+	ZeroDoublFiveSingle
+)
