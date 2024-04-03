@@ -29,7 +29,11 @@ func Empty() *BigLottery {
 }
 
 func (fa *BigLottery) toStringArray() []string {
-	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5, fa.B5, fa.B6, fa.B7}
+	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5, fa.B6, fa.B7}
+}
+
+func (fa *BigLottery) toStringArray2() []string {
+	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5, fa.B6}
 }
 
 func (fa BigLottery) formRow() {
@@ -131,4 +135,22 @@ func Ball49() []int {
 		arr = append(arr, i+1)
 	}
 	return arr
+}
+
+type IBalls struct {
+	B1 int
+	B2 int
+	B3 int
+	B4 int
+	B5 int
+	B6 int
+	S1 int
+}
+
+func (b *IBalls) Key() string {
+	return fmt.Sprintf("%02d_%02d_%02d_%02d_%02d_%02d", b.B1, b.B2, b.B3, b.B4, b.B5, b.B6)
+}
+
+func NewBalls(n []int) *IBalls {
+	return &IBalls{B1: n[0], B2: n[1], B3: n[2], B4: n[3], B5: n[4], B6: n[5]}
 }

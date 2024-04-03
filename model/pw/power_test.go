@@ -43,7 +43,7 @@ func Test_random(t *testing.T) {
 	// Create and seed the generator.
 	// Typically a non-fixed seed should be used, such as time.Now().UnixNano().
 	// Using a fixed seed will produce the same output on every run.
-	config.LoadConfig("../../config.yaml")
+	config.LoadConfig("../../config.yaml") // 17591400
 	var as = PowerManager{}
 	as.Prepare()
 
@@ -66,7 +66,7 @@ func Test_random(t *testing.T) {
 		result[balls.Key()] = 0
 	}
 	fmt.Println(len(result))
-	total := 15545439 * 4
+	total := 2324784 * 20
 
 	// for i := 0; i < 575757000; i++ {
 	for i := 0; i < total; i++ {
@@ -86,7 +86,7 @@ func Test_random(t *testing.T) {
 
 	count := 0
 	for k, v := range result {
-		if v > 55 {
+		if v > 45 {
 			fmt.Printf("%v:%v\n", k, v)
 			arr := strings.Split(k, "_")
 			as.findNumbers(arr, df.Next).Presentation()

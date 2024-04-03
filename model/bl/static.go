@@ -1,6 +1,8 @@
 package bl
 
-func (ar BigLotteryList) findNumbers(numbers []string, nextplus bool) BigLotteryList {
+import "lottery/model/df"
+
+func (ar BigLotteryList) findNumbers(numbers []string, nextplus int) BigLotteryList {
 	intersection := BigLotteryList{}
 	set := make(map[string]bool)
 
@@ -11,15 +13,20 @@ func (ar BigLotteryList) findNumbers(numbers []string, nextplus bool) BigLottery
 
 		// Check elements in the second array against the set
 		count := 0
-		for _, num := range ns.toStringArray() {
+		for _, num := range ns.toStringArray2() {
 			if set[num] {
 				count++
 			}
 		}
 
 		if len(set) == count {
+			if nextplus == df.Before || nextplus == df.Both {
+				intersection = append(intersection, ar[i-1])
+				intersection = append(intersection, *Empty())
+			}
+
 			intersection = append(intersection, ns)
-			if nextplus && i+1 < len(ar) {
+			if (nextplus == df.Next || nextplus == df.Both) && i+1 < len(ar) {
 				intersection = append(intersection, ar[i+1])
 				intersection = append(intersection, *Empty())
 			}

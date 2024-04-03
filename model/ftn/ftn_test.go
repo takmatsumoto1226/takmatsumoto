@@ -8,6 +8,7 @@ import (
 	"lottery/config"
 	"lottery/model/common"
 	"lottery/model/df"
+	"lottery/model/i"
 	"math"
 	"math/rand"
 	"os"
@@ -76,7 +77,7 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 35, Whichfront: df.Normal}
 	as.List.PresentationWithRange(int(p.Interval))
 	params := PickParams{
 		p,
@@ -254,50 +255,54 @@ func Test_random(t *testing.T) {
 	combarr := combin.Combinations(39, balls)
 	// lens := len(combarr)
 
-	result := map[string]int{}
+	th := i.Threshold{Round: 10, Value: 11, SampleTime: 3, Sample: len(combarr)}
+	for i := 0; i < th.Round; i++ {
+		result := map[string]int{}
 
-	var b [8]byte
-	_, err := crypto_rand.Read(b[:])
-	if err != nil {
-		panic("cannot seed math/rand package with cryptographically secure random number generator")
-	}
-
-	rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
-
-	for _, v := range combarr {
-		balls := NewBalls(v)
-		result[balls.Key()] = 0
-	}
-	fmt.Println(len(result))
-	total := 15545439 * 3
-
-	// for i := 0; i < 575757000; i++ {
-	for i := 0; i < total; i++ {
-
-		index := uint32(rnumber.Uint32() % uint32(len(result)))
-		// index := int(rnumber.Int31() / int32(len(combarr)))
-		// index := int(rnumber.Uint32() / uint32(len(combarr)))
-		// fmt.Println(index)
-		// time.Sleep(time.Second)
-		balls := NewBalls(combarr[index])
-		if v, ok := result[balls.Key()]; ok {
-			result[balls.Key()] = v + 1
+		var b [8]byte
+		_, err := crypto_rand.Read(b[:])
+		if err != nil {
+			panic("cannot seed math/rand package with cryptographically secure random number generator")
 		}
 
-		// fmt.Println(combarr[index])
+		rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
+
+		for _, v := range combarr {
+			balls := NewBalls(v)
+			result[balls.Key()] = 0
+		}
+		fmt.Println(len(result))
+		total := int(float32(th.Sample) * th.SampleTime)
+
+		// for i := 0; i < 575757000; i++ {
+		for i := 0; i < total; i++ {
+
+			index := uint32(rnumber.Uint32() % uint32(len(result)))
+			// index := int(rnumber.Int31() / int32(len(combarr)))
+			// index := int(rnumber.Uint32() / uint32(len(combarr)))
+			// fmt.Println(index)
+			// time.Sleep(time.Second)
+			balls := NewBalls(combarr[index])
+			if v, ok := result[balls.Key()]; ok {
+				result[balls.Key()] = v + 1
+			}
+
+			// fmt.Println(combarr[index])
+		}
+
+		count := 0
+		for k, v := range result {
+			if v > th.Value {
+				fmt.Printf("%v:%v\n", k, v)
+				arr := strings.Split(k, "_")
+				as.findNumbers(arr, df.Both).Presentation()
+				count++
+			}
+		}
+		fmt.Printf("%d 元, %d\n", count*50, count)
+		fmt.Println("done")
 	}
 
-	count := 0
-	for k, v := range result {
-		if v > 135 {
-			fmt.Printf("%v:%v\n", k, v)
-			arr := strings.Split(k, "_")
-			as.findNumbers(arr, df.Both).Presentation()
-			count++
-		}
-	}
-	fmt.Printf("%d 元, %d 注\n", count*50, count)
-	fmt.Println("done")
 }
 
 func Test_montecarlo(t *testing.T) {
