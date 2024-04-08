@@ -120,6 +120,27 @@ type FTN struct {
 	IBalls   []int
 }
 
+func (fa *FTN) matchCount(n FTN) int {
+	set := make(map[string]bool)
+
+	for _, num := range n.toStringArray() {
+		set[num] = true // setting the initial value to true
+	}
+
+	// Check elements in the second array against the set
+	count := 0
+	for _, num := range fa.toStringArray() {
+		if set[num] {
+			count++
+		}
+	}
+
+	if len(set) == count {
+		return count
+	}
+	return 0
+}
+
 func Ball39() []string {
 	arr := []string{}
 	for i := 0; i < 39; i++ {
@@ -180,6 +201,24 @@ func NewFTN(arr []string) *FTN {
 	}
 	logrus.Error("FTN 資料格式錯誤")
 	return Empty()
+}
+
+func NewFTNWithStrings(arr []string) *FTN {
+	i1, _ := strconv.Atoi(arr[0])
+	i2, _ := strconv.Atoi(arr[1])
+	i3, _ := strconv.Atoi(arr[2])
+	i4, _ := strconv.Atoi(arr[3])
+	i5, _ := strconv.Atoi(arr[4])
+	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}}
+}
+
+func NewFTNWithInts(arr []int) *FTN {
+	i1 := arr[0]
+	i2 := arr[1]
+	i3 := arr[2]
+	i4 := arr[3]
+	i5 := arr[4]
+	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}}
 }
 
 func Empty() *FTN {
@@ -268,6 +307,10 @@ func (fa *FTN) IsDTree(next *FTN) bool {
 	return false
 }
 
+func (fa *FTN) AdariPrice(fb *FTN) int {
+	return 0
+}
+
 func (fa *FTN) IsUTree(before *FTN) bool {
 	for i := 0; i < 4; i++ {
 		for j := 0; j < 5; j++ {
@@ -279,7 +322,7 @@ func (fa *FTN) IsUTree(before *FTN) bool {
 	return false
 }
 
-type IBalls struct {
+type IntBalls struct {
 	B1 int
 	B2 int
 	B3 int
@@ -287,10 +330,10 @@ type IBalls struct {
 	B5 int
 }
 
-func (b *IBalls) Key() string {
+func (b *IntBalls) Key() string {
 	return fmt.Sprintf("%02d_%02d_%02d_%02d_%02d", b.B1, b.B2, b.B3, b.B4, b.B5)
 }
 
-func NewBalls(n []int) *IBalls {
-	return &IBalls{B1: n[0], B2: n[1], B3: n[2], B4: n[3], B5: n[4]}
+func NewBalls(n []int) *IntBalls {
+	return &IntBalls{B1: n[0], B2: n[1], B3: n[2], B4: n[3], B5: n[4]}
 }

@@ -8,7 +8,6 @@ import (
 	"lottery/config"
 	"lottery/model/common"
 	"lottery/model/df"
-	"lottery/model/i"
 	"math"
 	"math/rand"
 	"os"
@@ -89,7 +88,7 @@ func Test_findnumbers(t *testing.T) {
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Printf("=================== %s ================\n", v)
-		as.findNumbers(v, df.Both).Presentation()
+		as.List.findNumbers(v, df.Both).Presentation()
 	}
 }
 
@@ -125,7 +124,7 @@ func Test_combination2(t *testing.T) {
 	as.Prepare()
 	// as.findNumbers([]string{"01", "07", "11", "24", "32"}, df.Both).Presentation()
 	// as.findNumbers([]string{"03", "18", "19", "20", "33"}, df.Both).Presentation()
-	as.findNumbers([]string{"07", "30", "32", "33", "34"}, df.Both).Presentation()
+	as.List.findNumbers([]string{"07", "30", "32", "33", "34"}, df.Both).Presentation()
 
 }
 
@@ -242,6 +241,23 @@ func Test_findDate(t *testing.T) {
 	as.findDate("0322", df.None).Presentation()
 }
 
+func Test_findAdariPrice(t *testing.T) {
+	balls := 5
+	combarr := combin.Combinations(10, balls)
+	arr := FTNArray{}
+	for _, comb := range combarr {
+		arr = append(arr, *NewFTNWithInts(comb))
+	}
+	arr.adariPrice(NewFTNWithInts([]int{2, 4, 5, 6, 7}))
+}
+
+type Threshold struct {
+	Round      int
+	Value      int
+	SampleTime float32
+	Sample     int
+}
+
 func Test_random(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
 	// Create and seed the generator.
@@ -255,7 +271,10 @@ func Test_random(t *testing.T) {
 	combarr := combin.Combinations(39, balls)
 	// lens := len(combarr)
 
-	th := i.Threshold{Round: 10, Value: 11, SampleTime: 3, Sample: len(combarr)}
+	topss := []FTNArray{}
+	counts := []int{}
+	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr)}
+	th := Threshold{Round: 500, Value: 15, SampleTime: 5, Sample: len(combarr)}
 	for i := 0; i < th.Round; i++ {
 		result := map[string]int{}
 
@@ -291,17 +310,40 @@ func Test_random(t *testing.T) {
 		}
 
 		count := 0
+		tops := FTNArray{}
 		for k, v := range result {
 			if v > th.Value {
-				fmt.Printf("%v:%v\n", k, v)
+				// fmt.Printf("%v:%v\n", k, v)
 				arr := strings.Split(k, "_")
-				as.findNumbers(arr, df.Both).Presentation()
+				ftnarr := as.List.findNumbers(arr, df.None)
+				if len(ftnarr) > 0 {
+					ftnarr.Presentation()
+					tops = append(tops, ftnarr...)
+
+				}
 				count++
 			}
 		}
+
+		topss = append(topss, tops)
+		counts = append(counts, count)
+
 		fmt.Printf("%d 元, %d\n", count*50, count)
-		fmt.Println("done")
+		fmt.Printf("群 %02d, 有 %d 組頭彩\n", i+1, len(tops))
+		fmt.Printf("done %02d\n", i+1)
+		fmt.Println("")
+		fmt.Println("")
+		fmt.Println("")
 	}
+
+	miss := 0
+	for i, tops := range topss {
+		if len(tops) == 0 {
+			miss++
+		}
+		fmt.Printf("群 %02d, 有 %d 組頭彩, 共花費:%d元\n", i+1, len(tops), counts[i]*50)
+	}
+	fmt.Printf("頭彩百分比 %f", (float32(th.Round-miss) / float32(th.Round)))
 
 }
 

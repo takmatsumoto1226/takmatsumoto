@@ -35,7 +35,6 @@ func Test_findnumber(t *testing.T) {
 		fmt.Printf("=================== %s ================\n", v)
 		as.findNumbers(v, df.Next).Presentation()
 	}
-
 }
 
 func Test_random(t *testing.T) {
@@ -66,7 +65,7 @@ func Test_random(t *testing.T) {
 		result[balls.Key()] = 0
 	}
 	fmt.Println(len(result))
-	total := 2324784 * 20
+	total := 2324784 * 16
 
 	// for i := 0; i < 575757000; i++ {
 	for i := 0; i < total; i++ {
@@ -86,7 +85,7 @@ func Test_random(t *testing.T) {
 
 	count := 0
 	for k, v := range result {
-		if v > 45 {
+		if v > 28 {
 			fmt.Printf("%v:%v\n", k, v)
 			arr := strings.Split(k, "_")
 			as.findNumbers(arr, df.Next).Presentation()
