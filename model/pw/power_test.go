@@ -7,6 +7,7 @@ import (
 	"lottery/config"
 	"lottery/model/common"
 	"lottery/model/df"
+	"lottery/model/interf"
 	"math/rand"
 	"strings"
 	"testing"
@@ -51,48 +52,45 @@ func Test_random(t *testing.T) {
 	combarr := combin.Combinations(38, balls)
 	// lens := len(combarr)
 
-	result := map[string]int{}
+	th := interf.Threshold{Round: 1, Value: 26, SampleTime: 10, Sample: len(combarr)}
 
-	var b [8]byte
-	_, err := crypto_rand.Read(b[:])
-	if err != nil {
-		panic("cannot seed math/rand package with cryptographically secure random number generator")
-	}
+	for r := 0; r < th.Round; r++ {
 
-	rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
-
-	for _, v := range combarr {
-		balls := NewBalls(v)
-		result[balls.Key()] = 0
-	}
-	fmt.Println(len(result))
-	total := 2324784 * 20
-
-	// for i := 0; i < 575757000; i++ {
-	for i := 0; i < total; i++ {
-
-		index := uint32(rnumber.Uint32() % uint32(len(result)))
-		// index := int(rnumber.Int31() / int32(len(combarr)))
-		// index := int(rnumber.Uint32() / uint32(len(combarr)))
-		// fmt.Println(index)
-		// time.Sleep(time.Second)
-		balls := NewBalls(combarr[index])
-		if v, ok := result[balls.Key()]; ok {
-			result[balls.Key()] = v + 1
+		var b [8]byte
+		_, err := crypto_rand.Read(b[:])
+		if err != nil {
+			panic("cannot seed math/rand package with cryptographically secure random number generator")
 		}
 
-		// fmt.Println(combarr[index])
-	}
+		result := map[string]int{}
 
-	count := 0
-	for k, v := range result {
-		if v > 45 {
-			fmt.Printf("%v:%v\n", k, v)
-			arr := strings.Split(k, "_")
-			as.findNumbers(arr, df.Next).Presentation()
-			count++
+		rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
+
+		for _, v := range combarr {
+			balls := NewBalls(v)
+			result[balls.Key()] = 0
 		}
+		fmt.Println(len(result))
+		total := th.Sample * int(th.SampleTime)
+		for i := 0; i < total; i++ {
+
+			index := uint32(rnumber.Uint32() % uint32(len(result)))
+			balls := NewBalls(combarr[index])
+			if v, ok := result[balls.Key()]; ok {
+				result[balls.Key()] = v + 1
+			}
+		}
+
+		count := 0
+		for k, v := range result {
+			if v > th.Value {
+				fmt.Printf("%v:%v\n", k, v)
+				arr := strings.Split(k, "_")
+				as.findNumbers(arr, df.Next).Presentation()
+				count++
+			}
+		}
+		fmt.Printf("%d 元, %d \n", count*100, count)
+		fmt.Printf("done : %02d\n", r)
 	}
-	fmt.Printf("%d 元, %d 注\n", count*100, count)
-	fmt.Println("done")
 }
