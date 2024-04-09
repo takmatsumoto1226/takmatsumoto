@@ -273,6 +273,7 @@ func Test_random(t *testing.T) {
 
 	topss := []FTNArray{}
 	counts := []int{}
+	resultss := map[string]int{} // n round result
 	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr)}
 	th := Threshold{Round: 500, Value: 15, SampleTime: 5, Sample: len(combarr)}
 	for i := 0; i < th.Round; i++ {
@@ -313,13 +314,19 @@ func Test_random(t *testing.T) {
 		tops := FTNArray{}
 		for k, v := range result {
 			if v > th.Value {
-				// fmt.Printf("%v:%v\n", k, v)
+				fmt.Printf("%v:%v\n", k, v)
 				arr := strings.Split(k, "_")
 				ftnarr := as.List.findNumbers(arr, df.None)
 				if len(ftnarr) > 0 {
 					ftnarr.Presentation()
 					tops = append(tops, ftnarr...)
 
+				}
+
+				if v2, ok := resultss[k]; ok {
+					resultss[k] = v2 + v
+				} else {
+					resultss[k] = v
 				}
 				count++
 			}
@@ -328,8 +335,8 @@ func Test_random(t *testing.T) {
 		topss = append(topss, tops)
 		counts = append(counts, count)
 
-		fmt.Printf("%d 元, %d\n", count*50, count)
-		fmt.Printf("群 %02d, 有 %d 組頭彩\n", i+1, len(tops))
+		fmt.Printf("%d TWD, %d\n", count*50, count)
+		fmt.Printf("群 %02d, get %d Top\n", i+1, len(tops))
 		fmt.Printf("done %02d\n", i+1)
 		fmt.Println("")
 		fmt.Println("")
@@ -341,9 +348,18 @@ func Test_random(t *testing.T) {
 		if len(tops) == 0 {
 			miss++
 		}
-		fmt.Printf("群 %02d, 有 %d 組頭彩, 共花費:%d元\n", i+1, len(tops), counts[i]*50)
+		fmt.Printf("群 %02d, 有 %d Top, D:%d TWD\n", i+1, len(tops), counts[i]*50)
 	}
-	fmt.Printf("頭彩百分比 %f", (float32(th.Round-miss) / float32(th.Round)))
+	fmt.Printf("Top Percent %.3f", (float32(th.Round-miss) / float32(th.Round)))
+
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println("")
+	for k, v := range resultss {
+		if v > 60 {
+			fmt.Printf("%v:%v\n", k, v)
+		}
+	}
 
 }
 
