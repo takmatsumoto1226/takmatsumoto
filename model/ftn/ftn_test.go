@@ -8,6 +8,7 @@ import (
 	"lottery/config"
 	"lottery/model/common"
 	"lottery/model/df"
+	"lottery/model/interf"
 	"math"
 	"math/rand"
 	"os"
@@ -27,8 +28,11 @@ func init() {
 }
 
 func Test_initNumberToIndex(t *testing.T) {
-	initNumberToIndex()
-	logrus.Info(numberToIndex)
+	// initNumberToIndex()
+	// logrus.Info(numberToIndex)
+	// fmt.Println(df.FeatureTenGroup1)
+	n := 14
+	fmt.Println(n / 10)
 }
 
 func Test_loadFTNs(t *testing.T) {
@@ -61,6 +65,17 @@ func Test_calculateTotalCount(t *testing.T) {
 	// for k, v := range ballPools {
 	// 	logrus.Infof("%s:%v", k, v)
 	// }
+}
+
+func Test_newFTNTest(t *testing.T) {
+	elems := strings.Split("2023,1230,312,04,11,17,20,32,5114", ",")
+	ftn := NewFTN(elems)
+	fmt.Println(ftn)
+
+	elems2 := strings.Split("2023,1230,312,04,11,17,20,33,5114", ",")
+	ftn2 := NewFTN(elems2)
+	fmt.Println(ftn2)
+	fmt.Println(ftn2.CompareFeature(ftn))
 }
 
 func Test_listLikeExecl(t *testing.T) {
@@ -251,18 +266,8 @@ func Test_findAdariPrice(t *testing.T) {
 	arr.adariPrice(NewFTNWithInts([]int{2, 4, 5, 6, 7}))
 }
 
-type Threshold struct {
-	Round      int
-	Value      int
-	SampleTime float32
-	Sample     int
-}
-
 func Test_random(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
-	// Create and seed the generator.
-	// Typically a non-fixed seed should be used, such as time.Now().UnixNano().
-	// Using a fixed seed will produce the same output on every run.
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
@@ -270,12 +275,19 @@ func Test_random(t *testing.T) {
 	balls := 5
 	combarr := combin.Combinations(39, balls)
 	// lens := len(combarr)
+	// total_sell := 50 / 50Y
 
 	topss := []FTNArray{}
 	counts := []int{}
 	resultss := map[string]int{} // n round result
+	// realsale := uint32(501942)
+	// realsale := uint32(531942)
+	realsale := uint32(len(combarr))
+
 	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr)}
-	th := Threshold{Round: 500, Value: 15, SampleTime: 5, Sample: len(combarr)}
+	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr)}
+	th := interf.Threshold{Round: 10, Value: 14, SampleTime: 5, Sample: len(combarr)}
+	filestr := ""
 	for i := 0; i < th.Round; i++ {
 		result := map[string]int{}
 
@@ -294,17 +306,18 @@ func Test_random(t *testing.T) {
 		fmt.Println(len(result))
 		total := int(float32(th.Sample) * th.SampleTime)
 
-		// for i := 0; i < 575757000; i++ {
 		for i := 0; i < total; i++ {
 
-			index := uint32(rnumber.Uint32() % uint32(len(result)))
+			// index := uint32(rnumber.Uint32() % uint32(len(result)))
+			index := uint32(rnumber.Uint32() % realsale)
 			// index := int(rnumber.Int31() / int32(len(combarr)))
 			// index := int(rnumber.Uint32() / uint32(len(combarr)))
 			// fmt.Println(index)
 			// time.Sleep(time.Second)
 			balls := NewBalls(combarr[index])
-			if v, ok := result[balls.Key()]; ok {
-				result[balls.Key()] = v + 1
+			bK := balls.Key()
+			if v, ok := result[bK]; ok {
+				result[bK] = v + 1
 			}
 
 			// fmt.Println(combarr[index])
@@ -314,11 +327,11 @@ func Test_random(t *testing.T) {
 		tops := FTNArray{}
 		for k, v := range result {
 			if v > th.Value {
-				fmt.Printf("%v:%v\n", k, v)
+				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
 				arr := strings.Split(k, "_")
 				ftnarr := as.List.findNumbers(arr, df.None)
 				if len(ftnarr) > 0 {
-					ftnarr.Presentation()
+					filestr = filestr + ftnarr.Presentation()
 					tops = append(tops, ftnarr...)
 
 				}
@@ -335,12 +348,12 @@ func Test_random(t *testing.T) {
 		topss = append(topss, tops)
 		counts = append(counts, count)
 
-		fmt.Printf("%d TWD, %d\n", count*50, count)
-		fmt.Printf("群 %02d, get %d Top\n", i+1, len(tops))
-		fmt.Printf("done %02d\n", i+1)
-		fmt.Println("")
-		fmt.Println("")
-		fmt.Println("")
+		filestr = filestr + fmt.Sprintf("%d TWD, %d\n", count*45, count)
+		filestr = filestr + fmt.Sprintf("群 %02d, get %d Top\n", i+1, len(tops))
+		filestr = filestr + fmt.Sprintf("done %02d\n", i+1)
+		filestr = filestr + "\n"
+		filestr = filestr + "\n"
+		filestr = filestr + "\n"
 	}
 
 	miss := 0
@@ -348,19 +361,20 @@ func Test_random(t *testing.T) {
 		if len(tops) == 0 {
 			miss++
 		}
-		fmt.Printf("群 %02d, 有 %d Top, D:%d TWD\n", i+1, len(tops), counts[i]*50)
+		filestr = filestr + fmt.Sprintf("群 %02d, 有 %d Top, D:%d TWD\n", i+1, len(tops), counts[i]*50)
 	}
-	fmt.Printf("Top Percent %.3f", (float32(th.Round-miss) / float32(th.Round)))
+	filestr = filestr + fmt.Sprintf("Top Percent %.3f\n", (float32(th.Round-miss)/float32(th.Round))*100)
 
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("")
+	filestr = filestr + "\n"
+	filestr = filestr + "\n"
+	filestr = filestr + "\n"
 	for k, v := range resultss {
-		if v > 60 {
-			fmt.Printf("%v:%v\n", k, v)
+		if v >= 45 {
+			filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
 		}
 	}
 
+	common.Save(filestr, "content.txt")
 }
 
 func Test_montecarlo(t *testing.T) {

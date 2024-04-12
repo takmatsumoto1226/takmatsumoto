@@ -52,19 +52,22 @@ func (fa FTNArray) Less(i, j int) bool {
 func (fa FTNArray) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
-func (fa FTNArray) Presentation() {
-	fa.PresentationWithRange(0)
+func (fa FTNArray) Presentation() string {
+	return fa.PresentationWithRange(0)
 }
 
-func (fa FTNArray) PresentationWithRange(r int) {
+func (fa FTNArray) PresentationWithRange(r int) string {
+	msg := ""
 	tmp := fa
 	al := len(fa)
 	if r > 0 {
 		tmp = fa[al-r : al]
 	}
 	for _, ftn := range tmp {
-		ftn.formRow()
+		msg = msg + ftn.formRow() + "\n"
+
 	}
+	return msg
 }
 
 func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {

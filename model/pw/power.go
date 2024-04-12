@@ -66,7 +66,7 @@ func Empty() *Power {
 	return &Power{"====", "====", "==", "==", "==", "==", "==", "==", "==", "==", "=="}
 }
 
-func (fa Power) formRow() {
+func (fa Power) formRow() string {
 	rowmsg := fmt.Sprintf("%s|", fa.Year)
 	rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
 	iB1, _ := strconv.Atoi(fa.B1)
@@ -99,6 +99,7 @@ func (fa Power) formRow() {
 		}
 	}
 	fmt.Println(rowmsg)
+	return rowmsg
 }
 
 /*
@@ -141,5 +142,12 @@ func (b *IBalls) Key() string {
 }
 
 func NewBalls(n []int) *IBalls {
-	return &IBalls{B1: n[0], B2: n[1], B3: n[2], B4: n[3], B5: n[4], B6: n[5]}
+	return &IBalls{
+		B1: n[0] + 1,
+		B2: n[1] + 1,
+		B3: n[2] + 1,
+		B4: n[3] + 1,
+		B5: n[4] + 1,
+		B6: n[5] + 1,
+	}
 }

@@ -20,8 +20,10 @@ func (fa PowerList) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
 
-func (fa PowerList) Presentation() {
+func (fa PowerList) Presentation() string {
+	msg := ""
 	for _, f := range fa {
-		f.formRow()
+		msg = msg + f.formRow() + "\n"
 	}
+	return msg
 }

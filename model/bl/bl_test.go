@@ -8,6 +8,7 @@ import (
 	"lottery/config"
 	"lottery/model/common"
 	"lottery/model/df"
+	"lottery/model/interf"
 	"math/rand"
 	"os"
 	"strings"
@@ -22,13 +23,6 @@ import (
 
 func init() {
 	logrus.SetLevel(logrus.DebugLevel)
-}
-
-type Threshold struct {
-	Round      int
-	Value      int
-	SampleTime float32
-	Sample     int
 }
 
 func Test_listLikeExecl(t *testing.T) {
@@ -130,7 +124,7 @@ func Test_random2(t *testing.T) {
 	balls := 6
 	combarr := combin.Combinations(49, balls)
 	// lens := len(combarr)
-	th := Threshold{Round: 1, Value: 11, SampleTime: 3, Sample: len(combarr)}
+	th := interf.Threshold{Round: 1, Value: 11, SampleTime: 3, Sample: len(combarr)}
 
 	for i := 0; i < th.Round; i++ {
 		result := map[string]int{}

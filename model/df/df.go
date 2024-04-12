@@ -59,10 +59,80 @@ const (
 )
 
 const (
-	FiveDoubleZeroSingle = iota //
-	FourDoubleOneSingle
-	ThreeDoubleTwoSingle
-	TwoDoubleThreeSingle
-	OneDoublFourSingle
-	ZeroDoublFiveSingle
+	TailDigit1 = iota
+	TailDigit2
+	TailDigit3
+	TailDigit4
+	TailDigit5
+	TailDigit6
+	TailDigit7
+	TailDigit8
+	TailDigit9
+	TailDigit0
 )
+
+type GROUP int
+
+const UndefinedFeature = -1
+
+type Feature struct {
+	TenGroupCount   []int
+	OddNumberCount  int
+	EvenNumberCount int
+	TailDigit       []int
+}
+
+func NewFeature(numbers []int) *Feature {
+	oc := 0
+	ec := 0
+	gt := []int{0, 0, 0, 0}
+	td := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	for i := 0; i < 5; i++ {
+		if numbers[i]%2 == 1 {
+			oc++
+		}
+		if numbers[i]%2 == 0 {
+			ec++
+		}
+		gt[numbers[i]/10]++
+		td[numbers[i]%10]++
+	}
+	return &Feature{
+		TenGroupCount:   gt,
+		OddNumberCount:  oc,
+		EvenNumberCount: ec,
+		TailDigit:       td,
+	}
+}
+
+func DefaultFeature() *Feature {
+	return &Feature{
+		TenGroupCount:   []int{UndefinedFeature},
+		OddNumberCount:  UndefinedFeature,
+		EvenNumberCount: UndefinedFeature,
+		TailDigit:       []int{UndefinedFeature},
+	}
+}
+
+func (f *Feature) Compare(t *Feature) bool {
+	if f.OddNumberCount != t.OddNumberCount {
+		return false
+	}
+
+	if f.EvenNumberCount != t.EvenNumberCount {
+		return false
+	}
+	for idx, i := range f.TenGroupCount {
+		j := t.TenGroupCount[idx]
+		if i != j {
+			return false
+		}
+	}
+
+	for idx, i := range f.TailDigit {
+		if i != t.TailDigit[idx] {
+			return false
+		}
+	}
+	return true
+}

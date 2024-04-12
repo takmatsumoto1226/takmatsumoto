@@ -7,6 +7,8 @@ import (
 	"lottery/config"
 	"lottery/model/common"
 	"lottery/model/df"
+	"lottery/model/interf"
+	"math"
 	"math/rand"
 	"strings"
 	"testing"
@@ -37,11 +39,29 @@ func Test_findnumber(t *testing.T) {
 	}
 }
 
+func maxmin(a uint32, diff, sample int) int {
+	result := math.Max(float64(a), float64(diff))
+	return int(math.Min(result, float64(sample-diff)))
+}
+
+func isOverRange(a uint32, diff, sample int) bool {
+	min := math.Max(float64(a), float64(diff))
+	max := math.Min(min, float64(sample-diff))
+	return a <= uint32(min) || a >= uint32(max)
+}
+
+func Test_minmax(t *testing.T) {
+	fmt.Println(maxmin(32, 10, 100))
+	fmt.Println(maxmin(9, 10, 100))
+	fmt.Println(maxmin(94, 10, 100))
+}
+
 func Test_random(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
 	// Create and seed the generator.
 	// Typically a non-fixed seed should be used, such as time.Now().UnixNano().
 	// Using a fixed seed will produce the same output on every run.
+	filestr := ""
 	config.LoadConfig("../../config.yaml") // 17591400
 	var as = PowerManager{}
 	as.Prepare()
@@ -49,49 +69,74 @@ func Test_random(t *testing.T) {
 	balls := 6
 	combarr := combin.Combinations(38, balls)
 	// lens := len(combarr)
+	th := interf.Threshold{Round: 100, Value: 19, SampleTime: 8, Sample: len(combarr)}
+	topss := []PowerList{}
 
-	result := map[string]int{}
+	for r := 0; r < th.Round; r++ {
+		result := map[string]int{}
 
-	var b [8]byte
-	_, err := crypto_rand.Read(b[:])
-	if err != nil {
-		panic("cannot seed math/rand package with cryptographically secure random number generator")
-	}
-
-	rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
-
-	for _, v := range combarr {
-		balls := NewBalls(v)
-		result[balls.Key()] = 0
-	}
-	fmt.Println(len(result))
-	total := 2324784 * 16
-
-	// for i := 0; i < 575757000; i++ {
-	for i := 0; i < total; i++ {
-
-		index := uint32(rnumber.Uint32() % uint32(len(result)))
-		// index := int(rnumber.Int31() / int32(len(combarr)))
-		// index := int(rnumber.Uint32() / uint32(len(combarr)))
-		// fmt.Println(index)
-		// time.Sleep(time.Second)
-		balls := NewBalls(combarr[index])
-		if v, ok := result[balls.Key()]; ok {
-			result[balls.Key()] = v + 1
+		var b [8]byte
+		_, err := crypto_rand.Read(b[:])
+		if err != nil {
+			panic("cannot seed math/rand package with cryptographically secure random number generator")
 		}
 
-		// fmt.Println(combarr[index])
+		rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
+
+		for _, v := range combarr {
+			balls := NewBalls(v)
+			result[balls.Key()] = 0
+		}
+		filestr = filestr + fmt.Sprintln(len(result))
+		total := int(float32(th.Sample) * th.SampleTime)
+		for i := 0; i < total; i++ {
+
+			index := uint32(rnumber.Uint32() % uint32(len(result)))
+			for {
+				if isOverRange(index, 0, th.Sample) {
+					break
+				}
+				index = uint32(rnumber.Uint32() % uint32(len(result)))
+			}
+			// balls := NewBalls(combarr[maxmin(index, 10000, th.Sample)])
+			balls := NewBalls(combarr[index])
+			if v, ok := result[balls.Key()]; ok {
+				result[balls.Key()] = v + 1
+			}
+		}
+
+		count := 0
+		tops := PowerList{}
+		for k, v := range result {
+			if v > th.Value {
+				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
+				arr := strings.Split(k, "_")
+				powarr := as.findNumbers(arr, df.None)
+				if len(powarr) > 0 {
+					filestr = filestr + powarr.Presentation()
+					tops = append(tops, powarr...)
+				}
+
+				count++
+			}
+		}
+		topss = append(topss, tops)
+
+		filestr = filestr + fmt.Sprintf("%d 元, %d \n", count*100, count)
+		filestr = filestr + fmt.Sprintf("%d tops\n", len(tops))
+		filestr = filestr + fmt.Sprintf("done : %02d\n", r+1)
+		filestr = filestr + fmt.Sprintln("")
+		filestr = filestr + fmt.Sprintln("")
 	}
 
-	count := 0
-	for k, v := range result {
-		if v > 28 {
-			fmt.Printf("%v:%v\n", k, v)
-			arr := strings.Split(k, "_")
-			as.findNumbers(arr, df.Next).Presentation()
-			count++
+	miss := 0
+	for i, tops := range topss {
+		if len(tops) == 0 {
+			miss++
 		}
+		filestr = filestr + fmt.Sprintf("群 %02d, 有 %d Top\n", i+1, len(tops))
 	}
-	fmt.Printf("%d 元, %d 注\n", count*100, count)
-	fmt.Println("done")
+	filestr = filestr + fmt.Sprintf("Top Percent %.3f\n", (float32(th.Round-miss)/float32(th.Round))*100)
+
+	common.Save(filestr, "content.txt")
 }

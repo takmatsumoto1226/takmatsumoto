@@ -9,4 +9,5 @@ type Threshold struct {
 	SampleTime float32
 	Sample     int
 	Value      int
+	RealSale   int32
 }
