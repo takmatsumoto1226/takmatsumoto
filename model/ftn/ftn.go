@@ -330,24 +330,6 @@ func (fa *FTN) CompareFeature(t *FTN) bool {
 	return fa.Feature.Compare(&t.Feature)
 }
 
-// type IntBalls struct {
-// 	B1 int
-// 	B2 int
-// 	B3 int
-// 	B4 int
-// 	B5 int
-// }
-
 func (fa *FTN) Key() string {
 	return fmt.Sprintf("%s_%s_%s_%s_%s", fa.B1, fa.B2, fa.B3, fa.B4, fa.B5)
 }
-
-// func NewBalls(n []int) *IntBalls {
-// 	return &IntBalls{
-// 		B1: n[0] + 1,
-// 		B2: n[1] + 1,
-// 		B3: n[2] + 1,
-// 		B4: n[3] + 1,
-// 		B5: n[4] + 1,
-// 	}
-// }

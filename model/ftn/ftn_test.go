@@ -1,6 +1,7 @@
 package ftn
 
 import (
+	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -31,8 +32,11 @@ func Test_initNumberToIndex(t *testing.T) {
 	// initNumberToIndex()
 	// logrus.Info(numberToIndex)
 	// fmt.Println(df.FeatureTenGroup1)
-	n := 14
-	fmt.Println(n / 10)
+	// n := 14
+	// fmt.Println(n / 10)
+	fmt.Println(df.Primes)
+	fmt.Println(bytes.IndexByte(df.Primes, 31))
+	fmt.Println(bytes.IndexByte(df.Primes, 30))
 }
 
 func Test_loadFTNs(t *testing.T) {

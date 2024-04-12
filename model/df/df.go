@@ -1,5 +1,9 @@
 package df
 
+import (
+	"bytes"
+)
+
 const (
 	InfoFTN = iota
 	Info49
@@ -71,6 +75,8 @@ const (
 	TailDigit0
 )
 
+var Primes = []byte{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}
+
 type GROUP int
 
 const UndefinedFeature = -1
@@ -80,6 +86,7 @@ type Feature struct {
 	OddNumberCount  int
 	EvenNumberCount int
 	TailDigit       []int
+	HasPrime        bool
 }
 
 func NewFeature(numbers []int) *Feature {
@@ -87,6 +94,7 @@ func NewFeature(numbers []int) *Feature {
 	ec := 0
 	gt := []int{0, 0, 0, 0}
 	td := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	prime := false
 	for i := 0; i < 5; i++ {
 		if numbers[i]%2 == 1 {
 			oc++
@@ -96,12 +104,16 @@ func NewFeature(numbers []int) *Feature {
 		}
 		gt[numbers[i]/10]++
 		td[numbers[i]%10]++
+		if bytes.IndexByte(Primes, byte(numbers[i])) >= 0 {
+			prime = true
+		}
 	}
 	return &Feature{
 		TenGroupCount:   gt,
 		OddNumberCount:  oc,
 		EvenNumberCount: ec,
 		TailDigit:       td,
+		HasPrime:        prime,
 	}
 }
 
@@ -115,13 +127,10 @@ func DefaultFeature() *Feature {
 }
 
 func (f *Feature) Compare(t *Feature) bool {
-	if f.OddNumberCount != t.OddNumberCount {
+	if f.OddNumberCount != t.OddNumberCount || f.EvenNumberCount != t.EvenNumberCount {
 		return false
 	}
 
-	if f.EvenNumberCount != t.EvenNumberCount {
-		return false
-	}
 	for idx, i := range f.TenGroupCount {
 		j := t.TenGroupCount[idx]
 		if i != j {
@@ -134,5 +143,6 @@ func (f *Feature) Compare(t *Feature) bool {
 			return false
 		}
 	}
-	return true
+
+	return f.HasPrime != t.HasPrime
 }
