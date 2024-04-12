@@ -70,6 +70,14 @@ func (fa FTNArray) PresentationWithRange(r int) string {
 	return msg
 }
 
+func (fa FTNArray) WithRange(r int) FTNArray {
+	al := len(fa)
+	if r > 0 {
+		return fa[al-r : al]
+	}
+	return fa
+}
+
 func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
 	intersection := FTNArray{}
 	set := make(map[string]bool)

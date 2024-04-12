@@ -91,7 +91,7 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 35, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal}
 	as.List.PresentationWithRange(int(p.Interval))
 	params := PickParams{
 		p,
@@ -286,7 +286,7 @@ func Test_random(t *testing.T) {
 
 	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr)}
 	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr)}
-	th := interf.Threshold{Round: 10, Value: 14, SampleTime: 5, Sample: len(combarr)}
+	th := interf.Threshold{Round: 1, Value: 14, SampleTime: 7, Sample: len(combarr)}
 	filestr := ""
 	for i := 0; i < th.Round; i++ {
 		result := map[string]int{}
@@ -300,21 +300,16 @@ func Test_random(t *testing.T) {
 		rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
 
 		for _, v := range combarr {
-			balls := NewBalls(v)
+			balls := NewFTNWithInts(v)
 			result[balls.Key()] = 0
 		}
 		fmt.Println(len(result))
 		total := int(float32(th.Sample) * th.SampleTime)
 
 		for i := 0; i < total; i++ {
-
-			// index := uint32(rnumber.Uint32() % uint32(len(result)))
 			index := uint32(rnumber.Uint32() % realsale)
-			// index := int(rnumber.Int31() / int32(len(combarr)))
-			// index := int(rnumber.Uint32() / uint32(len(combarr)))
 			// fmt.Println(index)
-			// time.Sleep(time.Second)
-			balls := NewBalls(combarr[index])
+			balls := NewFTNWithInts(combarr[index])
 			bK := balls.Key()
 			if v, ok := result[bK]; ok {
 				result[bK] = v + 1
@@ -322,9 +317,10 @@ func Test_random(t *testing.T) {
 
 			// fmt.Println(combarr[index])
 		}
-
+		lottos := as.List.WithRange(20)
 		count := 0
 		tops := FTNArray{}
+		featuresFTNs := FTNArray{}
 		for k, v := range result {
 			if v > th.Value {
 				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
@@ -333,7 +329,13 @@ func Test_random(t *testing.T) {
 				if len(ftnarr) > 0 {
 					filestr = filestr + ftnarr.Presentation()
 					tops = append(tops, ftnarr...)
+				}
 
+				ftn := NewFTNWithStrings(arr)
+				for _, l := range lottos {
+					if l.CompareFeature(ftn) {
+						featuresFTNs = append(featuresFTNs, *ftn)
+					}
 				}
 
 				if v2, ok := resultss[k]; ok {
@@ -347,13 +349,19 @@ func Test_random(t *testing.T) {
 
 		topss = append(topss, tops)
 		counts = append(counts, count)
-
 		filestr = filestr + fmt.Sprintf("%d TWD, %d\n", count*45, count)
 		filestr = filestr + fmt.Sprintf("群 %02d, get %d Top\n", i+1, len(tops))
 		filestr = filestr + fmt.Sprintf("done %02d\n", i+1)
 		filestr = filestr + "\n"
 		filestr = filestr + "\n"
 		filestr = filestr + "\n"
+
+		filestr = filestr + "Feature Close\n"
+		if len(featuresFTNs) > 0 {
+			for _, fftn := range featuresFTNs {
+				filestr = filestr + fftn.formRow() + "\n"
+			}
+		}
 	}
 
 	miss := 0

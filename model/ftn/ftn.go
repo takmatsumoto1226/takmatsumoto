@@ -217,11 +217,11 @@ func NewFTNWithStrings(arr []string) *FTN {
 }
 
 func NewFTNWithInts(arr []int) *FTN {
-	i1 := arr[0]
-	i2 := arr[1]
-	i3 := arr[2]
-	i4 := arr[3]
-	i5 := arr[4]
+	i1 := arr[0] + 1
+	i2 := arr[1] + 1
+	i3 := arr[2] + 1
+	i4 := arr[3] + 1
+	i5 := arr[4] + 1
 	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5})}
 }
 
@@ -330,24 +330,24 @@ func (fa *FTN) CompareFeature(t *FTN) bool {
 	return fa.Feature.Compare(&t.Feature)
 }
 
-type IntBalls struct {
-	B1 int
-	B2 int
-	B3 int
-	B4 int
-	B5 int
+// type IntBalls struct {
+// 	B1 int
+// 	B2 int
+// 	B3 int
+// 	B4 int
+// 	B5 int
+// }
+
+func (fa *FTN) Key() string {
+	return fmt.Sprintf("%s_%s_%s_%s_%s", fa.B1, fa.B2, fa.B3, fa.B4, fa.B5)
 }
 
-func (b *IntBalls) Key() string {
-	return fmt.Sprintf("%02d_%02d_%02d_%02d_%02d", b.B1, b.B2, b.B3, b.B4, b.B5)
-}
-
-func NewBalls(n []int) *IntBalls {
-	return &IntBalls{
-		B1: n[0] + 1,
-		B2: n[1] + 1,
-		B3: n[2] + 1,
-		B4: n[3] + 1,
-		B5: n[4] + 1,
-	}
-}
+// func NewBalls(n []int) *IntBalls {
+// 	return &IntBalls{
+// 		B1: n[0] + 1,
+// 		B2: n[1] + 1,
+// 		B3: n[2] + 1,
+// 		B4: n[3] + 1,
+// 		B5: n[4] + 1,
+// 	}
+// }
