@@ -2,6 +2,7 @@ package bl
 
 import (
 	"fmt"
+	"lottery/model/df"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
@@ -22,10 +23,12 @@ type BigLottery struct {
 	B6       string
 	B7       string
 	TIdx     string
+	IBalls   []int
+	Feature  df.Feature
 }
 
 func Empty() *BigLottery {
-	return &BigLottery{"====", "====", "==", "==", "==", "==", "==", "==", "==", "==", "=="}
+	return &BigLottery{"====", "====", "==", "==", "==", "==", "==", "==", "==", "==", "==", []int{0, 0, 0, 0, 0, 0, 0}, *df.DefaultFeature()}
 }
 
 func (fa *BigLottery) toStringArray() []string {
@@ -111,6 +114,13 @@ const (
 
 func NewBigLottery(arr []string) *BigLottery {
 	if len(arr) == arrBigLCount {
+		i1, _ := strconv.Atoi(arr[arrIdxB1])
+		i2, _ := strconv.Atoi(arr[arrIdxB2])
+		i3, _ := strconv.Atoi(arr[arrIdxB3])
+		i4, _ := strconv.Atoi(arr[arrIdxB4])
+		i5, _ := strconv.Atoi(arr[arrIdxB5])
+		i6, _ := strconv.Atoi(arr[arrIdxB6])
+		i7, _ := strconv.Atoi(arr[arrIdxB7])
 		return &BigLottery{
 			arr[arrIdxYear],
 			arr[arrIdxMonthDay],
@@ -123,9 +133,67 @@ func NewBigLottery(arr []string) *BigLottery {
 			arr[arrIdxB6],
 			arr[arrIdxB7],
 			arr[arrIdxTIdx],
+			[]int{i1, i2, i3, i4, i5, i6, i7},
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6, i7}),
 		}
 	}
 	logrus.Error("NewBigLottery 資料格式錯誤")
+	return nil
+}
+
+func NewPowerWithString(arr []string) *BigLottery {
+	if len(arr) == 6 {
+		i1, _ := strconv.Atoi(arr[0])
+		i2, _ := strconv.Atoi(arr[1])
+		i3, _ := strconv.Atoi(arr[2])
+		i4, _ := strconv.Atoi(arr[3])
+		i5, _ := strconv.Atoi(arr[4])
+		i6, _ := strconv.Atoi(arr[5])
+		return &BigLottery{
+			"",
+			"",
+			"",
+			arr[0],
+			arr[1],
+			arr[2],
+			arr[3],
+			arr[4],
+			arr[5],
+			"",
+			"",
+			[]int{i1, i2, i3, i4, i5, i6},
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+		}
+	}
+	logrus.Error("POWER 資料格式錯誤")
+	return nil
+}
+
+func NewPowerWithInts(arr []int) *BigLottery {
+	if len(arr) == 6 {
+		i1 := arr[0]
+		i2 := arr[1]
+		i3 := arr[2]
+		i4 := arr[3]
+		i5 := arr[4]
+		i6 := arr[5]
+		return &BigLottery{
+			"",
+			"",
+			"",
+			fmt.Sprintf("%02d", i1),
+			fmt.Sprintf("%02d", i2),
+			fmt.Sprintf("%02d", i3),
+			fmt.Sprintf("%02d", i4),
+			fmt.Sprintf("%02d", i5),
+			fmt.Sprintf("%02d", i6),
+			"",
+			"",
+			[]int{i1, i2, i3, i4, i5, i6},
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+		}
+	}
+	logrus.Error("POWER 資料格式錯誤")
 	return nil
 }
 

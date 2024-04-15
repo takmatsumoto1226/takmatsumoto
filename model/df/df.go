@@ -2,6 +2,7 @@ package df
 
 import (
 	"bytes"
+	"fmt"
 )
 
 const (
@@ -77,6 +78,32 @@ const (
 
 var Primes = []byte{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
 
+const (
+	FilterSingleCount = iota
+	FilterDoubleCount
+	FilterTenGroup
+	FilterTailDigit
+	FilterPrime
+	FilterContinue2
+)
+
+var filters = []bool{
+	true, // single count
+	true, // double count
+	true, // ten group
+	true, // tail digit
+	true, // prime
+	true, // continue2
+}
+
+func setFilter(fs []bool) {
+	if len(filters) != len(fs) {
+		fmt.Errorf("Filter Format Error %d:%d", len(filters), len(fs))
+		return
+	}
+	filters = fs
+}
+
 type GROUP int
 
 const UndefinedFeature = -1
@@ -126,23 +153,44 @@ func DefaultFeature() *Feature {
 	}
 }
 
+func (f *Feature) CompareWithFilter(t *Feature, fs []bool) bool {
+	setFilter(fs)
+	return f.Compare(t)
+}
+
 func (f *Feature) Compare(t *Feature) bool {
-	if f.OddNumberCount != t.OddNumberCount || f.EvenNumberCount != t.EvenNumberCount {
-		return false
-	}
-
-	for idx, i := range f.TenGroupCount {
-		j := t.TenGroupCount[idx]
-		if i != j {
+	if filters[FilterSingleCount] {
+		if f.OddNumberCount != t.OddNumberCount {
 			return false
 		}
 	}
 
-	for idx, i := range f.TailDigit {
-		if i != t.TailDigit[idx] {
+	if filters[FilterDoubleCount] {
+		if f.EvenNumberCount != t.EvenNumberCount {
 			return false
 		}
 	}
 
-	return f.HasPrime == t.HasPrime
+	if filters[FilterTenGroup] {
+		for idx, i := range f.TenGroupCount {
+			j := t.TenGroupCount[idx]
+			if i != j {
+				return false
+			}
+		}
+	}
+
+	if filters[FilterTailDigit] {
+		for idx, i := range f.TailDigit {
+			if i != t.TailDigit[idx] {
+				return false
+			}
+		}
+	}
+
+	if filters[FilterPrime] {
+		return f.HasPrime == t.HasPrime
+	}
+
+	return true
 }
