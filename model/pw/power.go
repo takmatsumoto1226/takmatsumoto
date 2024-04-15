@@ -2,6 +2,7 @@ package pw
 
 import (
 	"fmt"
+	"lottery/model/df"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
@@ -20,11 +21,17 @@ type PickParam struct {
 	Interval   uint
 	Whichfront uint
 	Spliter    uint
-	Hot        uint // 熱門號碼
+	Hot        uint
 }
 
 func NewPower(arr []string) *Power {
 	if len(arr) == arrPowerCount {
+		i1, _ := strconv.Atoi(arr[arrIdxB1])
+		i2, _ := strconv.Atoi(arr[arrIdxB2])
+		i3, _ := strconv.Atoi(arr[arrIdxB3])
+		i4, _ := strconv.Atoi(arr[arrIdxB4])
+		i5, _ := strconv.Atoi(arr[arrIdxB5])
+		i6, _ := strconv.Atoi(arr[arrIdxB6])
 		return &Power{
 			arr[arrIdxYear],
 			arr[arrIdxMonthDay],
@@ -37,6 +44,64 @@ func NewPower(arr []string) *Power {
 			arr[arrIdxB6],
 			arr[arrIdxS1],
 			arr[arrIdxTIdx],
+			[]int{i1, i2, i3, i4, i5, i6},
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+		}
+	}
+	logrus.Error("POWER 資料格式錯誤")
+	return nil
+}
+
+func NewPowerWithString(arr []string) *Power {
+	if len(arr) == 6 {
+		i1, _ := strconv.Atoi(arr[0])
+		i2, _ := strconv.Atoi(arr[1])
+		i3, _ := strconv.Atoi(arr[2])
+		i4, _ := strconv.Atoi(arr[3])
+		i5, _ := strconv.Atoi(arr[4])
+		i6, _ := strconv.Atoi(arr[5])
+		return &Power{
+			"",
+			"",
+			"",
+			arr[0],
+			arr[1],
+			arr[2],
+			arr[3],
+			arr[4],
+			arr[5],
+			"",
+			"",
+			[]int{i1, i2, i3, i4, i5, i6},
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+		}
+	}
+	logrus.Error("POWER 資料格式錯誤")
+	return nil
+}
+
+func NewPowerWithInts(arr []int) *Power {
+	if len(arr) == 6 {
+		i1 := arr[0]
+		i2 := arr[1]
+		i3 := arr[2]
+		i4 := arr[3]
+		i5 := arr[4]
+		i6 := arr[5]
+		return &Power{
+			"",
+			"",
+			"",
+			fmt.Sprintf("%02d", i1),
+			fmt.Sprintf("%02d", i2),
+			fmt.Sprintf("%02d", i3),
+			fmt.Sprintf("%02d", i4),
+			fmt.Sprintf("%02d", i5),
+			fmt.Sprintf("%02d", i6),
+			"",
+			"",
+			[]int{i1, i2, i3, i4, i5, i6},
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")
@@ -56,14 +121,20 @@ type Power struct {
 	B6       string
 	S1       string
 	TIdx     string
+	IBalls   []int
+	Feature  df.Feature
 }
 
 func (fa *Power) toStringArray() []string {
 	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5, fa.B6}
 }
 
+func (b *Power) Key() string {
+	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", b.B1, b.B2, b.B3, b.B4, b.B5, b.B6)
+}
+
 func Empty() *Power {
-	return &Power{"====", "====", "==", "==", "==", "==", "==", "==", "==", "==", "=="}
+	return &Power{"====", "====", "==", "==", "==", "==", "==", "==", "==", "==", "==", []int{0, 0, 0, 0, 0, 0}, *df.DefaultFeature()}
 }
 
 func (fa Power) formRow() string {
@@ -127,27 +198,6 @@ func initNumberToIndex() {
 	}
 }
 
-type IBalls struct {
-	B1 int
-	B2 int
-	B3 int
-	B4 int
-	B5 int
-	B6 int
-	S1 int
-}
-
-func (b *IBalls) Key() string {
-	return fmt.Sprintf("%02d_%02d_%02d_%02d_%02d_%02d", b.B1, b.B2, b.B3, b.B4, b.B5, b.B6)
-}
-
-func NewBalls(n []int) *IBalls {
-	return &IBalls{
-		B1: n[0] + 1,
-		B2: n[1] + 1,
-		B3: n[2] + 1,
-		B4: n[3] + 1,
-		B5: n[4] + 1,
-		B6: n[5] + 1,
-	}
+func (fa *Power) CompareFeature(t *Power) bool {
+	return fa.Feature.Compare(&t.Feature)
 }

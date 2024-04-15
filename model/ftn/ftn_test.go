@@ -143,7 +143,7 @@ func Test_combination2(t *testing.T) {
 	as.Prepare()
 	// as.findNumbers([]string{"01", "07", "11", "24", "32"}, df.Both).Presentation()
 	// as.findNumbers([]string{"03", "18", "19", "20", "33"}, df.Both).Presentation()
-	as.List.findNumbers([]string{"07", "30", "32", "33", "34"}, df.Both).Presentation()
+	as.List.findNumbers([]string{"07", "09", "12", "26", "36"}, df.Both).Presentation()
 
 }
 

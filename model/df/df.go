@@ -75,7 +75,7 @@ const (
 	TailDigit0
 )
 
-var Primes = []byte{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37}
+var Primes = []byte{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
 
 type GROUP int
 
@@ -92,7 +92,7 @@ type Feature struct {
 func NewFeature(numbers []int) *Feature {
 	oc := 0
 	ec := 0
-	gt := []int{0, 0, 0, 0}
+	gt := []int{0, 0, 0, 0, 0}
 	td := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	prime := false
 	for i := 0; i < 5; i++ {
@@ -144,5 +144,5 @@ func (f *Feature) Compare(t *Feature) bool {
 		}
 	}
 
-	return f.HasPrime != t.HasPrime
+	return f.HasPrime == t.HasPrime
 }
