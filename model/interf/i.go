@@ -10,4 +10,5 @@ type Threshold struct {
 	Sample     int
 	Value      int
 	RealSale   int32
+	RefRange   int
 }

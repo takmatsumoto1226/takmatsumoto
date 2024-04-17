@@ -119,7 +119,7 @@ func Test_random(t *testing.T) {
 		count := 0
 		tops := PowerList{}
 		lottos := as.List.WithRange(10)
-		featuresPowers := PowerList{}
+		featuresList := PowerList{}
 		for k, v := range result {
 			if v > th.Value {
 				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
@@ -133,7 +133,7 @@ func Test_random(t *testing.T) {
 				pwr := NewPowerWithString(arr)
 				for _, l := range lottos {
 					if l.CompareFeature(pwr) {
-						featuresPowers = append(featuresPowers, *pwr)
+						featuresList = append(featuresList, *pwr)
 					}
 				}
 
@@ -146,7 +146,7 @@ func Test_random(t *testing.T) {
 		filestr = filestr + fmt.Sprintf("%d tops\n", len(tops))
 		filestr = filestr + fmt.Sprintln("")
 		filestr = filestr + fmt.Sprintln("featuresPowers")
-		featuresPowers.Presentation()
+		featuresList.Presentation()
 		filestr = filestr + fmt.Sprintln("")
 		filestr = filestr + fmt.Sprintf("done : %02d\n", r+1)
 		filestr = filestr + fmt.Sprintln("")

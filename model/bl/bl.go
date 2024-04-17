@@ -134,7 +134,7 @@ func NewBigLottery(arr []string) *BigLottery {
 			arr[arrIdxB7],
 			arr[arrIdxTIdx],
 			[]int{i1, i2, i3, i4, i5, i6, i7},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6, i7}),
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountBigLottery),
 		}
 	}
 	logrus.Error("NewBigLottery 資料格式錯誤")
@@ -162,7 +162,7 @@ func NewPowerWithString(arr []string) *BigLottery {
 			"",
 			"",
 			[]int{i1, i2, i3, i4, i5, i6},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountBigLottery),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")
@@ -171,12 +171,12 @@ func NewPowerWithString(arr []string) *BigLottery {
 
 func NewPowerWithInts(arr []int) *BigLottery {
 	if len(arr) == 6 {
-		i1 := arr[0]
-		i2 := arr[1]
-		i3 := arr[2]
-		i4 := arr[3]
-		i5 := arr[4]
-		i6 := arr[5]
+		i1 := arr[0] + 1
+		i2 := arr[1] + 1
+		i3 := arr[2] + 1
+		i4 := arr[3] + 1
+		i5 := arr[4] + 1
+		i6 := arr[5] + 1
 		return &BigLottery{
 			"",
 			"",
@@ -190,7 +190,7 @@ func NewPowerWithInts(arr []int) *BigLottery {
 			"",
 			"",
 			[]int{i1, i2, i3, i4, i5, i6},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountBigLottery),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")
@@ -205,20 +205,10 @@ func Ball49() []int {
 	return arr
 }
 
-type IBalls struct {
-	B1 int
-	B2 int
-	B3 int
-	B4 int
-	B5 int
-	B6 int
-	S1 int
+func (fa *BigLottery) CompareFeature(t *BigLottery) bool {
+	return fa.Feature.Compare(&t.Feature)
 }
 
-func (b *IBalls) Key() string {
-	return fmt.Sprintf("%02d_%02d_%02d_%02d_%02d_%02d", b.B1, b.B2, b.B3, b.B4, b.B5, b.B6)
-}
-
-func NewBalls(n []int) *IBalls {
-	return &IBalls{B1: n[0], B2: n[1], B3: n[2], B4: n[3], B5: n[4], B6: n[5]}
+func (b *BigLottery) Key() string {
+	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", b.B1, b.B2, b.B3, b.B4, b.B5, b.B6)
 }

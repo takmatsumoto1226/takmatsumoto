@@ -124,7 +124,7 @@ func Test_random2(t *testing.T) {
 	balls := 6
 	combarr := combin.Combinations(49, balls)
 	// lens := len(combarr)
-	th := interf.Threshold{Round: 1, Value: 11, SampleTime: 3, Sample: len(combarr)}
+	th := interf.Threshold{Round: 1, Value: 11, SampleTime: 4, Sample: len(combarr)}
 
 	for i := 0; i < th.Round; i++ {
 		result := map[string]int{}
@@ -138,21 +138,16 @@ func Test_random2(t *testing.T) {
 		rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
 
 		for _, v := range combarr {
-			balls := NewBalls(v)
+			balls := NewPowerWithInts(v)
 			result[balls.Key()] = 0
 		}
 
 		total := int(float32(len(combarr)) * th.SampleTime)
 		fmt.Println(total)
-		// for i := 0; i < 575757000; i++ {
-		for i := 0; i < total; i++ {
 
+		for i := 0; i < total; i++ {
 			index := uint32(rnumber.Uint32() % uint32(len(result)))
-			// index := int(rnumber.Int31() / int32(len(combarr)))
-			// index := int(rnumber.Uint32() / uint32(len(combarr)))
-			// fmt.Println(index)
-			// time.Sleep(time.Second)
-			balls := NewBalls(combarr[index])
+			balls := NewPowerWithInts(combarr[index])
 			if v, ok := result[balls.Key()]; ok {
 				result[balls.Key()] = v + 1
 			}
@@ -160,17 +155,29 @@ func Test_random2(t *testing.T) {
 			// fmt.Println(combarr[index])
 		}
 
+		lottos := as.List.WithRange(20)
+		featuresList := BigLotteryList{}
 		count := 0
 		for k, v := range result {
 			if v > th.Value {
 				fmt.Printf("%v:%v\n", k, v)
 				arr := strings.Split(k, "_")
 				as.List.findNumbers(arr, df.Next).Presentation()
+
+				bl := NewPowerWithString(arr)
+				for _, l := range lottos {
+					if l.CompareFeature(bl) {
+						featuresList = append(featuresList, *bl)
+					}
+				}
 				count++
 			}
 		}
 		fmt.Printf("%d , %d \n", count*50, count)
-		fmt.Printf("done Round : %02d", th.Round)
+		fmt.Println("")
+		fmt.Println("features")
+		featuresList.Presentation()
+		fmt.Printf("done Round : %02d\n", th.Round)
 	}
 
 }

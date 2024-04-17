@@ -45,7 +45,7 @@ func NewPower(arr []string) *Power {
 			arr[arrIdxS1],
 			arr[arrIdxTIdx],
 			[]int{i1, i2, i3, i4, i5, i6},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountPower),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")
@@ -73,7 +73,7 @@ func NewPowerWithString(arr []string) *Power {
 			"",
 			"",
 			[]int{i1, i2, i3, i4, i5, i6},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountPower),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")
@@ -82,12 +82,12 @@ func NewPowerWithString(arr []string) *Power {
 
 func NewPowerWithInts(arr []int) *Power {
 	if len(arr) == 6 {
-		i1 := arr[0]
-		i2 := arr[1]
-		i3 := arr[2]
-		i4 := arr[3]
-		i5 := arr[4]
-		i6 := arr[5]
+		i1 := arr[0] + 1
+		i2 := arr[1] + 1
+		i3 := arr[2] + 1
+		i4 := arr[3] + 1
+		i5 := arr[4] + 1
+		i6 := arr[5] + 1
 		return &Power{
 			"",
 			"",
@@ -101,7 +101,7 @@ func NewPowerWithInts(arr []int) *Power {
 			"",
 			"",
 			[]int{i1, i2, i3, i4, i5, i6},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}),
+			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountPower),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")

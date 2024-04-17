@@ -143,7 +143,7 @@ func Test_combination2(t *testing.T) {
 	as.Prepare()
 	// as.findNumbers([]string{"01", "07", "11", "24", "32"}, df.Both).Presentation()
 	// as.findNumbers([]string{"03", "18", "19", "20", "33"}, df.Both).Presentation()
-	as.List.findNumbers([]string{"07", "09", "12", "26", "36"}, df.Both).Presentation()
+	as.List.findNumbers([]string{"05", "08", "16", "24", "31"}, df.Both).Presentation()
 
 }
 
@@ -290,7 +290,15 @@ func Test_random(t *testing.T) {
 
 	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr)}
 	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr)}
-	th := interf.Threshold{Round: 1, Value: 14, SampleTime: 7, Sample: len(combarr)}
+	th := interf.Threshold{Round: 1, Value: 14, SampleTime: 6, Sample: len(combarr), RefRange: 20}
+
+	// lottos := as.List.WithRange(th.RefRange)
+	lottos := FTNArray{}
+	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
+	for _, v := range result {
+		lottos = append(lottos, as.List.findNumbers(v, df.NextOnly)...)
+	}
+
 	filestr := ""
 	for i := 0; i < th.Round; i++ {
 		result := map[string]int{}
@@ -321,7 +329,6 @@ func Test_random(t *testing.T) {
 
 			// fmt.Println(combarr[index])
 		}
-		lottos := as.List.WithRange(20)
 		count := 0
 		tops := FTNArray{}
 		featuresFTNs := FTNArray{}

@@ -201,7 +201,7 @@ func NewFTN(arr []string) *FTN {
 		i3, _ := strconv.Atoi(arr[arrIdxB3])
 		i4, _ := strconv.Atoi(arr[arrIdxB4])
 		i5, _ := strconv.Atoi(arr[arrIdxB5])
-		return &FTN{arr[arrIdxYear], arr[arrIdxMonthDay], arr[arrIdxLIdx], arr[arrIdxB1], arr[arrIdxB2], arr[arrIdxB3], arr[arrIdxB4], arr[arrIdxB5], arr[arrIdxTIdx], []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5})}
+		return &FTN{arr[arrIdxYear], arr[arrIdxMonthDay], arr[arrIdxLIdx], arr[arrIdxB1], arr[arrIdxB2], arr[arrIdxB3], arr[arrIdxB4], arr[arrIdxB5], arr[arrIdxTIdx], []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN)}
 	}
 	logrus.Error("FTN 資料格式錯誤")
 	return Empty()
@@ -213,7 +213,7 @@ func NewFTNWithStrings(arr []string) *FTN {
 	i3, _ := strconv.Atoi(arr[2])
 	i4, _ := strconv.Atoi(arr[3])
 	i5, _ := strconv.Atoi(arr[4])
-	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5})}
+	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN)}
 }
 
 func NewFTNWithInts(arr []int) *FTN {
@@ -222,7 +222,7 @@ func NewFTNWithInts(arr []int) *FTN {
 	i3 := arr[2] + 1
 	i4 := arr[3] + 1
 	i5 := arr[4] + 1
-	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5})}
+	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN)}
 }
 
 func Empty() *FTN {

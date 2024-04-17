@@ -97,18 +97,20 @@ func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
 
 		if len(set) == count {
 
-			if (t == df.Before || t == df.Both) && i > 0 {
+			if (t == df.BeforeOnly || t == df.Before || t == df.Both) && i > 0 {
 				intersection = append(intersection, list[i-1])
 			}
 
-			intersection = append(intersection, ns)
+			if t != df.NextOnly && t != df.BeforeOnly {
+				intersection = append(intersection, ns)
+			}
 
-			if t == df.Next || t == df.Both {
+			if t == df.NextOnly || t == df.Next || t == df.Both {
 				if i+1 < len(list) {
 					intersection = append(intersection, list[i+1])
 				}
 			}
-			if t != df.None {
+			if t != df.None && t != df.NextOnly && t != df.BeforeOnly {
 				intersection = append(intersection, *Empty())
 			}
 

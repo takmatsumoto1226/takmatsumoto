@@ -46,7 +46,9 @@ const (
 
 const (
 	Next = iota
+	NextOnly
 	Before
+	BeforeOnly
 	Both
 	None
 )
@@ -114,15 +116,18 @@ type Feature struct {
 	EvenNumberCount int
 	TailDigit       []int
 	HasPrime        bool
+	PrimeCount      int
+	MultiplesOfs    []int // 2,3,....helf of ball count
 }
 
-func NewFeature(numbers []int) *Feature {
+func NewFeature(numbers []int, ballsCount int) *Feature {
 	oc := 0
 	ec := 0
 	gt := []int{0, 0, 0, 0, 0}
 	td := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 	prime := false
-	for i := 0; i < 5; i++ {
+	primec := 0
+	for i := 0; i < len(numbers); i++ {
 		if numbers[i]%2 == 1 {
 			oc++
 		}
@@ -133,6 +138,7 @@ func NewFeature(numbers []int) *Feature {
 		td[numbers[i]%10]++
 		if bytes.IndexByte(Primes, byte(numbers[i])) >= 0 {
 			prime = true
+			primec++
 		}
 	}
 	return &Feature{
@@ -141,6 +147,7 @@ func NewFeature(numbers []int) *Feature {
 		EvenNumberCount: ec,
 		TailDigit:       td,
 		HasPrime:        prime,
+		PrimeCount:      primec,
 	}
 }
 

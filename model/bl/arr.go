@@ -25,3 +25,11 @@ func (fa BigLotteryList) Less(i, j int) bool {
 func (fa BigLotteryList) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
+
+func (fa BigLotteryList) WithRange(r int) BigLotteryList {
+	al := len(fa)
+	if r > 0 {
+		return fa[al-r : al]
+	}
+	return fa
+}
