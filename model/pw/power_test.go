@@ -23,7 +23,7 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = PowerManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.List.Presentation()
+	as.List.WithRange(20, 5).Presentation()
 }
 
 func Test_findnumber(t *testing.T) {
@@ -80,7 +80,9 @@ func Test_random(t *testing.T) {
 	balls := 6
 	combarr := combin.Combinations(38, balls)
 	// lens := len(combarr)
-	th := interf.Threshold{Round: 1, Value: 16, SampleTime: 8, Sample: len(combarr)}
+	// th := interf.Threshold{Round: 1, Value: 7, SampleTime: 2, Sample: len(combarr), RefRange: 5}
+	th := interf.Threshold{Round: 1, Value: 16, SampleTime: 8, Sample: len(combarr), RefRange: 5}
+	// th := interf.Threshold{Round: 1, Value: 1, SampleTime: 2, Sample: 2000, RefRange: 5}
 	topss := []PowerList{}
 
 	for r := 0; r < th.Round; r++ {
@@ -98,17 +100,18 @@ func Test_random(t *testing.T) {
 			balls := NewPowerWithInts(v)
 			result[balls.Key()] = 0
 		}
+
+		filestr = filestr + "result len : \n"
 		filestr = filestr + fmt.Sprintln(len(result))
 		total := int(float32(th.Sample) * th.SampleTime)
 		for i := 0; i < total; i++ {
-
 			index := uint32(rnumber.Uint32() % uint32(len(result)))
-			for {
-				if isOverRange(index, 0, th.Sample) {
-					break
-				}
-				index = uint32(rnumber.Uint32() % uint32(len(result)))
-			}
+			// for {
+			// 	if isOverRange(index, 0, th.Sample) {
+			// 		break
+			// 	}
+			// 	index = uint32(rnumber.Uint32() % uint32(len(result)))
+			// }
 			// balls := NewBalls(combarr[maxmin(index, 10000, th.Sample)])
 			balls := NewPowerWithInts(combarr[index])
 			if v, ok := result[balls.Key()]; ok {
@@ -116,14 +119,16 @@ func Test_random(t *testing.T) {
 			}
 		}
 
+		zeros := PowerList{}
+		zerosFeature := PowerList{}
 		count := 0
 		tops := PowerList{}
-		lottos := as.List.WithRange(10)
+		lottos := as.List.WithRange(1000, th.RefRange)
 		featuresList := PowerList{}
 		for k, v := range result {
+			arr := strings.Split(k, "_")
 			if v > th.Value {
 				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
-				arr := strings.Split(k, "_")
 				powarr := as.findNumbers(arr, df.None)
 				if len(powarr) > 0 {
 					filestr = filestr + powarr.Presentation()
@@ -136,18 +141,37 @@ func Test_random(t *testing.T) {
 						featuresList = append(featuresList, *pwr)
 					}
 				}
-
 				count++
 			}
+
+			if v == 0 {
+				zeros = append(zeros, *NewPowerWithString(arr))
+			}
 		}
+
+		lottos = as.List.WithRange(1000, 100)
+		for _, z := range zeros {
+			for _, l := range lottos {
+				if l.CompareFeature(&z) {
+					zerosFeature = append(zerosFeature, z)
+				}
+			}
+		}
+
 		topss = append(topss, tops)
 
 		filestr = filestr + fmt.Sprintf("%d 元, %d \n", count*100, count)
 		filestr = filestr + fmt.Sprintf("%d tops\n", len(tops))
+		filestr = filestr + fmt.Sprintf("%.9f tops\n", float32(len(tops))/float32(count))
 		filestr = filestr + fmt.Sprintln("")
 		filestr = filestr + fmt.Sprintln("featuresPowers")
-		featuresList.Presentation()
+		filestr = filestr + featuresList.Presentation() + "\n"
 		filestr = filestr + fmt.Sprintln("")
+		filestr = filestr + fmt.Sprintln("")
+		// filestr = filestr + fmt.Sprintln("zeros")
+		// filestr = filestr + zeros.Presentation()
+		filestr = filestr + fmt.Sprintln("zeros feature")
+		filestr = filestr + zerosFeature.Presentation()
 		filestr = filestr + fmt.Sprintf("done : %02d\n", r+1)
 		filestr = filestr + fmt.Sprintln("")
 		filestr = filestr + fmt.Sprintln("")
@@ -161,6 +185,5 @@ func Test_random(t *testing.T) {
 		filestr = filestr + fmt.Sprintf("群 %02d, 有 %d Top\n", i+1, len(tops))
 	}
 	filestr = filestr + fmt.Sprintf("Top Percent %.3f\n", (float32(th.Round-miss)/float32(th.Round))*100)
-
-	common.Save(filestr, "content.txt")
+	common.Save(filestr, fmt.Sprintf("content%s.txt", time.Now().Format(time.RFC3339)))
 }

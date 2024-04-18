@@ -28,10 +28,10 @@ func (fa PowerList) Presentation() string {
 	return msg
 }
 
-func (fa PowerList) WithRange(r int) PowerList {
+func (fa PowerList) WithRange(i, r int) PowerList {
 	al := len(fa)
 	if r > 0 {
-		return fa[al-r : al]
+		return fa[al-r-i : al-i]
 	}
 	return fa
 }
