@@ -70,12 +70,21 @@ func (fa FTNArray) PresentationWithRange(r int) string {
 	return msg
 }
 
-func (fa FTNArray) WithRange(r int) FTNArray {
+func (fa FTNArray) WithRange(i, r int) FTNArray {
 	al := len(fa)
 	if r > 0 {
-		return fa[al-r : al]
+		return fa[al-r-i : al-i]
 	}
 	return fa
+}
+
+func (fa FTNArray) WithAI() FTNArray {
+	features := FTNArray{}
+	result := algorithm.Combinations(fa[0].toStringArray(), 3)
+	for _, v := range result {
+		features = append(features, fa.findNumbers(v, df.NextOnly)...)
+	}
+	return features
 }
 
 func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {

@@ -95,7 +95,7 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 46, Whichfront: df.Normal}
 	as.List.PresentationWithRange(int(p.Interval))
 	params := PickParams{
 		p,
@@ -284,20 +284,15 @@ func Test_random(t *testing.T) {
 	topss := []FTNArray{}
 	counts := []int{}
 	resultss := map[string]int{} // n round result
-	// realsale := uint32(501942)
-	// realsale := uint32(531942)
 	realsale := uint32(len(combarr))
 
-	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr)}
-	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr)}
-	th := interf.Threshold{Round: 1, Value: 14, SampleTime: 6, Sample: len(combarr), RefRange: 20}
+	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
+	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
+	th := interf.Threshold{Round: 1, Value: 13, SampleTime: 6, Sample: len(combarr), RefRange: 20}
 
-	// lottos := as.List.WithRange(th.RefRange)
-	lottos := FTNArray{}
-	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
-	for _, v := range result {
-		lottos = append(lottos, as.List.findNumbers(v, df.NextOnly)...)
-	}
+	features := as.List.WithRange(2000, th.RefRange)
+	features = append(features, as.List.WithRange(0, th.RefRange)...)
+	// features := as.List.WithAI()
 
 	filestr := ""
 	for i := 0; i < th.Round; i++ {
@@ -343,7 +338,7 @@ func Test_random(t *testing.T) {
 				}
 
 				ftn := NewFTNWithStrings(arr)
-				for _, l := range lottos {
+				for _, l := range features {
 					if l.CompareFeature(ftn) {
 						featuresFTNs = append(featuresFTNs, *ftn)
 					}
@@ -362,6 +357,7 @@ func Test_random(t *testing.T) {
 		counts = append(counts, count)
 		filestr = filestr + fmt.Sprintf("%d TWD, %d\n", count*45, count)
 		filestr = filestr + fmt.Sprintf("群 %02d, get %d Top\n", i+1, len(tops))
+		filestr = filestr + fmt.Sprintf("%.9f tops\n", float32(len(tops))/float32(count))
 		filestr = filestr + fmt.Sprintf("done %02d\n", i+1)
 		filestr = filestr + "\n"
 		filestr = filestr + "\n"
@@ -393,7 +389,7 @@ func Test_random(t *testing.T) {
 		}
 	}
 
-	common.Save(filestr, "content.txt")
+	common.Save(filestr, fmt.Sprintf("content%s.txt", time.Now().Format(time.RFC3339)))
 }
 
 func Test_montecarlo(t *testing.T) {

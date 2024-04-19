@@ -23,7 +23,7 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = PowerManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.List.WithRange(20, 5).Presentation()
+	as.List.WithRange(0, 20).Presentation()
 }
 
 func Test_findnumber(t *testing.T) {
