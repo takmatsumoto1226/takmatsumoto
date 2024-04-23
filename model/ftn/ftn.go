@@ -12,6 +12,8 @@ import (
 
 var ballPools = map[string]BallsInfo{}
 
+var ballIntervalStatic = map[int]int{}
+
 // PickParams ...
 type PickParams []PickParam
 
@@ -40,6 +42,7 @@ type Ball struct {
 	Number   string
 	Position int // 出球的順序
 	Digit    int // int的球號
+	Period   int
 }
 
 func (b *Ball) Illegal() bool {
@@ -162,6 +165,10 @@ func (fa *FTN) matchCount(n FTN) int {
 	return 0
 }
 
+func (fa *FTN) matchNumber(n int) bool {
+	return true
+}
+
 func Ball39() []string {
 	arr := []string{}
 	for i := 0; i < 39; i++ {
@@ -210,23 +217,46 @@ func (fa *FTN) formRow() string {
 // NewFTN ...
 func NewFTN(arr []string) *FTN {
 	if len(arr) == arrFTNCount {
-		i1, _ := strconv.Atoi(arr[arrIdxB1])
-		i2, _ := strconv.Atoi(arr[arrIdxB2])
-		i3, _ := strconv.Atoi(arr[arrIdxB3])
-		i4, _ := strconv.Atoi(arr[arrIdxB4])
-		i5, _ := strconv.Atoi(arr[arrIdxB5])
+		B1 := *NewBallS(arr[arrIdxB1], 0)
+		B2 := *NewBallS(arr[arrIdxB2], 0)
+		B3 := *NewBallS(arr[arrIdxB3], 0)
+		B4 := *NewBallS(arr[arrIdxB4], 0)
+		B5 := *NewBallS(arr[arrIdxB5], 0)
+
+		arrInt := []int{B1.Digit, B2.Digit, B3.Digit, B4.Digit, B5.Digit}
+		for i := 0; i < ballsCountFTN; i++ {
+			if i == B1.Digit {
+				B1.Period = ballIntervalStatic[i]
+				ballIntervalStatic[i] = 0
+			} else if i == B2.Digit {
+				B2.Period = ballIntervalStatic[i]
+				ballIntervalStatic[i] = 0
+			} else if i == B3.Digit {
+				B3.Period = ballIntervalStatic[i]
+				ballIntervalStatic[i] = 0
+			} else if i == B4.Digit {
+				B4.Period = ballIntervalStatic[i]
+				ballIntervalStatic[i] = 0
+			} else if i == B5.Digit {
+				B5.Period = ballIntervalStatic[i]
+				ballIntervalStatic[i] = 0
+			} else {
+				ballIntervalStatic[i]++
+			}
+		}
+
 		return &FTN{
 			Year:     arr[arrIdxYear],
 			MonthDay: arr[arrIdxMonthDay],
 			LIdx:     arr[arrIdxLIdx],
-			B1:       *NewBallS(arr[arrIdxB1], 0),
-			B2:       *NewBallS(arr[arrIdxB2], 0),
-			B3:       *NewBallS(arr[arrIdxB3], 0),
-			B4:       *NewBallS(arr[arrIdxB4], 0),
-			B5:       *NewBallS(arr[arrIdxB5], 0),
+			B1:       B1,
+			B2:       B2,
+			B3:       B3,
+			B4:       B4,
+			B5:       B5,
 			TIdx:     arr[arrIdxTIdx],
-			IBalls:   []int{i1, i2, i3, i4, i5},
-			Feature:  *df.NewFeature([]int{i1, i2, i3, i4, i5}, arrFTNCount),
+			IBalls:   arrInt,
+			Feature:  *df.NewFeature(arrInt, arrFTNCount),
 		}
 	}
 	logrus.Error("FTN 資料格式錯誤")
