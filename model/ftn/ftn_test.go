@@ -95,7 +95,7 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 46, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
 	as.List.PresentationWithRange(int(p.Interval))
 	params := PickParams{
 		p,
@@ -288,10 +288,10 @@ func Test_random(t *testing.T) {
 
 	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
 	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
-	th := interf.Threshold{Round: 1, Value: 13, SampleTime: 6, Sample: len(combarr), RefRange: 20}
+	th := interf.Threshold{Round: 1, Value: 14, SampleTime: 6, Sample: len(combarr), Interval: interf.Interval{Index: 2100, Length: 21}}
 
-	features := as.List.WithRange(2000, th.RefRange)
-	features = append(features, as.List.WithRange(0, th.RefRange)...)
+	features := as.List.WithRange(th.Interval.Index, th.Interval.Length)
+	features = append(features, as.List.WithRange(0, th.Interval.Length)...)
 	// features := as.List.WithAI()
 
 	filestr := ""

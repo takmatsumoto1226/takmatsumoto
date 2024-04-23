@@ -5,6 +5,7 @@ import (
 	"lottery/model/df"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/sirupsen/logrus"
 )
@@ -39,6 +40,24 @@ type Ball struct {
 	Number   string
 	Position int // 出球的順序
 	Digit    int // int的球號
+}
+
+func (b *Ball) Illegal() bool {
+	return b.Number == "" || b.Number == "00"
+}
+
+func NewBallS(n string, pos int) *Ball {
+	iB1, _ := strconv.Atoi(n)
+	if strings.Contains(n, "==") {
+		return &Ball{Number: n, Position: 0, Digit: 0}
+	} else {
+		return &Ball{Number: n, Position: pos, Digit: iB1}
+	}
+
+}
+
+func NewBallI(n int, pos int) *Ball {
+	return &Ball{Number: fmt.Sprintf("%02d", n), Position: pos, Digit: n}
 }
 
 // BallsCount ...
@@ -112,11 +131,11 @@ type FTN struct {
 	Year     string
 	MonthDay string
 	LIdx     string
-	B1       string
-	B2       string
-	B3       string
-	B4       string
-	B5       string
+	B1       Ball
+	B2       Ball
+	B3       Ball
+	B4       Ball
+	B5       Ball
 	TIdx     string
 	IBalls   []int
 	Feature  df.Feature
@@ -152,16 +171,11 @@ func Ball39() []string {
 }
 
 func (fa *FTN) toStringArray() []string {
-	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5}
+	return []string{fa.B1.Number, fa.B2.Number, fa.B3.Number, fa.B4.Number, fa.B5.Number}
 }
 
 func (fa *FTN) ArrInt() []int {
-	iB1, _ := strconv.Atoi(fa.B1)
-	iB2, _ := strconv.Atoi(fa.B2)
-	iB3, _ := strconv.Atoi(fa.B3)
-	iB4, _ := strconv.Atoi(fa.B4)
-	iB5, _ := strconv.Atoi(fa.B5)
-	return []int{iB1, iB2, iB3, iB4, iB5}
+	return []int{fa.B1.Digit, fa.B2.Digit, fa.B3.Digit, fa.B4.Digit, fa.B5.Digit}
 }
 
 func (fa *FTN) formRow() string {
@@ -201,7 +215,19 @@ func NewFTN(arr []string) *FTN {
 		i3, _ := strconv.Atoi(arr[arrIdxB3])
 		i4, _ := strconv.Atoi(arr[arrIdxB4])
 		i5, _ := strconv.Atoi(arr[arrIdxB5])
-		return &FTN{arr[arrIdxYear], arr[arrIdxMonthDay], arr[arrIdxLIdx], arr[arrIdxB1], arr[arrIdxB2], arr[arrIdxB3], arr[arrIdxB4], arr[arrIdxB5], arr[arrIdxTIdx], []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN)}
+		return &FTN{
+			Year:     arr[arrIdxYear],
+			MonthDay: arr[arrIdxMonthDay],
+			LIdx:     arr[arrIdxLIdx],
+			B1:       *NewBallS(arr[arrIdxB1], 0),
+			B2:       *NewBallS(arr[arrIdxB2], 0),
+			B3:       *NewBallS(arr[arrIdxB3], 0),
+			B4:       *NewBallS(arr[arrIdxB4], 0),
+			B5:       *NewBallS(arr[arrIdxB5], 0),
+			TIdx:     arr[arrIdxTIdx],
+			IBalls:   []int{i1, i2, i3, i4, i5},
+			Feature:  *df.NewFeature([]int{i1, i2, i3, i4, i5}, arrFTNCount),
+		}
 	}
 	logrus.Error("FTN 資料格式錯誤")
 	return Empty()
@@ -213,7 +239,19 @@ func NewFTNWithStrings(arr []string) *FTN {
 	i3, _ := strconv.Atoi(arr[2])
 	i4, _ := strconv.Atoi(arr[3])
 	i5, _ := strconv.Atoi(arr[4])
-	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN)}
+	return &FTN{
+		Year:     "",
+		MonthDay: "",
+		LIdx:     "",
+		B1:       *NewBallI(i1, 0),
+		B2:       *NewBallI(i2, 0),
+		B3:       *NewBallI(i3, 0),
+		B4:       *NewBallI(i4, 0),
+		B5:       *NewBallI(i5, 0),
+		TIdx:     "",
+		IBalls:   []int{i1, i2, i3, i4, i5},
+		Feature:  *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN),
+	}
 }
 
 func NewFTNWithInts(arr []int) *FTN {
@@ -222,11 +260,34 @@ func NewFTNWithInts(arr []int) *FTN {
 	i3 := arr[2] + 1
 	i4 := arr[3] + 1
 	i5 := arr[4] + 1
-	return &FTN{"", "", "", fmt.Sprintf("%02d", i1), fmt.Sprintf("%02d", i2), fmt.Sprintf("%02d", i3), fmt.Sprintf("%02d", i4), fmt.Sprintf("%02d", i5), "", []int{i1, i2, i3, i4, i5}, *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN)}
+	return &FTN{
+		Year:     "",
+		MonthDay: "",
+		LIdx:     "",
+		B1:       *NewBallI(i1, 0),
+		B2:       *NewBallI(i2, 0),
+		B3:       *NewBallI(i3, 0),
+		B4:       *NewBallI(i4, 0),
+		B5:       *NewBallI(i5, 0),
+		TIdx:     "",
+		IBalls:   []int{i1, i2, i3, i4, i5},
+		Feature:  *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN),
+	}
 }
 
 func Empty() *FTN {
-	return &FTN{"====", "====", "==", "==", "==", "==", "==", "==", "==", []int{}, *df.DefaultFeature()}
+	return &FTN{
+		"====",
+		"====",
+		"==",
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		"==",
+		[]int{}, *df.DefaultFeature(),
+	}
 }
 
 func AdjacentNumberRecordCount() error {
@@ -331,5 +392,5 @@ func (fa *FTN) CompareFeature(t *FTN) bool {
 }
 
 func (fa *FTN) Key() string {
-	return fmt.Sprintf("%s_%s_%s_%s_%s", fa.B1, fa.B2, fa.B3, fa.B4, fa.B5)
+	return fmt.Sprintf("%s_%s_%s_%s_%s", fa.B1.Number, fa.B2.Number, fa.B3.Number, fa.B4.Number, fa.B5.Number)
 }

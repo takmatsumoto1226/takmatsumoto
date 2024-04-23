@@ -44,7 +44,7 @@ func (ar *FTNsManager) loadAllData() {
 		}
 		for _, yd := range yearDatas {
 			ftn := NewFTN(yd)
-			if ftn.B1 == "" || ftn.B1 == "00" {
+			if ftn.B1.Illegal() {
 				continue
 			}
 			ftns = append(ftns, *ftn)
@@ -88,11 +88,11 @@ func (ar *FTNsManager) intervalBallsCountStatic(params PickParams) {
 			break
 		}
 		for _, t := range intervalFTNs {
-			FTNIntervalCount[numberToIndex[t.B1]]++
-			FTNIntervalCount[numberToIndex[t.B2]]++
-			FTNIntervalCount[numberToIndex[t.B3]]++
-			FTNIntervalCount[numberToIndex[t.B4]]++
-			FTNIntervalCount[numberToIndex[t.B5]]++
+			FTNIntervalCount[numberToIndex[t.B1.Number]]++
+			FTNIntervalCount[numberToIndex[t.B2.Number]]++
+			FTNIntervalCount[numberToIndex[t.B3.Number]]++
+			FTNIntervalCount[numberToIndex[t.B4.Number]]++
+			FTNIntervalCount[numberToIndex[t.B5.Number]]++
 		}
 		arr := BallsCount{}
 		for i, count := range FTNIntervalCount {

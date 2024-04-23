@@ -1,9 +1,12 @@
 module lottery
 
-go 1.21
+go 1.22
+
+toolchain go1.22.2
 
 require (
 	github.com/PuerkitoBio/goquery v1.8.0
+	github.com/goark/mt/v2 v2.0.1
 	github.com/pkg/errors v0.8.1
 	github.com/sirupsen/logrus v1.9.3
 	github.com/spf13/cobra v1.8.0

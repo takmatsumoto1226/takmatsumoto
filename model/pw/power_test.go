@@ -9,13 +9,14 @@ import (
 	"lottery/model/df"
 	"lottery/model/interf"
 	"math"
-	"math/rand"
 	"strings"
 	"testing"
 	"time"
 
 	crypto_rand "crypto/rand"
 
+	"github.com/goark/mt/v2"
+	"github.com/goark/mt/v2/mt19937"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
@@ -24,6 +25,7 @@ func Test_listLikeExecl(t *testing.T) {
 	var as = PowerManager{numberToIndex: map[string]int{}}
 	as.Prepare()
 	as.List.WithRange(0, 20).Presentation()
+	// fmt.Println(mt.New(mt19937.New(19650218)).Uint64())
 }
 
 func Test_findnumber(t *testing.T) {
@@ -81,7 +83,7 @@ func Test_random(t *testing.T) {
 	combarr := combin.Combinations(38, balls)
 	// lens := len(combarr)
 	// th := interf.Threshold{Round: 1, Value: 7, SampleTime: 2, Sample: len(combarr), RefRange: 5}
-	th := interf.Threshold{Round: 1, Value: 16, SampleTime: 8, Sample: len(combarr), RefRange: 5}
+	th := interf.Threshold{Round: 1, Value: 16, SampleTime: 8, Sample: len(combarr), Interval: interf.Interval{Index: 869, Length: 5}}
 	// th := interf.Threshold{Round: 1, Value: 1, SampleTime: 2, Sample: 2000, RefRange: 5}
 	topss := []PowerList{}
 
@@ -94,7 +96,8 @@ func Test_random(t *testing.T) {
 			panic("cannot seed math/rand package with cryptographically secure random number generator")
 		}
 
-		rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
+		// rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
+		rnumber := mt.New(mt19937.New(int64(binary.LittleEndian.Uint64(b[:]))))
 
 		for _, v := range combarr {
 			balls := NewPowerWithInts(v)
@@ -105,7 +108,7 @@ func Test_random(t *testing.T) {
 		filestr = filestr + fmt.Sprintln(len(result))
 		total := int(float32(th.Sample) * th.SampleTime)
 		for i := 0; i < total; i++ {
-			index := uint32(rnumber.Uint32() % uint32(len(result)))
+			index := uint32(rnumber.Uint64() % uint64(len(result)))
 			// for {
 			// 	if isOverRange(index, 0, th.Sample) {
 			// 		break
@@ -123,7 +126,7 @@ func Test_random(t *testing.T) {
 		zerosFeature := PowerList{}
 		count := 0
 		tops := PowerList{}
-		lottos := as.List.WithRange(1000, th.RefRange)
+		lottos := as.List.WithRange(th.Interval.Index, th.Interval.Length)
 		featuresList := PowerList{}
 		for k, v := range result {
 			arr := strings.Split(k, "_")
@@ -149,7 +152,7 @@ func Test_random(t *testing.T) {
 			}
 		}
 
-		lottos = as.List.WithRange(1000, 100)
+		lottos = as.List.WithRange(th.Interval.Index, th.Interval.Length)
 		for _, z := range zeros {
 			for _, l := range lottos {
 				if l.CompareFeature(&z) {
@@ -171,7 +174,7 @@ func Test_random(t *testing.T) {
 		// filestr = filestr + fmt.Sprintln("zeros")
 		// filestr = filestr + zeros.Presentation()
 		filestr = filestr + fmt.Sprintln("zeros feature")
-		filestr = filestr + zerosFeature.Presentation()
+		filestr = filestr + zerosFeature.Presentation() + "\n"
 		filestr = filestr + fmt.Sprintf("done : %02d\n", r+1)
 		filestr = filestr + fmt.Sprintln("")
 		filestr = filestr + fmt.Sprintln("")
