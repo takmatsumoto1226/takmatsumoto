@@ -1,7 +1,6 @@
 package pw
 
 import (
-	"encoding/binary"
 	"fmt"
 	"lottery/algorithm"
 	"lottery/config"
@@ -15,8 +14,6 @@ import (
 
 	crypto_rand "crypto/rand"
 
-	"github.com/goark/mt/v2"
-	"github.com/goark/mt/v2/mt19937"
 	"gonum.org/v1/gonum/stat/combin"
 )
 
@@ -37,7 +34,7 @@ func Test_findnumber(t *testing.T) {
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Printf("=================== %s ================\n", v)
-		as.findNumbers(v, df.Next).Presentation()
+		as.List.findNumbers(v, df.Next).Presentation()
 	}
 }
 
@@ -83,7 +80,7 @@ func Test_random(t *testing.T) {
 	combarr := combin.Combinations(38, balls)
 	// lens := len(combarr)
 	// th := interf.Threshold{Round: 1, Value: 7, SampleTime: 2, Sample: len(combarr), RefRange: 5}
-	th := interf.Threshold{Round: 1, Value: 16, SampleTime: 8, Sample: len(combarr), Interval: interf.Interval{Index: 869, Length: 5}}
+	th := interf.Threshold{Round: 1, Value: 16, SampleTime: 8, Sample: len(combarr), Interval: interf.Interval{Index: 0, Length: 20}}
 	// th := interf.Threshold{Round: 1, Value: 1, SampleTime: 2, Sample: 2000, RefRange: 5}
 	topss := []PowerList{}
 
@@ -97,7 +94,7 @@ func Test_random(t *testing.T) {
 		}
 
 		// rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
-		rnumber := mt.New(mt19937.New(int64(binary.LittleEndian.Uint64(b[:]))))
+		common.SetRandomGenerator(0)
 
 		for _, v := range combarr {
 			balls := NewPowerWithInts(v)
@@ -108,7 +105,7 @@ func Test_random(t *testing.T) {
 		filestr = filestr + fmt.Sprintln(len(result))
 		total := int(float32(th.Sample) * th.SampleTime)
 		for i := 0; i < total; i++ {
-			index := uint32(rnumber.Uint64() % uint64(len(result)))
+			index := uint32(common.RandomNuber() % uint64(len(result)))
 			// for {
 			// 	if isOverRange(index, 0, th.Sample) {
 			// 		break
@@ -122,17 +119,18 @@ func Test_random(t *testing.T) {
 			}
 		}
 
+		lottos := as.List.FeatureRange(th)
+
 		zeros := PowerList{}
 		zerosFeature := PowerList{}
 		count := 0
 		tops := PowerList{}
-		lottos := as.List.WithRange(th.Interval.Index, th.Interval.Length)
 		featuresList := PowerList{}
 		for k, v := range result {
 			arr := strings.Split(k, "_")
 			if v > th.Value {
 				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
-				powarr := as.findNumbers(arr, df.None)
+				powarr := as.List.findNumbers(arr, df.None)
 				if len(powarr) > 0 {
 					filestr = filestr + powarr.Presentation()
 					tops = append(tops, powarr...)

@@ -81,21 +81,34 @@ const (
 var Primes = []byte{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
 
 const (
-	FilterSingleCount = iota
-	FilterDoubleCount
+	FilterOddCount = iota
+	FilterEvenCount
+	FilterTenGroupOddCount
+	FilterTenGroupEvenCount
 	FilterTenGroup
 	FilterTailDigit
 	FilterPrime
+	FilterPrimeCount
 	FilterContinue2
+	FilterContinue3
 )
 
 var filters = []bool{
-	true, // single count
-	true, // double count
+	true, // odd count
+	true, // even count
+	true, // ten group odd count
+	true, // ten group even count
 	true, // ten group
 	true, // tail digit
 	true, // prime
+	true, // prime count
 	true, // continue2
+}
+
+func DistableFilters(fs []int) {
+	for _, i := range fs {
+		filters[i] = false
+	}
 }
 
 func setFilter(fs []bool) {
@@ -111,13 +124,14 @@ type GROUP int
 const UndefinedFeature = -1
 
 type Feature struct {
-	TenGroupCount   []int
-	OddNumberCount  int
-	EvenNumberCount int
-	TailDigit       []int
-	HasPrime        bool
-	PrimeCount      int
-	MultiplesOfs    []int // 2,3,....helf of ball count
+	TenGroupCount           []int
+	OddNumberCount          int
+	TenGroupOddNumberCount  []int
+	TenGroupEvenNumberCount []int
+	EvenNumberCount         int
+	TailDigit               []int
+	PrimeCount              int
+	MultiplesOfs            []int // 2,3,....helf of ball count
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {
@@ -125,29 +139,33 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 	ec := 0
 	gt := []int{0, 0, 0, 0, 0}
 	td := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	prime := false
+	tgonc := []int{0, 0, 0, 0, 0}
+	tgenc := []int{0, 0, 0, 0, 0}
 	primec := 0
 	for i := 0; i < len(numbers); i++ {
 		if numbers[i]%2 == 1 {
 			oc++
+			tgonc[numbers[i]/10]++
 		}
 		if numbers[i]%2 == 0 {
 			ec++
+			tgenc[numbers[i]/10]++
 		}
+
 		gt[numbers[i]/10]++
 		td[numbers[i]%10]++
 		if bytes.IndexByte(Primes, byte(numbers[i])) >= 0 {
-			prime = true
 			primec++
 		}
 	}
 	return &Feature{
-		TenGroupCount:   gt,
-		OddNumberCount:  oc,
-		EvenNumberCount: ec,
-		TailDigit:       td,
-		HasPrime:        prime,
-		PrimeCount:      primec,
+		TenGroupCount:           gt,
+		OddNumberCount:          oc,
+		TenGroupOddNumberCount:  tgonc,
+		TenGroupEvenNumberCount: tgenc,
+		EvenNumberCount:         ec,
+		TailDigit:               td,
+		PrimeCount:              primec,
 	}
 }
 
@@ -166,13 +184,14 @@ func (f *Feature) CompareWithFilter(t *Feature, fs []bool) bool {
 }
 
 func (f *Feature) Compare(t *Feature) bool {
-	if filters[FilterSingleCount] {
+
+	if filters[FilterOddCount] {
 		if f.OddNumberCount != t.OddNumberCount {
 			return false
 		}
 	}
 
-	if filters[FilterDoubleCount] {
+	if filters[FilterEvenCount] {
 		if f.EvenNumberCount != t.EvenNumberCount {
 			return false
 		}
@@ -195,8 +214,32 @@ func (f *Feature) Compare(t *Feature) bool {
 		}
 	}
 
+	if filters[FilterTenGroupOddCount] {
+		for idx, i := range f.TenGroupOddNumberCount {
+			if i != t.TenGroupOddNumberCount[idx] {
+				return false
+			}
+		}
+	}
+
+	if filters[FilterTenGroupEvenCount] {
+		for idx, i := range f.TenGroupEvenNumberCount {
+			if i != t.TenGroupEvenNumberCount[idx] {
+				return false
+			}
+		}
+	}
+
 	if filters[FilterPrime] {
-		return f.HasPrime == t.HasPrime
+		if f.PrimeCount > 0 && t.PrimeCount > 0 {
+			return false
+		}
+	}
+
+	if filters[FilterPrimeCount] {
+		if f.PrimeCount != t.PrimeCount {
+			return false
+		}
 	}
 
 	return true

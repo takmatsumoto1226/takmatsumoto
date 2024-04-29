@@ -33,6 +33,7 @@ func (p *PickParam) GetKey() string {
 }
 
 const ballsCountFTN = 39
+const BallsOfFTN = 5
 
 // Balls ...
 type Balls []Ball
@@ -94,7 +95,7 @@ type BallInfo struct {
 
 type BallsInfo []BallInfo
 
-func (bsi BallsInfo) Presentation() {
+func (bsi BallsInfo) ShowAll() {
 	rowmsg := "          "
 	for _, bi := range bsi {
 		rowmsg = rowmsg + fmt.Sprintf("%2d ", bi.Count)
@@ -208,10 +209,12 @@ func (fa *FTN) formRow() string {
 				rowmsg = rowmsg + "  |"
 			}
 		}
-		fmt.Println(rowmsg)
 		return rowmsg
 	}
+}
 
+func (fa *FTN) ShowRow() {
+	fmt.Println(fa.formRow())
 }
 
 // NewFTN ...
@@ -419,6 +422,10 @@ func (fa *FTN) IsUTree(before *FTN) bool {
 
 func (fa *FTN) CompareFeature(t *FTN) bool {
 	return fa.Feature.Compare(&t.Feature)
+}
+
+func (fa *FTN) IsSame(t *FTN) bool {
+	return fa.Year == t.Year && fa.MonthDay == t.MonthDay && fa.B1.Digit == t.B1.Digit && fa.B2.Digit == t.B2.Digit && fa.B3.Digit == t.B3.Digit && fa.B4.Digit == t.B4.Digit && fa.B5.Digit == t.B5.Digit
 }
 
 func (fa *FTN) Key() string {

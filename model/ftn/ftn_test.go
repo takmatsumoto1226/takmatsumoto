@@ -1,8 +1,6 @@
 package ftn
 
 import (
-	"bytes"
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"lottery/algorithm"
@@ -18,8 +16,6 @@ import (
 	"testing"
 	"time"
 
-	crypto_rand "crypto/rand"
-
 	"github.com/sirupsen/logrus"
 	"gonum.org/v1/gonum/stat/combin"
 )
@@ -34,17 +30,27 @@ func Test_initNumberToIndex(t *testing.T) {
 	// fmt.Println(df.FeatureTenGroup1)
 	// n := 14
 	// fmt.Println(n / 10)
-	fmt.Println(df.Primes)
-	fmt.Println(bytes.IndexByte(df.Primes, 31))
-	fmt.Println(bytes.IndexByte(df.Primes, 30))
+	// fmt.Println(df.Primes)
+	// fmt.Println(bytes.IndexByte(df.Primes, 31))
+	// fmt.Println(bytes.IndexByte(df.Primes, 30))
+	// fmt.Println(df.FilterContinue3)
+	ftn := NewFTNWithInts([]int{10, 14, 25, 31, 36})
+	fmt.Println(ftn)
 }
 
 func Test_loadFTNs(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
-	as.loadAllData()
-	sort.Sort(as.List)
-	logrus.Info(as.List)
+	as.Prepare()
+	aipicks := as.List.WithAI()
+	sort.Sort(aipicks)
+	aipicks.ShowAll()
+	fmt.Println("")
+	fmt.Println("")
+	fmt.Println("")
+	distinct := aipicks.Distinct()
+	distinct.ShowAll()
+
 }
 
 func Test_calculateTotalCount(t *testing.T) {
@@ -65,7 +71,7 @@ func Test_calculateTotalCount(t *testing.T) {
 		// {SortType: descending, Interval: 1, Whichfront: biggerfront},
 	}
 	as.intervalBallsCountStatic(params)
-	as.Picknumber(params)["0_12_2"].Presentation()
+	as.Picknumber(params)["0_12_2"].ShowAll()
 	// for k, v := range ballPools {
 	// 	logrus.Infof("%s:%v", k, v)
 	// }
@@ -86,7 +92,8 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	as.List.Presentation()
+	arr := as.List.WithRange(2, 1)
+	arr.ShowAll()
 }
 
 func Test_findnumbers(t *testing.T) {
@@ -96,18 +103,18 @@ func Test_findnumbers(t *testing.T) {
 	fmt.Println("")
 	fmt.Println("")
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
-	as.List.PresentationWithRange(int(p.Interval))
+	as.List.ShowWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
 	as.intervalBallsCountStatic(params)
-	as.Picknumber(params)[p.GetKey()].Presentation()
+	as.Picknumber(params)[p.GetKey()].ShowAll()
 	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
 	for _, v := range result {
 		fmt.Println("")
 		fmt.Println("")
 		fmt.Printf("=================== %s ================\n", v)
-		as.List.findNumbers(v, df.Both).Presentation()
+		as.List.findNumbers(v, df.Both).ShowAll()
 	}
 }
 
@@ -141,9 +148,9 @@ func Test_combination2(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	// as.findNumbers([]string{"01", "07", "11", "24", "32"}, df.Both).Presentation()
-	// as.findNumbers([]string{"03", "18", "19", "20", "33"}, df.Both).Presentation()
-	as.List.findNumbers([]string{"05", "08", "16", "24", "31"}, df.Both).Presentation()
+	// as.findNumbers([]string{"01", "07", "11", "24", "32"}, df.Both).ShowAll()
+	// as.findNumbers([]string{"03", "18", "19", "20", "33"}, df.Both).ShowAll()
+	as.List.findNumbers([]string{"05", "08", "16", "24", "31"}, df.Both).ShowAll()
 
 }
 
@@ -155,15 +162,15 @@ func Test_continue(t *testing.T) {
 	fmt.Println("")
 
 	p := PickParam{SortType: df.Descending, Interval: 60, Whichfront: df.Normal}
-	as.List.PresentationWithRange(int(p.Interval))
+	as.List.ShowWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
 	as.intervalBallsCountStatic(params)
-	// as.Picknumber(params)[p.GetKey()].Presentation()
+	// as.Picknumber(params)[p.GetKey()].ShowAll()
 	fmt.Println("")
 	fmt.Println("")
-	as.RevList.Continue4(p).Presentation()
+	as.RevList.Continue4(p).ShowAll()
 }
 
 func Test_findDTree(t *testing.T) {
@@ -174,15 +181,15 @@ func Test_findDTree(t *testing.T) {
 	fmt.Println("")
 
 	p := PickParam{SortType: df.Descending, Interval: 60, Whichfront: df.Normal}
-	as.List.PresentationWithRange(int(p.Interval))
+	as.List.ShowWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
 	as.intervalBallsCountStatic(params)
-	as.Picknumber(params)[p.GetKey()].Presentation()
+	as.Picknumber(params)[p.GetKey()].ShowAll()
 	fmt.Println("")
 	fmt.Println("")
-	as.RevList.DTree(p).Presentation()
+	as.RevList.DTree(p).ShowAll()
 }
 
 func Test_findUTree(t *testing.T) {
@@ -193,15 +200,15 @@ func Test_findUTree(t *testing.T) {
 	fmt.Println("")
 
 	p := PickParam{SortType: df.Descending, Interval: 60, Whichfront: df.Normal}
-	as.List.PresentationWithRange(int(p.Interval))
+	as.List.ShowWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
 	as.intervalBallsCountStatic(params)
-	as.Picknumber(params)[p.GetKey()].Presentation()
+	as.Picknumber(params)[p.GetKey()].ShowAll()
 	fmt.Println("")
 	fmt.Println("")
-	as.RevList.UTree(p).Presentation()
+	as.RevList.UTree(p).ShowAll()
 }
 
 func Test_readwordFile(t *testing.T) {
@@ -248,16 +255,16 @@ func Test_findDate(t *testing.T) {
 	fmt.Println("")
 	fmt.Println("")
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
-	as.List.PresentationWithRange(int(p.Interval))
+	as.List.ShowWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
 	as.intervalBallsCountStatic(params)
-	as.Picknumber(params)[p.GetKey()].Presentation()
+	as.Picknumber(params)[p.GetKey()].ShowAll()
 	fmt.Println("")
 	fmt.Println("")
 	fmt.Printf("=================== %s ================\n", "0322")
-	as.findDate("0322", df.None).Presentation()
+	as.findDate("0322", df.None).ShowAll()
 }
 
 func Test_findAdariPrice(t *testing.T) {
@@ -273,123 +280,19 @@ func Test_findAdariPrice(t *testing.T) {
 func Test_random(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
 	config.LoadConfig("../../config.yaml")
-	var as = FTNsManager{}
-	as.Prepare()
-
-	balls := 5
-	combarr := combin.Combinations(39, balls)
-	// lens := len(combarr)
-	// total_sell := 50 / 50Y
-
-	topss := []FTNArray{}
-	counts := []int{}
-	resultss := map[string]int{} // n round result
-	realsale := uint32(len(combarr))
+	var ar = FTNsManager{}
+	ar.Prepare()
+	combarr := combin.Combinations(39, BallsOfFTN)
+	df.DistableFilters([]int{df.FilterEvenCount, df.FilterEvenCount})
 
 	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
 	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
-	th := interf.Threshold{Round: 1, Value: 14, SampleTime: 6, Sample: len(combarr), Interval: interf.Interval{Index: 2100, Length: 21}}
+	th := interf.Threshold{Round: 5, Value: 31, SampleTime: 22, Sample: len(combarr), Interval: interf.Interval{Index: 500, Length: 50}, Combinations: combarr, UseAI: true}
 
-	features := as.List.WithRange(th.Interval.Index, th.Interval.Length)
-	features = append(features, as.List.WithRange(0, th.Interval.Length)...)
-	// features := as.List.WithAI()
+	common.SetRandomGenerator(0)
 
-	filestr := ""
-	for i := 0; i < th.Round; i++ {
-		result := map[string]int{}
+	ar.GenerateTopPriceNumber(th)
 
-		var b [8]byte
-		_, err := crypto_rand.Read(b[:])
-		if err != nil {
-			panic("cannot seed math/rand package with cryptographically secure random number generator")
-		}
-
-		rnumber := rand.New(rand.NewSource(int64(binary.LittleEndian.Uint64(b[:]))))
-
-		for _, v := range combarr {
-			balls := NewFTNWithInts(v)
-			result[balls.Key()] = 0
-		}
-		fmt.Println(len(result))
-		total := int(float32(th.Sample) * th.SampleTime)
-
-		for i := 0; i < total; i++ {
-			index := uint32(rnumber.Uint32() % realsale)
-			// fmt.Println(index)
-			balls := NewFTNWithInts(combarr[index])
-			bK := balls.Key()
-			if v, ok := result[bK]; ok {
-				result[bK] = v + 1
-			}
-
-			// fmt.Println(combarr[index])
-		}
-		count := 0
-		tops := FTNArray{}
-		featuresFTNs := FTNArray{}
-		for k, v := range result {
-			if v > th.Value {
-				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
-				arr := strings.Split(k, "_")
-				ftnarr := as.List.findNumbers(arr, df.None)
-				if len(ftnarr) > 0 {
-					filestr = filestr + ftnarr.Presentation()
-					tops = append(tops, ftnarr...)
-				}
-
-				ftn := NewFTNWithStrings(arr)
-				for _, l := range features {
-					if l.CompareFeature(ftn) {
-						featuresFTNs = append(featuresFTNs, *ftn)
-					}
-				}
-
-				if v2, ok := resultss[k]; ok {
-					resultss[k] = v2 + v
-				} else {
-					resultss[k] = v
-				}
-				count++
-			}
-		}
-
-		topss = append(topss, tops)
-		counts = append(counts, count)
-		filestr = filestr + fmt.Sprintf("%d TWD, %d\n", count*45, count)
-		filestr = filestr + fmt.Sprintf("群 %02d, get %d Top\n", i+1, len(tops))
-		filestr = filestr + fmt.Sprintf("%.9f tops\n", float32(len(tops))/float32(count))
-		filestr = filestr + fmt.Sprintf("done %02d\n", i+1)
-		filestr = filestr + "\n"
-		filestr = filestr + "\n"
-		filestr = filestr + "\n"
-
-		filestr = filestr + "Feature Close\n"
-		if len(featuresFTNs) > 0 {
-			for _, fftn := range featuresFTNs {
-				filestr = filestr + fftn.formRow() + "\n"
-			}
-		}
-	}
-
-	miss := 0
-	for i, tops := range topss {
-		if len(tops) == 0 {
-			miss++
-		}
-		filestr = filestr + fmt.Sprintf("群 %02d, 有 %d Top, D:%d TWD\n", i+1, len(tops), counts[i]*50)
-	}
-	filestr = filestr + fmt.Sprintf("Top Percent %.3f\n", (float32(th.Round-miss)/float32(th.Round))*100)
-
-	filestr = filestr + "\n"
-	filestr = filestr + "\n"
-	filestr = filestr + "\n"
-	for k, v := range resultss {
-		if v >= 45 {
-			filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
-		}
-	}
-
-	common.Save(filestr, fmt.Sprintf("content%s.txt", time.Now().Format(time.RFC3339)))
 }
 
 func Test_montecarlo(t *testing.T) {

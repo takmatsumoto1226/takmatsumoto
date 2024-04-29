@@ -7,8 +7,10 @@ import (
 	"lottery/csv"
 	"lottery/model/common"
 	"lottery/model/df"
+	"lottery/model/interf"
 	"sort"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -128,4 +130,76 @@ func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 		}
 	}
 	return ballPools
+}
+
+func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
+
+	resultss := map[string]int{} // n round result
+
+	for r := 0; r < th.Round; r++ {
+		filestr := ""
+		result := map[string]int{}
+
+		for _, v := range th.Combinations {
+			balls := NewFTNWithInts(v)
+			result[balls.Key()] = 0
+		}
+		total := int(float32(th.Sample) * th.SampleTime)
+
+		for i := 0; i < total; i++ {
+			index := common.RandomNuber() % uint64(th.Sample)
+			balls := NewFTNWithInts(th.Combinations[index])
+			bK := balls.Key()
+			if v, ok := result[bK]; ok {
+				result[bK] = v + 1
+			}
+		}
+
+		features := ar.List.FeatureRange(th)
+		count := 0
+		tops := FTNArray{}
+		featuresFTNs := FTNArray{}
+		for k, v := range result {
+			if v > th.Value {
+				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
+				arr := strings.Split(k, "_")
+				ftnarr := ar.List.findNumbers(arr, df.None)
+				if len(ftnarr) > 0 {
+					filestr = filestr + ftnarr.Presentation()
+					tops = append(tops, ftnarr...)
+				}
+
+				ftn := NewFTNWithStrings(arr)
+				for _, l := range features {
+					if l.CompareFeature(ftn) {
+						featuresFTNs = append(featuresFTNs, *ftn)
+					}
+				}
+
+				if v2, ok := resultss[k]; ok {
+					resultss[k] = v2 + v
+				} else {
+					resultss[k] = v
+				}
+				count++
+			}
+		}
+
+		filestr = filestr + fmt.Sprintf("%d TWD, %d\n", count*45, count)
+		filestr = filestr + fmt.Sprintf("群 %02d, get %d Top\n", r+1, len(tops))
+		filestr = filestr + fmt.Sprintf("%.9f tops\n", float32(len(tops))/float32(count))
+		filestr = filestr + fmt.Sprintf("done %02d\n", r+1)
+		filestr = filestr + "\n"
+		filestr = filestr + "\n"
+		filestr = filestr + "\n"
+
+		filestr = filestr + "Feature Close\n"
+		if len(featuresFTNs) > 0 {
+			for _, fftn := range featuresFTNs {
+				filestr = filestr + fftn.formRow() + "\n"
+			}
+		}
+
+		common.Save(filestr, fmt.Sprintf("content%s.txt", time.Now().Format(time.RFC3339)))
+	}
 }

@@ -10,10 +10,12 @@ type Interval struct {
 }
 
 type Threshold struct {
-	Round      int
-	SampleTime float32
-	Sample     int
-	Value      int
-	RealSale   int32
-	Interval   Interval
+	Round        int
+	SampleTime   float32
+	Sample       int
+	Value        int
+	RealSale     int32
+	Interval     Interval
+	UseAI        bool
+	Combinations [][]int
 }

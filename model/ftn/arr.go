@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lottery/algorithm"
 	"lottery/model/df"
+	"lottery/model/interf"
 	"strconv"
 )
 
@@ -70,12 +71,50 @@ func (fa FTNArray) PresentationWithRange(r int) string {
 	return msg
 }
 
+func (fa FTNArray) ShowWithRange(r int) {
+	tmp := fa
+	al := len(fa)
+	if r > 0 {
+		tmp = fa[al-r : al]
+	}
+	for _, ftn := range tmp {
+		ftn.ShowRow()
+	}
+}
+
+func (fa FTNArray) ShowAll() {
+	fa.ShowWithRange(0)
+}
+
 func (fa FTNArray) WithRange(i, r int) FTNArray {
 	al := len(fa)
 	if r > 0 {
 		return fa[al-r-i : al-i]
 	}
 	return fa
+}
+
+func (fa FTNArray) FeatureRange(th interf.Threshold) FTNArray {
+	features := fa.WithRange(th.Interval.Index, th.Interval.Length)
+	if th.UseAI {
+		features = append(features, fa.WithAI()...)
+	}
+	return features.Distinct()
+}
+
+func (fa FTNArray) Distinct() FTNArray {
+	results := FTNArray{}
+	tmp := map[string]FTN{}
+	for _, f := range fa {
+		if _, ok := tmp[f.Key()]; !ok {
+			tmp[f.Key()] = f
+		}
+	}
+
+	for _, v := range tmp {
+		results = append(results, v)
+	}
+	return results
 }
 
 func (fa FTNArray) WithAI() FTNArray {
