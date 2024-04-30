@@ -42,6 +42,8 @@ const (
 	ContinueNumber3              // 同一期出現相連號碼(3個) ex: 01 05 06 07 33
 	ContinueNumber4              // 同一期出現相連號碼(3個) ex: 01 05 06 07 08
 	ContinueNumber5              // 同一期出現相連號碼(3個) ex: 04 05 06 07 08
+	ContinueNumber22             //
+	ContinueNumber32             //
 )
 
 const (
@@ -124,6 +126,7 @@ type GROUP int
 const UndefinedFeature = -1
 
 type Feature struct {
+	IBalls                  []int
 	TenGroupCount           []int
 	OddNumberCount          int
 	TenGroupOddNumberCount  []int
@@ -132,6 +135,7 @@ type Feature struct {
 	TailDigit               []int
 	PrimeCount              int
 	MultiplesOfs            []int // 2,3,....helf of ball count
+	ContinueType            int
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {
@@ -142,23 +146,24 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 	tgonc := []int{0, 0, 0, 0, 0}
 	tgenc := []int{0, 0, 0, 0, 0}
 	primec := 0
-	for i := 0; i < len(numbers); i++ {
-		if numbers[i]%2 == 1 {
+	for _, n := range numbers {
+		if n%2 == 1 {
 			oc++
-			tgonc[numbers[i]/10]++
+			tgonc[n/10]++
 		}
-		if numbers[i]%2 == 0 {
+		if n%2 == 0 {
 			ec++
-			tgenc[numbers[i]/10]++
+			tgenc[n/10]++
 		}
 
-		gt[numbers[i]/10]++
-		td[numbers[i]%10]++
-		if bytes.IndexByte(Primes, byte(numbers[i])) >= 0 {
+		gt[n/10]++
+		td[n%10]++
+		if bytes.IndexByte(Primes, byte(n)) >= 0 {
 			primec++
 		}
 	}
 	return &Feature{
+		IBalls:                  numbers,
 		TenGroupCount:           gt,
 		OddNumberCount:          oc,
 		TenGroupOddNumberCount:  tgonc,
@@ -243,4 +248,66 @@ func (f *Feature) Compare(t *Feature) bool {
 	}
 
 	return true
+}
+
+func (fa *Feature) IsContinue2() bool {
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
+	return i2-i1 == 1 || i3-i2 == 1 || i4-i3 == 1 || i5-i4 == 1
+}
+func (fa *Feature) IsContinue3() bool {
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
+	return (i2-i1 == 1 && i3-i2 == 1) || (i3-i2 == 1 && i4-i3 == 1) || (i4-i3 == 1 && i5-i4 == 1)
+}
+
+func (fa *Feature) IsContinue4() bool {
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
+	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1) || (i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1)
+}
+
+func (fa *Feature) IsContinue5() bool {
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
+	return i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1
+}
+
+func (fa *Feature) IsContinue22() bool {
+	i1 := fa.IBalls[0]
+	i2 := fa.IBalls[1]
+	i3 := fa.IBalls[2]
+	i4 := fa.IBalls[3]
+	i5 := fa.IBalls[4]
+
+	count := 0
+	if i2-i1 == 1 {
+		count++
+	}
+
+	if i3-i2 == 1 {
+		count++
+	}
+
+	if i4-i3 == 1 {
+		count++
+	}
+
+	if i5-i4 == 1 {
+		count++
+	}
+
+	return count == 2 && !fa.IsContinue3()
 }

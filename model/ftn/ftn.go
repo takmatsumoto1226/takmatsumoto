@@ -327,68 +327,6 @@ func AdjacentNumberRecordCount() error {
 	return nil
 }
 
-func (fa *FTN) IsContinue2() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	return i2-i1 == 1 || i3-i2 == 1 || i4-i3 == 1 || i5-i4 == 1
-}
-func (fa *FTN) IsContinue3() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	return (i2-i1 == 1 && i3-i2 == 1) || (i3-i2 == 1 && i4-i3 == 1) || (i4-i3 == 1 && i5-i4 == 1)
-}
-
-func (fa *FTN) IsContinue4() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1) || (i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1)
-}
-
-func (fa *FTN) IsContinue5() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	return i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1
-}
-
-func (fa *FTN) IsContinue22() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-
-	count := 0
-	if i2-i1 == 1 {
-		count++
-	}
-
-	if i3-i2 == 1 {
-		count++
-	}
-
-	if i4-i3 == 1 {
-		count++
-	}
-
-	if i5-i4 == 1 {
-		count++
-	}
-
-	return count == 2 && !fa.IsContinue3()
-}
-
 type Options struct {
 	next bool
 }

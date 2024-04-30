@@ -22,7 +22,7 @@ func TimeTaken(t time.Time, name string) {
 	log.Printf("TIME: %s took %s\n", name, elapsed)
 }
 
-func Save(content, filename string) {
+func Save(content, filename string, index int) {
 	f, err := os.Create(filename)
 	if err != nil {
 		fmt.Println(err)
@@ -34,7 +34,7 @@ func Save(content, filename string) {
 		f.Close()
 		return
 	}
-	fmt.Println(l, "bytes written successfully")
+	fmt.Println(fmt.Sprintf("%03d : ", index), l, "bytes written successfully")
 	err = f.Close()
 	if err != nil {
 		fmt.Println(err)
@@ -58,6 +58,9 @@ func SetRandomGenerator(t int) {
 }
 
 func RandomNuber() uint64 {
+	if rand19937 == nil && defaultRand == nil {
+		panic("cannot seed math/rand package with cryptographically secure random number generator")
+	}
 	switch randtype {
 	case 1:
 		return rand19937.Uint64()

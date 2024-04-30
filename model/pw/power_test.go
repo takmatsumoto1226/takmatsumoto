@@ -186,5 +186,5 @@ func Test_random(t *testing.T) {
 		filestr = filestr + fmt.Sprintf("群 %02d, 有 %d Top\n", i+1, len(tops))
 	}
 	filestr = filestr + fmt.Sprintf("Top Percent %.3f\n", (float32(th.Round-miss)/float32(th.Round))*100)
-	common.Save(filestr, fmt.Sprintf("content%s.txt", time.Now().Format(time.RFC3339)))
+	common.Save(filestr, fmt.Sprintf("content%s.txt", time.Now().Format(time.RFC3339)), 0)
 }

@@ -18,7 +18,7 @@ func (fa FTNArray) Continue2(p PickParam) FTNArray {
 			break
 		}
 
-		if v.IsContinue2() {
+		if v.Feature.IsContinue2() {
 			result = append(result, v)
 			l++
 		}
@@ -35,7 +35,7 @@ func (fa FTNArray) Continue3(p PickParam) FTNArray {
 			break
 		}
 
-		if v.IsContinue3() {
+		if v.Feature.IsContinue3() {
 			result = append(result, v)
 			l++
 		}
@@ -52,7 +52,7 @@ func (fa FTNArray) Continue4(p PickParam) FTNArray {
 			break
 		}
 
-		if v.IsContinue4() {
+		if v.Feature.IsContinue4() {
 			result = append(result, v)
 			l++
 		}
@@ -69,7 +69,7 @@ func (fa FTNArray) Continue5(p PickParam) FTNArray {
 			break
 		}
 
-		if v.IsContinue5() {
+		if v.Feature.IsContinue5() {
 			result = append(result, v)
 			l++
 		}
@@ -89,7 +89,7 @@ func (fa FTNArray) Continue22(p PickParam) FTNArray {
 			break
 		}
 
-		if v.IsContinue22() {
+		if v.Feature.IsContinue22() {
 			result = append(result, v)
 			l++
 		}

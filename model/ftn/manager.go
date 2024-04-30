@@ -21,6 +21,7 @@ type FTNsManager struct {
 	List       FTNArray
 	RevList    FTNArray
 	ballsCount map[uint]NormalizeInfo
+	Pickups    FTNArray
 }
 
 // LoadAllData ...
@@ -72,36 +73,15 @@ func (ar *FTNsManager) intervalBallsCountStatic(params PickParams) {
 		logrus.Error(errors.New("不可沒設定interval"))
 		return
 	}
-
-	ar.ballsCount = map[uint]NormalizeInfo{}
 	for _, p := range params {
-		if p.Interval == 0 {
-			logrus.Error(errors.New("不可指定0"))
-			return
-		}
-		var FTNIntervalCount = [ballsCountFTN]uint{}
-		var intervalFTNs = FTNArray{}
 		if p.SortType == df.Descending {
-			intervalFTNs = ar.RevList[:p.Interval]
+			ar.ballsCount = ar.RevList[:p.Interval].intervalBallsCountStatic(p)
 		} else if p.SortType == df.Ascending {
-			intervalFTNs = ar.List[:p.Interval]
+			ar.ballsCount = ar.List[:p.Interval].intervalBallsCountStatic(p)
 		} else {
 			logrus.Error("必須指定型態")
 			break
 		}
-		for _, t := range intervalFTNs {
-			FTNIntervalCount[numberToIndex[t.B1.Number]]++
-			FTNIntervalCount[numberToIndex[t.B2.Number]]++
-			FTNIntervalCount[numberToIndex[t.B3.Number]]++
-			FTNIntervalCount[numberToIndex[t.B4.Number]]++
-			FTNIntervalCount[numberToIndex[t.B5.Number]]++
-		}
-		arr := BallsCount{}
-		for i, count := range FTNIntervalCount {
-			b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0}}
-			arr = append(arr, b)
-		}
-		ar.ballsCount[p.Interval] = NormalizeInfo{NorBalls: arr, Param: p}
 	}
 }
 
@@ -135,6 +115,7 @@ func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 
 	resultss := map[string]int{} // n round result
+	common.SetRandomGenerator(th.Randomer)
 
 	for r := 0; r < th.Round; r++ {
 		filestr := ""
@@ -156,20 +137,24 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 		}
 
 		features := ar.List.FeatureRange(th)
+		fmt.Println("features row")
+		fmt.Println("")
+		fmt.Println("")
+		filestr = filestr + features.Presentation()
 		count := 0
 		tops := FTNArray{}
 		featuresFTNs := FTNArray{}
 		for k, v := range result {
 			if v > th.Value {
 				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
-				arr := strings.Split(k, "_")
-				ftnarr := ar.List.findNumbers(arr, df.None)
+				numbersArr := strings.Split(k, "_")
+				ftnarr := ar.List.findNumbers(numbersArr, df.None)
 				if len(ftnarr) > 0 {
 					filestr = filestr + ftnarr.Presentation()
 					tops = append(tops, ftnarr...)
 				}
 
-				ftn := NewFTNWithStrings(arr)
+				ftn := NewFTNWithStrings(numbersArr)
 				for _, l := range features {
 					if l.CompareFeature(ftn) {
 						featuresFTNs = append(featuresFTNs, *ftn)
@@ -193,6 +178,7 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 		filestr = filestr + "\n"
 		filestr = filestr + "\n"
 
+		filestr = filestr + fmt.Sprintf("Value:%d\nRound:%d\n\n", th.Value, th.Round)
 		filestr = filestr + "Feature Close\n"
 		if len(featuresFTNs) > 0 {
 			for _, fftn := range featuresFTNs {
@@ -200,6 +186,21 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 			}
 		}
 
-		common.Save(filestr, fmt.Sprintf("content%s.txt", time.Now().Format(time.RFC3339)))
+		ar.Pickups = append(ar.Pickups, featuresFTNs...)
+
+		common.Save(filestr, fmt.Sprintf("./gendata/content%s.txt", time.Now().Format(time.RFC3339)), r+1)
 	}
+
+	if len(ar.Pickups) > 0 {
+		pickupsFile := "Pickups:\n"
+		pickupsFile = pickupsFile + ar.Pickups.Distinct().Presentation()
+		// pickupsFile = pickupsFile + ar.Pickups.intervalBallsCountStatic()
+		common.Save(pickupsFile, fmt.Sprintf("./gendata/pickers%s.txt", time.Now().Format(time.RFC3339)), 0)
+	}
+}
+
+func (ar *FTNsManager) RandomInterval() interf.Interval {
+	interval := interf.Interval{}
+
+	return interval
 }

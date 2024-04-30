@@ -34,15 +34,15 @@ func Test_initNumberToIndex(t *testing.T) {
 	// fmt.Println(bytes.IndexByte(df.Primes, 31))
 	// fmt.Println(bytes.IndexByte(df.Primes, 30))
 	// fmt.Println(df.FilterContinue3)
-	ftn := NewFTNWithInts([]int{10, 14, 25, 31, 36})
-	fmt.Println(ftn)
+	ftn := NewFTNWithStrings([]string{"10", "14", "25", "31", "36"})
+	ftn.ShowRow()
 }
 
 func Test_loadFTNs(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	aipicks := as.List.WithAI()
+	aipicks := as.List.FeatureRange(*interf.SmartPureIntervalTH(0, 20))
 	sort.Sort(aipicks)
 	aipicks.ShowAll()
 	fmt.Println("")
@@ -142,15 +142,10 @@ func Test_combination(t *testing.T) {
 }
 
 func Test_combination2(t *testing.T) {
-	// fmt.Println(algorithm.Combinations([]string{"09", "11", "14", "30", "35"}, 3))
-	// 1_7_11_24_32:38
-	// 3_18_19_20_33:38
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	// as.findNumbers([]string{"01", "07", "11", "24", "32"}, df.Both).ShowAll()
-	// as.findNumbers([]string{"03", "18", "19", "20", "33"}, df.Both).ShowAll()
-	as.List.findNumbers([]string{"05", "08", "16", "24", "31"}, df.Both).ShowAll()
+	as.List.findNumbers([]string{"01", "10", "20", "30", "36"}, df.None).ShowAll()
 
 }
 
@@ -283,13 +278,24 @@ func Test_random(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	combarr := combin.Combinations(39, BallsOfFTN)
-	df.DistableFilters([]int{df.FilterEvenCount, df.FilterEvenCount})
 
-	// th := Threshold{Round: 20, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
-	// th := Threshold{Round: 100, Value: 11, SampleTime: 3, Sample: len(combarr), RefRange: 20}
-	th := interf.Threshold{Round: 5, Value: 31, SampleTime: 22, Sample: len(combarr), Interval: interf.Interval{Index: 500, Length: 50}, Combinations: combarr, UseAI: true}
-
-	common.SetRandomGenerator(0)
+	df.DistableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount, df.FilterTailDigit})
+	th := interf.Threshold{
+		Round:      5,
+		Value:      30,
+		SampleTime: 20,
+		Sample:     len(combarr),
+		Interval: interf.Interval{
+			Index:  0,
+			Length: 40,
+		},
+		Combinations: combarr,
+		Smart: interf.Smart{
+			Enable: true,
+			Type:   interf.RangeTypeLatest,
+		},
+		Randomer: 1,
+	}
 
 	ar.GenerateTopPriceNumber(th)
 

@@ -1,11 +1,14 @@
 package ftn
 
 import (
+	"errors"
 	"fmt"
 	"lottery/algorithm"
 	"lottery/model/df"
 	"lottery/model/interf"
 	"strconv"
+
+	"github.com/sirupsen/logrus"
 )
 
 // FTNArray ...
@@ -96,8 +99,14 @@ func (fa FTNArray) WithRange(i, r int) FTNArray {
 
 func (fa FTNArray) FeatureRange(th interf.Threshold) FTNArray {
 	features := fa.WithRange(th.Interval.Index, th.Interval.Length)
-	if th.UseAI {
-		features = append(features, fa.WithAI()...)
+	if th.Smart.Enable {
+		if th.Smart.Type == interf.RangeTypeLatest {
+			features = append(features, fa.SmartWithTh(*interf.PureIntervalTH(0, 1))...)
+		} else if th.Smart.Type == interf.RangeTypeLatestSame {
+			features = append(features, fa.SmartWithFeature(*interf.PureIntervalTH(0, 1))...)
+		} else {
+			features = append(features, fa.SmartWithTh(th)...)
+		}
 	}
 	return features.Distinct()
 }
@@ -117,11 +126,27 @@ func (fa FTNArray) Distinct() FTNArray {
 	return results
 }
 
-func (fa FTNArray) WithAI() FTNArray {
-	features := FTNArray{}
-	result := algorithm.Combinations(fa[0].toStringArray(), 3)
-	for _, v := range result {
-		features = append(features, fa.findNumbers(v, df.NextOnly)...)
+func (fa FTNArray) SmartWithTh(th interf.Threshold) FTNArray {
+	features := fa.WithRange(th.Interval.Index, th.Interval.Length)
+	for _, bs := range features {
+		result := algorithm.Combinations(bs.toStringArray(), 3)
+		for _, v := range result {
+			features = append(features, fa.findNumbers(v, df.NextOnly)...)
+		}
+	}
+
+	return features
+}
+
+func (fa FTNArray) SmartWithFeature(th interf.Threshold) FTNArray {
+	features := fa.WithRange(th.Interval.Index, th.Interval.Length)
+	if len(features) > 0 {
+		latest := features[0]
+		for _, bs := range fa {
+			if latest.CompareFeature(&bs) {
+				features = append(features, bs)
+			}
+		}
 	}
 	return features
 }
@@ -190,4 +215,31 @@ func (fa FTNArray) adariPrice(adari *FTN) {
 			}
 		}
 	}
+}
+
+func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo {
+
+	ballsCount := map[uint]NormalizeInfo{}
+
+	if p.Interval == 0 {
+		logrus.Error(errors.New("不可指定0"))
+		return map[uint]NormalizeInfo{}
+	}
+	var FTNIntervalCount = [ballsCountFTN]uint{}
+
+	for _, t := range ar {
+		FTNIntervalCount[numberToIndex[t.B1.Number]]++
+		FTNIntervalCount[numberToIndex[t.B2.Number]]++
+		FTNIntervalCount[numberToIndex[t.B3.Number]]++
+		FTNIntervalCount[numberToIndex[t.B4.Number]]++
+		FTNIntervalCount[numberToIndex[t.B5.Number]]++
+	}
+	arr := BallsCount{}
+	for i, count := range FTNIntervalCount {
+		b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0}}
+		arr = append(arr, b)
+	}
+	ballsCount[p.Interval] = NormalizeInfo{NorBalls: arr, Param: p}
+
+	return ballsCount
 }
