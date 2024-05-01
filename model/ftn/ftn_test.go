@@ -85,7 +85,7 @@ func Test_newFTNTest(t *testing.T) {
 	elems2 := strings.Split("2023,1230,312,04,11,17,20,33,5114", ",")
 	ftn2 := NewFTN(elems2)
 	fmt.Println(ftn2)
-	fmt.Println(ftn2.CompareFeature(ftn))
+	fmt.Println(ftn2.MatchFeature(ftn))
 }
 
 func Test_listLikeExecl(t *testing.T) {
@@ -281,13 +281,13 @@ func Test_random(t *testing.T) {
 
 	df.DistableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount, df.FilterTailDigit})
 	th := interf.Threshold{
-		Round:      5,
+		Round:      1,
 		Value:      30,
 		SampleTime: 20,
 		Sample:     len(combarr),
 		Interval: interf.Interval{
 			Index:  0,
-			Length: 40,
+			Length: 10,
 		},
 		Combinations: combarr,
 		Smart: interf.Smart{
@@ -349,4 +349,27 @@ func MultiPI(samples int, threads int) float64 {
 	}
 
 	return total / float64(threads)
+}
+
+func Test_compareTest(t *testing.T) {
+	// 	F:2007|0501|01|  |  |  |  |  |  |  |  |10|  |  |  |  |  |  |  |  |  |  |  |22|  |  |  |  |  |  |  |  |  |  |  |34|  |  |  |  |39|
+	// M:||01|  |  |  |  |  |  |  |  |  |  |12|  |  |  |  |  |  |  |  |  |  |  |  |  |  |27|  |  |  |  |  |  |34|  |36|  |  |  |
+	// TenGroup : [1 1 1 2 0], Odd:Even==2:3, OddTen:EvenTen===[1 0 0 1 0]:[0 1 1 1 0], DigitTail : [1 1 1 0 1 0 0 0 0 1], PrimeCount:0
+	// TenGroup : [1 1 1 2 0], Odd:Even==2:3, OddTen:EvenTen===[1 0 1 0 0]:[0 1 0 2 0], DigitTail : [0 1 1 0 1 0 1 1 0 0], PrimeCount:0
+
+	// F:2024|0427|  |  |  |  |  |  |  |  |09|  |  |  |  |  |15|  |  |  |  |  |  |22|  |  |  |  |  |  |  |  |  |  |  |34|  |36|  |  |  |
+	// M:||  |  |  |  |  |  |  |08|  |10|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |27|  |  |  |  |  |33|34|  |  |  |  |  |
+
+	// F:2024|0426|  |  |  |  |  |  |  |  |  |10|  |  |  |14|  |  |  |  |  |  |  |  |  |  |25|  |  |  |  |  |31|  |  |  |  |36|  |  |  |
+	// M:||  |  |  |  |  |  |  |  |  |  |  |  |13|  |15|  |  |  |  |  |  |22|  |  |  |  |  |  |  |  |  |  |  |34|  |36|  |  |  |
+	ftn1 := NewFTNWithInts([]int{10, 14, 25, 31, 36})
+	ftn2 := NewFTNWithInts([]int{13, 15, 22, 34, 36})
+	if ftn1.MatchFeature(ftn2) {
+		fmt.Println("一樣")
+	} else {
+		fmt.Println("不一樣")
+	}
+	fmt.Println(ftn1.Feature.String())
+	fmt.Println(ftn2.Feature.String())
+
 }

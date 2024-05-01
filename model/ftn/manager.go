@@ -156,8 +156,14 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 
 				ftn := NewFTNWithStrings(numbersArr)
 				for _, l := range features {
-					if l.CompareFeature(ftn) {
+					if l.MatchFeature(ftn) {
+						filestr = filestr + "F:M 一樣\n"
+						filestr = filestr + "F:" + l.formRow() + "\n"
+						filestr = filestr + "M:" + ftn.formRow() + "\n"
+						filestr = filestr + l.Feature.String() + "\n"
+						filestr = filestr + ftn.Feature.String() + "\n"
 						featuresFTNs = append(featuresFTNs, *ftn)
+						break
 					}
 				}
 

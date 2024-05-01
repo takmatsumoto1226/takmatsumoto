@@ -129,10 +129,10 @@ type Feature struct {
 	IBalls                  []int
 	TenGroupCount           []int
 	OddNumberCount          int
-	TenGroupOddNumberCount  []int
-	TenGroupEvenNumberCount []int
+	TenGroupOddNumberCount  [5]int
+	TenGroupEvenNumberCount [5]int
 	EvenNumberCount         int
-	TailDigit               []int
+	TailDigit               [10]int
 	PrimeCount              int
 	MultiplesOfs            []int // 2,3,....helf of ball count
 	ContinueType            int
@@ -141,10 +141,10 @@ type Feature struct {
 func NewFeature(numbers []int, ballsCount int) *Feature {
 	oc := 0
 	ec := 0
-	gt := []int{0, 0, 0, 0, 0}
-	td := []int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
-	tgonc := []int{0, 0, 0, 0, 0}
-	tgenc := []int{0, 0, 0, 0, 0}
+	gt := [5]int{0, 0, 0, 0, 0}
+	td := [10]int{0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	tgonc := [5]int{0, 0, 0, 0, 0}
+	tgenc := [5]int{0, 0, 0, 0, 0}
 	primec := 0
 	for _, n := range numbers {
 		if n%2 == 1 {
@@ -204,8 +204,7 @@ func (f *Feature) Compare(t *Feature) bool {
 
 	if filters[FilterTenGroup] {
 		for idx, i := range f.TenGroupCount {
-			j := t.TenGroupCount[idx]
-			if i != j {
+			if i != t.TenGroupCount[idx] {
 				return false
 			}
 		}
@@ -237,6 +236,8 @@ func (f *Feature) Compare(t *Feature) bool {
 
 	if filters[FilterPrime] {
 		if f.PrimeCount > 0 && t.PrimeCount > 0 {
+
+		} else {
 			return false
 		}
 	}
@@ -310,4 +311,14 @@ func (fa *Feature) IsContinue22() bool {
 	}
 
 	return count == 2 && !fa.IsContinue3()
+}
+
+func (f *Feature) String() string {
+	return fmt.Sprintf("Balls:%v TenGroup : %v, Odd:Even==%d:%d, OddTen:EvenTen===%v:%v, DigitTail : %v, PrimeCount:%d",
+		f.IBalls,
+		f.TenGroupCount,
+		f.OddNumberCount, f.EvenNumberCount,
+		f.TenGroupOddNumberCount, f.TenGroupEvenNumberCount,
+		f.TailDigit,
+		f.PrimeCount)
 }

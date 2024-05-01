@@ -358,7 +358,7 @@ func (fa *FTN) IsUTree(before *FTN) bool {
 	return false
 }
 
-func (fa *FTN) CompareFeature(t *FTN) bool {
+func (fa *FTN) MatchFeature(t *FTN) bool {
 	return fa.Feature.Compare(&t.Feature)
 }
 

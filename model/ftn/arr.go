@@ -143,7 +143,7 @@ func (fa FTNArray) SmartWithFeature(th interf.Threshold) FTNArray {
 	if len(features) > 0 {
 		latest := features[0]
 		for _, bs := range fa {
-			if latest.CompareFeature(&bs) {
+			if latest.MatchFeature(&bs) {
 				features = append(features, bs)
 			}
 		}
