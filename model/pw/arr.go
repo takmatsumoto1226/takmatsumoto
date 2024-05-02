@@ -51,7 +51,7 @@ func (fa PowerList) WithAI() PowerList {
 	features := PowerList{}
 	result := algorithm.Combinations(fa[0].toStringArray(), 3)
 	for _, v := range result {
-		features = append(features, fa.findNumbers(v, df.Next)...)
+		features = append(features, fa.findNumbers(v, df.NextOnly)...)
 	}
 	return features
 }
@@ -75,18 +75,20 @@ func (ar PowerList) findNumbers(numbers []string, t int) PowerList {
 
 		if len(set) == count {
 
-			if (t == df.Before || t == df.Both) && i > 0 {
+			if (t == df.BeforeOnly || t == df.Before || t == df.Both) && i > 0 {
 				intersection = append(intersection, ar[i-1])
 			}
 
-			intersection = append(intersection, ns)
+			if t != df.NextOnly && t != df.BeforeOnly {
+				intersection = append(intersection, ns)
+			}
 
-			if t == df.Next || t == df.Both {
+			if t == df.NextOnly || t == df.Next || t == df.Both {
 				if i+1 < len(ar) {
 					intersection = append(intersection, ar[i+1])
 				}
 			}
-			if t != df.None {
+			if t != df.None && t != df.NextOnly && t != df.BeforeOnly {
 				intersection = append(intersection, *Empty())
 			}
 

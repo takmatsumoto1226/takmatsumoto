@@ -137,9 +137,7 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 		}
 
 		features := ar.List.FeatureRange(th)
-		fmt.Println("features row")
-		fmt.Println("")
-		fmt.Println("")
+		filestr = filestr + "features row\n\n\n"
 		filestr = filestr + features.Presentation()
 		count := 0
 		tops := FTNArray{}

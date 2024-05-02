@@ -169,7 +169,6 @@ func (fa Power) formRow() string {
 			rowmsg = rowmsg + "  |"
 		}
 	}
-	fmt.Println(rowmsg)
 	return rowmsg
 }
 
@@ -198,6 +197,6 @@ func initNumberToIndex() {
 	}
 }
 
-func (fa *Power) CompareFeature(t *Power) bool {
+func (fa *Power) MatchFeature(t *Power) bool {
 	return fa.Feature.Compare(&t.Feature)
 }

@@ -279,15 +279,15 @@ func Test_random(t *testing.T) {
 	ar.Prepare()
 	combarr := combin.Combinations(39, BallsOfFTN)
 
-	df.DistableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount, df.FilterTailDigit})
+	df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	th := interf.Threshold{
 		Round:      1,
-		Value:      30,
-		SampleTime: 20,
+		Value:      13,
+		SampleTime: 8,
 		Sample:     len(combarr),
 		Interval: interf.Interval{
 			Index:  0,
-			Length: 10,
+			Length: 20,
 		},
 		Combinations: combarr,
 		Smart: interf.Smart{

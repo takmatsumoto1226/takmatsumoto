@@ -127,7 +127,7 @@ const UndefinedFeature = -1
 
 type Feature struct {
 	IBalls                  []int
-	TenGroupCount           []int
+	TenGroupCount           [5]int
 	OddNumberCount          int
 	TenGroupOddNumberCount  [5]int
 	TenGroupEvenNumberCount [5]int
@@ -176,10 +176,10 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 
 func DefaultFeature() *Feature {
 	return &Feature{
-		TenGroupCount:   []int{UndefinedFeature},
+		TenGroupCount:   [5]int{UndefinedFeature},
 		OddNumberCount:  UndefinedFeature,
 		EvenNumberCount: UndefinedFeature,
-		TailDigit:       []int{UndefinedFeature},
+		TailDigit:       [10]int{UndefinedFeature},
 	}
 }
 

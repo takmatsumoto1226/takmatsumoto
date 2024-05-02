@@ -12,7 +12,7 @@ type Interval struct {
 }
 
 func (i Interval) String() string {
-	return fmt.Sprintf("Start : %d, Len:%d\n", i.Index, i.Length)
+	return fmt.Sprintf("Start : %d, Len:%d", i.Index, i.Length)
 }
 
 const (
@@ -27,6 +27,10 @@ type Smart struct {
 	Type   int
 }
 
+func (s *Smart) String() string {
+	return fmt.Sprintf("%t:%d", s.Enable, s.Type)
+}
+
 type Threshold struct {
 	Randomer     int
 	Round        int
@@ -37,6 +41,31 @@ type Threshold struct {
 	Interval     Interval
 	Smart        Smart
 	Combinations [][]int
+}
+
+func (th *Threshold) GetRandomer() string {
+	switch th.Randomer {
+	case 1:
+		return "mt19937"
+	default:
+		return "defaultRand"
+	}
+}
+
+func (th *Threshold) Presentation() string {
+	return fmt.Sprintf("Randormer : %v\nRound:%d\nSampleTime:%.2f\nSample:%d\nValue:%d\nInterval === %s\nSmart === %s\n",
+		th.GetRandomer(),
+		th.Round,
+		th.SampleTime,
+		th.Sample,
+		th.Value,
+		th.Interval.String(),
+		th.Smart.String())
+
+}
+
+func (th *Threshold) ShowAll() {
+	fmt.Println(th.Presentation())
 }
 
 func PureIntervalTH(i, l int) *Threshold {
