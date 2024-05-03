@@ -183,12 +183,21 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 		filestr = filestr + "\n"
 
 		filestr = filestr + fmt.Sprintf("Value:%d\nRound:%d\n\n", th.Value, th.Round)
-		filestr = filestr + "Feature Close\n"
-		if len(featuresFTNs) > 0 {
-			for _, fftn := range featuresFTNs {
-				filestr = filestr + fftn.formRow() + "\n"
+		filestr = filestr + "Feature Close : \n"
+		filestr = filestr + featuresFTNs.Presentation()
+		// exclude tops
+		pures := FTNArray{}
+		for _, fFTN := range featuresFTNs {
+			for _, f := range ar.List {
+				if !fFTN.MatchFeature(&f) {
+					pures = append(pures, fFTN)
+					break
+				}
 			}
 		}
+		filestr = filestr + "Pures : \n"
+		filestr = filestr + pures.Presentation()
+		filestr = filestr + th.Presentation()
 
 		ar.Pickups = append(ar.Pickups, featuresFTNs...)
 

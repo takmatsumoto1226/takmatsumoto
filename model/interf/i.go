@@ -16,9 +16,8 @@ func (i Interval) String() string {
 }
 
 const (
-	RangeTypeRandomRange = iota
+	RangeTypeLatestDefault = iota
 	RangeTypeLatestRange
-	RangeTypeLatest
 	RangeTypeLatestSame
 )
 
@@ -28,7 +27,20 @@ type Smart struct {
 }
 
 func (s *Smart) String() string {
-	return fmt.Sprintf("%t:%d", s.Enable, s.Type)
+	return fmt.Sprintf("%t:%s", s.Enable, s.typeName())
+}
+
+func (s *Smart) typeName() string {
+	switch s.Type {
+	// case RangeTypeRandomRange:
+	// 	return "RangeTypeRandomRange"
+	case RangeTypeLatestRange:
+		return "RangeTypeLatest"
+	case RangeTypeLatestSame:
+		return "RangeTypeLatestSame"
+	default:
+		return "RangeTypeLatestDefault"
+	}
 }
 
 type Threshold struct {
@@ -73,5 +85,5 @@ func PureIntervalTH(i, l int) *Threshold {
 }
 
 func SmartPureIntervalTH(i, l int) *Threshold {
-	return &Threshold{Interval: Interval{Index: i, Length: l}, Smart: Smart{Enable: true, Type: RangeTypeLatest}}
+	return &Threshold{Interval: Interval{Index: i, Length: l}, Smart: Smart{Enable: true, Type: RangeTypeLatestRange}}
 }

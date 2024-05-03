@@ -251,6 +251,67 @@ func (f *Feature) Compare(t *Feature) bool {
 	return true
 }
 
+func (f *Feature) RCompare(t *Feature) bool {
+
+	if filters[FilterOddCount] {
+		if f.OddNumberCount == t.OddNumberCount {
+			return false
+		}
+	}
+
+	if filters[FilterEvenCount] {
+		if f.EvenNumberCount == t.EvenNumberCount {
+			return false
+		}
+	}
+
+	if filters[FilterTenGroup] {
+		for idx, i := range f.TenGroupCount {
+			if i == t.TenGroupCount[idx] {
+				return false
+			}
+		}
+	}
+
+	if filters[FilterTailDigit] {
+		for idx, i := range f.TailDigit {
+			if i == t.TailDigit[idx] {
+				return false
+			}
+		}
+	}
+
+	if filters[FilterTenGroupOddCount] {
+		for idx, i := range f.TenGroupOddNumberCount {
+			if i == t.TenGroupOddNumberCount[idx] {
+				return false
+			}
+		}
+	}
+
+	if filters[FilterTenGroupEvenCount] {
+		for idx, i := range f.TenGroupEvenNumberCount {
+			if i == t.TenGroupEvenNumberCount[idx] {
+				return false
+			}
+		}
+	}
+
+	if filters[FilterPrime] {
+		if f.PrimeCount > 0 && t.PrimeCount > 0 {
+			return false
+		}
+	}
+
+	if filters[FilterPrimeCount] {
+		if f.PrimeCount == t.PrimeCount {
+			return false
+		}
+	}
+
+	return true
+}
+
 func (fa *Feature) IsContinue2() bool {
 	i1 := fa.IBalls[0]
 	i2 := fa.IBalls[1]

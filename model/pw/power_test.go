@@ -17,7 +17,7 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = PowerManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.List.Presentation()
+	fmt.Println(as.List.Presentation())
 }
 
 func Test_findnumber(t *testing.T) {
@@ -52,13 +52,13 @@ func Test_random(t *testing.T) {
 		SampleTime: 8,
 		Sample:     len(combarr),
 		Interval: interf.Interval{
-			Index:  900,
+			Index:  1057,
 			Length: 20,
 		},
 		Combinations: combarr,
 		Smart: interf.Smart{
 			Enable: true,
-			Type:   interf.RangeTypeLatest,
+			Type:   interf.RangeTypeLatestRange,
 		},
 		Randomer: 1,
 	}

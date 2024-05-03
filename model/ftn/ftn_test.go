@@ -11,6 +11,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"reflect"
 	"sort"
 	"strings"
 	"testing"
@@ -281,24 +282,101 @@ func Test_random(t *testing.T) {
 
 	df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	th := interf.Threshold{
-		Round:      1,
-		Value:      13,
+		Round:      5,
+		Value:      14,
 		SampleTime: 8,
 		Sample:     len(combarr),
 		Interval: interf.Interval{
-			Index:  0,
+			Index:  3398,
 			Length: 20,
 		},
 		Combinations: combarr,
 		Smart: interf.Smart{
 			Enable: true,
-			Type:   interf.RangeTypeLatest,
+			Type:   interf.RangeTypeLatestRange,
 		},
 		Randomer: 1,
 	}
 
 	ar.GenerateTopPriceNumber(th)
+}
 
+func Test_groupNumbers(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	combarr := combin.Combinations(39, BallsOfFTN)
+	GroupCount := 1000
+	group := map[int]([][]int){}
+	tmp := [][]int{}
+	for i, number := range combarr {
+		// combftn := NewFTNWithInts(number)
+		if (i+1)%GroupCount == 0 {
+			group[i/GroupCount] = tmp
+			tmp = [][]int{}
+		} else {
+			tmp = append(tmp, number)
+		}
+	}
+	msg := ""
+	for _, ftn := range ar.List {
+		for idx, v := range combarr {
+			nftn := NewFTNWithInts(v)
+			if nftn.IsSame(&ftn) {
+				msg = msg + fmt.Sprintf("%05d,%s\n", idx/GroupCount, ftn.formRow())
+				// fmt.Printf("%05d,%s\n", idx/GroupCount, ftn.formRow())
+				break
+			}
+		}
+	}
+
+	common.Save(msg, fmt.Sprintf("./gendata/topGroupedStatic%s.txt", time.Now().Format(time.RFC3339)), 0)
+
+}
+
+func Find(slice interface{}, f func(value interface{}) bool) int {
+	s := reflect.ValueOf(slice)
+	if s.Kind() == reflect.Slice {
+		for index := 0; index < s.Len(); index++ {
+			if f(s.Index(index).Interface()) {
+				return index
+			}
+		}
+	}
+	return -1
+}
+
+// func Test_findTest(t *testing.T) {
+// 	samples := [][]int{{1, 2, 3, 4, 5}, {1, 2, 3, 4, 6}, {1, 2, 3, 4, 7}, {1, 2, 3, 4, 8}, {1, 2, 3, 4, 9}}
+// 	t := []int{1, 2, 3, 4, 5}
+// 	if Find(sample,)
+
+// }
+
+func Test_backTesting(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
+	pickupsFile := ""
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	result := ar.List.featureBackTesting()
+	for k, v := range result {
+		pickupsFile = pickupsFile + fmt.Sprintf("%v\n:%v\n", k, v.Presentation())
+	}
+	pickupsFile = pickupsFile + fmt.Sprintln("")
+	pickupsFile = pickupsFile + fmt.Sprintln("")
+	pickupsFile = pickupsFile + fmt.Sprintln("list out")
+	count := 0
+	for k, v := range result {
+		if len(v) > 0 {
+			count++
+			pickupsFile = pickupsFile + fmt.Sprintf("%v\n:%v\n", k, v.Presentation())
+		}
+	}
+	pickupsFile = pickupsFile + fmt.Sprintf("match : %d\n", count)
+	pickupsFile = pickupsFile + fmt.Sprintf("match percent : %.2f\n", float32(count)/float32(len(ar.List))*float32(100))
+
+	common.Save(pickupsFile, fmt.Sprintf("./gendata/backtesting%s.txt", time.Now().Format(time.RFC3339)), 0)
 }
 
 func Test_montecarlo(t *testing.T) {
