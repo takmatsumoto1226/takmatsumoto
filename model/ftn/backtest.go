@@ -48,5 +48,24 @@ func (bt *BackTest) Presentation() string {
 	msg = msg + fmt.Sprintf("Tops:%d, EnumCount:%d\n", bt.HistoryTopCount, bt.ThreadHoldCount)
 	msg = msg + fmt.Sprintf("%f\n", bt.NumbersHistoryTopsPercent)
 
+	msg = msg + bt.Threshold.Presentation()
+
 	return msg
+}
+
+func (bt *BackTest) Backtesting(filenames []string, tops FTNArray) int {
+	total := 0
+
+	fmt.Println(len(bt.ThresholdNumbers.Balls) * 50)
+	for _, ftn := range tops {
+		for _, pn := range bt.ThresholdNumbers.Balls {
+			total = total + ftn.AdariPrice(&pn)
+		}
+	}
+	return total
+}
+
+type RowGroup struct {
+	ID   int      `json:"id"`
+	Rows FTNArray `json:"rows"`
 }

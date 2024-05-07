@@ -2,6 +2,7 @@ package ftn
 
 import (
 	"fmt"
+	"lottery/algorithm"
 	"lottery/model/df"
 	"math"
 	"strconv"
@@ -161,14 +162,7 @@ func (fa *FTN) matchCount(n FTN) int {
 		}
 	}
 
-	if len(set) == count {
-		return count
-	}
-	return 0
-}
-
-func (fa *FTN) matchNumber(n int) bool {
-	return true
+	return count
 }
 
 func Ball39() []string {
@@ -303,14 +297,14 @@ func NewFTNWithStrings(arr []string) *FTN {
 		Year:     "",
 		MonthDay: "",
 		LIdx:     "",
-		B1:       *NewBallI(i1+1, 0),
-		B2:       *NewBallI(i2+1, 0),
-		B3:       *NewBallI(i3+1, 0),
-		B4:       *NewBallI(i4+1, 0),
-		B5:       *NewBallI(i5+1, 0),
+		B1:       *NewBallI(i1, 0),
+		B2:       *NewBallI(i2, 0),
+		B3:       *NewBallI(i3, 0),
+		B4:       *NewBallI(i4, 0),
+		B5:       *NewBallI(i5, 0),
 		TIdx:     "",
-		IBalls:   []int{i1 + 1, i2 + 1, i3 + 1, i4 + 1, i5 + 1},
-		Feature:  *df.NewFeature([]int{i1 + 1, i2 + 1, i3 + 1, i4 + 1, i5 + 1}, ballsCountFTN),
+		IBalls:   []int{i1, i2, i3, i4, i5},
+		Feature:  *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN),
 	}
 }
 
@@ -373,7 +367,27 @@ func (fa *FTN) IsDTree(next *FTN) bool {
 }
 
 func (fa *FTN) AdariPrice(fb *FTN) int {
-	return 0
+	mc := fa.matchCount(*fb)
+	if mc == 5 {
+		return df.PriceTop
+	} else if mc == 4 {
+		return df.PriceSecond
+	} else if mc == 3 {
+		return df.PriceThird
+	} else if mc == 2 {
+		return df.PriceFourth
+	} else {
+		return 0
+	}
+}
+
+func (fa *FTN) MatchCombinations() FTNArray {
+	ftnarr := FTNArray{}
+	for i := 5; i > 1; i-- {
+		combinations := algorithm.Combinations(fa.toStringArray(), i)
+		ftnarr = append(ftnarr, (*NewFTNArray(combinations))...)
+	}
+	return ftnarr
 }
 
 func (fa *FTN) IsUTree(before *FTN) bool {

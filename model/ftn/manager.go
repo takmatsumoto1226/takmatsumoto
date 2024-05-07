@@ -25,7 +25,7 @@ type FTNsManager struct {
 	RevList      FTNArray
 	ballsCount   map[uint]NormalizeInfo
 	Pickups      FTNArray
-	BackTest     BackTest
+	BackTest     []BackTest
 	Combinations [][]int
 }
 
@@ -72,6 +72,7 @@ func (ar *FTNsManager) Prepare() error {
 	ar.loadAllData()
 
 	ar.Combinations = combin.Combinations(ballsCountFTN, BallsOfFTN)
+	ar.BackTest = []BackTest{}
 	return nil
 }
 
@@ -219,9 +220,9 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 	}
 }
 
-func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
+func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string {
 	common.SetRandomGenerator(th.Randomer)
-
+	filenames := []string{}
 	for r := 0; r < th.Round; r++ {
 		bt := BackTest{}
 		result := map[string]int{}
@@ -297,26 +298,29 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 		bt.ExcludeTops.Balls = pures
 
 		// common.Save(filestr, fmt.Sprintf("./gendata/content%s.txt", time.Now().Format(time.RFC3339)), r+1)
-		common.SaveJSON(bt, fmt.Sprintf("./gendata/content%s.json", time.Now().Format(time.RFC3339)), r+1)
-
+		filename := fmt.Sprintf("./gendata/content%s.json", bt.ID)
+		common.SaveJSON(bt, filename, r+1)
+		filenames = append(filenames, filename)
 	}
 
-	if len(ar.Pickups) > 0 {
-		pickupsFile := "Pickups:\n"
-		pickupsFile = pickupsFile + ar.Pickups.Distinct().Presentation()
-		// pickupsFile = pickupsFile + ar.Pickups.intervalBallsCountStatic()
-		common.Save(pickupsFile, fmt.Sprintf("./gendata/pickers%s.txt", time.Now().Format(time.RFC3339)), 0)
-	}
+	return filenames
 }
 
-func (ar *FTNsManager) readJSON(filenames []string) {
+func (ar *FTNsManager) ReadJSON(filenames []string) {
 	for _, filename := range filenames {
+		if !strings.Contains(filename, ".json") {
+			filename = filename + ".json"
+		}
+		bt := BackTest{}
 		file, err := os.ReadFile(filename)
 		if err != nil {
 			logrus.Error(err)
 			continue
 		}
-		json.Unmarshal(file, &ar.BackTest)
+		if err := json.Unmarshal(file, &bt); err != nil {
+			continue
+		}
+		ar.BackTest = append(ar.BackTest, bt)
 	}
 }
 

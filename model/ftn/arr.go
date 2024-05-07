@@ -195,26 +195,8 @@ func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
 	return intersection
 }
 
-func (fa FTNArray) adariPrice(adari *FTN) {
-	for i := 5; i > 1; i-- {
-		combinations := algorithm.Combinations(adari.toStringArray(), i)
-		// fmt.Println(combinations)
-		ftnarr := NewFTNArray(combinations)
-		for _, ftn := range *ftnarr {
-			for _, fav := range fa {
-				mc := fav.matchCount(ftn)
-				if mc == 5 {
-					fmt.Println("8000000元")
-				} else if mc == 4 {
-					fmt.Println("20000元")
-				} else if mc == 3 {
-					fmt.Println("300元")
-				} else {
-					fmt.Println("50元")
-				}
-			}
-		}
-	}
+func (fa FTNArray) adariPrice(adari *FTN) int {
+	return 0
 }
 
 func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo {

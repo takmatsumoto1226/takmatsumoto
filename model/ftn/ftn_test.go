@@ -307,24 +307,61 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 
 	df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	th := interf.Threshold{
-		Round:      1,
-		Value:      14,
-		SampleTime: 8,
+		Round:      4,
+		Value:      15,
+		SampleTime: 9,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
-			Index:  1,
-			Length: 20,
+			Index:  0,
+			Length: 5,
 		},
 		Smart: interf.Smart{
 			Enable: true,
 			Type:   interf.RangeTypeLatestRange,
 		},
-		Randomer: 1,
+		Randomer: 0,
 	}
 
 	ar.JSONGenerateTopPriceNumber(th)
 
 	// ar.BackTest()
+}
+
+func Test_readBackTesting(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Back Test")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	// filenames := []string{"./gendata/content2024-05-07T16:56:27+08:00", "./gendata/content2024-05-07T16:49:56+08:00"}
+	filenames := []string{"./gendata/content20240507174022", "./gendata/content20240507174114", "./gendata/content20240507174208", "./gendata/content20240507174330"}
+	ar.ReadJSON(filenames)
+	// fmt.Println(ar.BackTest.Presentation())
+	for _, bt := range ar.BackTest {
+		common.Save(bt.Presentation(), fmt.Sprintf("./gendata/content%s.txt", bt.ID), 0)
+	}
+
+	start := 0
+	count := 0
+	for i := start; i < start+1; i++ {
+		tops := ar.List.WithRange(i, 1)
+		for _, bt := range ar.BackTest {
+			total := 0
+			for _, ftn := range tops {
+				for _, pn := range bt.PickNumbers.Balls {
+					currentPrice := ftn.AdariPrice(&pn)
+					total = total + currentPrice
+					if currentPrice >= df.PriceTop {
+						fmt.Println(ftn.formRow())
+					}
+				}
+			}
+			if total > 500000 {
+				fmt.Printf("%d : %d, 第 %04d : %d\n", len(bt.ThresholdNumbers.Balls), len(bt.ThresholdNumbers.Balls)*50, i, total)
+				count++
+			}
+		}
+	}
+	fmt.Println(count)
 }
 
 func Test_groupNumbers(t *testing.T) {
@@ -346,7 +383,7 @@ func Test_groupNumbers(t *testing.T) {
 		}
 	}
 
-	common.Save(msg, fmt.Sprintf("./gendata/topGroupedStatic_%d_%s.txt", GroupCount, time.Now().Format(time.RFC3339)), 0)
+	common.Save(msg, fmt.Sprintf("./gendata/topGroupedStatic_%d_%s.json", GroupCount, time.Now().Format(time.RFC3339)), 0)
 
 }
 
@@ -446,24 +483,5 @@ func MultiPI(samples int, threads int) float64 {
 }
 
 func Test_compareTest(t *testing.T) {
-	// 	F:2007|0501|01|  |  |  |  |  |  |  |  |10|  |  |  |  |  |  |  |  |  |  |  |22|  |  |  |  |  |  |  |  |  |  |  |34|  |  |  |  |39|
-	// M:||01|  |  |  |  |  |  |  |  |  |  |12|  |  |  |  |  |  |  |  |  |  |  |  |  |  |27|  |  |  |  |  |  |34|  |36|  |  |  |
-	// TenGroup : [1 1 1 2 0], Odd:Even==2:3, OddTen:EvenTen===[1 0 0 1 0]:[0 1 1 1 0], DigitTail : [1 1 1 0 1 0 0 0 0 1], PrimeCount:0
-	// TenGroup : [1 1 1 2 0], Odd:Even==2:3, OddTen:EvenTen===[1 0 1 0 0]:[0 1 0 2 0], DigitTail : [0 1 1 0 1 0 1 1 0 0], PrimeCount:0
-
-	// F:2024|0427|  |  |  |  |  |  |  |  |09|  |  |  |  |  |15|  |  |  |  |  |  |22|  |  |  |  |  |  |  |  |  |  |  |34|  |36|  |  |  |
-	// M:||  |  |  |  |  |  |  |08|  |10|  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |27|  |  |  |  |  |33|34|  |  |  |  |  |
-
-	// F:2024|0426|  |  |  |  |  |  |  |  |  |10|  |  |  |14|  |  |  |  |  |  |  |  |  |  |25|  |  |  |  |  |31|  |  |  |  |36|  |  |  |
-	// M:||  |  |  |  |  |  |  |  |  |  |  |  |13|  |15|  |  |  |  |  |  |22|  |  |  |  |  |  |  |  |  |  |  |34|  |36|  |  |  |
-	ftn1 := NewFTNWithInts([]int{10, 14, 25, 31, 36})
-	ftn2 := NewFTNWithInts([]int{13, 15, 22, 34, 36})
-	if ftn1.MatchFeature(ftn2) {
-		fmt.Println("一樣")
-	} else {
-		fmt.Println("不一樣")
-	}
-	fmt.Println(ftn1.Feature.String())
-	fmt.Println(ftn2.Feature.String())
 
 }
