@@ -18,7 +18,7 @@ http:
       path: "4-star"
       baseyear: "2003"
 local:
-    path: "../../data/csv"
+    path: ../../data/csv
 
 aokurls:
   - url: "http://www.aok.url.tw/yomj/112/112%E5%B9%B4%E5%BA%A6%E5%A4%A7%E6%A8%82%E9%80%8F%E9%96%8B%E7%8D%8E%E8%99%9F%E7%A2%BC%E8%A1%A8.doc"
@@ -31,6 +31,6 @@ aokurls:
     local_path: ./data/doc/三四星彩
 
 combinations:
-  - path: "../../data/statics"
+  - path: ../../data/statics
     template: "combination%v.json"
     

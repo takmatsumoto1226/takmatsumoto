@@ -273,24 +273,22 @@ func Test_findAdariPrice(t *testing.T) {
 	arr.adariPrice(NewFTNWithInts([]int{2, 4, 5, 6, 7}))
 }
 
-func Test_random(t *testing.T) {
+func Test_GenerateTopPriceNumber(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	combarr := combin.Combinations(39, BallsOfFTN)
 
 	df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	th := interf.Threshold{
 		Round:      5,
 		Value:      14,
 		SampleTime: 8,
-		Sample:     len(combarr),
+		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
-			Index:  3398,
+			Index:  2,
 			Length: 20,
 		},
-		Combinations: combarr,
 		Smart: interf.Smart{
 			Enable: true,
 			Type:   interf.RangeTypeLatestRange,
@@ -301,23 +299,41 @@ func Test_random(t *testing.T) {
 	ar.GenerateTopPriceNumber(th)
 }
 
+func Test_GenerateTopPriceNumberJSON(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+
+	df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
+	th := interf.Threshold{
+		Round:      1,
+		Value:      14,
+		SampleTime: 8,
+		Sample:     len(ar.Combinations),
+		Interval: interf.Interval{
+			Index:  1,
+			Length: 20,
+		},
+		Smart: interf.Smart{
+			Enable: true,
+			Type:   interf.RangeTypeLatestRange,
+		},
+		Randomer: 1,
+	}
+
+	ar.JSONGenerateTopPriceNumber(th)
+
+	// ar.BackTest()
+}
+
 func Test_groupNumbers(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
 	combarr := combin.Combinations(39, BallsOfFTN)
-	GroupCount := 1000
-	group := map[int]([][]int){}
-	tmp := [][]int{}
-	for i, number := range combarr {
-		// combftn := NewFTNWithInts(number)
-		if (i+1)%GroupCount == 0 {
-			group[i/GroupCount] = tmp
-			tmp = [][]int{}
-		} else {
-			tmp = append(tmp, number)
-		}
-	}
+	GroupCount := 100
+
 	msg := ""
 	for _, ftn := range ar.List {
 		for idx, v := range combarr {
@@ -330,7 +346,7 @@ func Test_groupNumbers(t *testing.T) {
 		}
 	}
 
-	common.Save(msg, fmt.Sprintf("./gendata/topGroupedStatic%s.txt", time.Now().Format(time.RFC3339)), 0)
+	common.Save(msg, fmt.Sprintf("./gendata/topGroupedStatic_%d_%s.txt", GroupCount, time.Now().Format(time.RFC3339)), 0)
 
 }
 

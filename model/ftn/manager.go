@@ -1,6 +1,7 @@
 package ftn
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"lottery/config"
@@ -8,20 +9,24 @@ import (
 	"lottery/model/common"
 	"lottery/model/df"
 	"lottery/model/interf"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"gonum.org/v1/gonum/stat/combin"
 )
 
 // FTNsManager ...
 type FTNsManager struct {
-	List       FTNArray
-	RevList    FTNArray
-	ballsCount map[uint]NormalizeInfo
-	Pickups    FTNArray
+	List         FTNArray
+	RevList      FTNArray
+	ballsCount   map[uint]NormalizeInfo
+	Pickups      FTNArray
+	BackTest     BackTest
+	Combinations [][]int
 }
 
 // LoadAllData ...
@@ -65,6 +70,8 @@ func (ar *FTNsManager) Prepare() error {
 
 	// LoadAllData
 	ar.loadAllData()
+
+	ar.Combinations = combin.Combinations(ballsCountFTN, BallsOfFTN)
 	return nil
 }
 
@@ -121,7 +128,7 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 		filestr := ""
 		result := map[string]int{}
 
-		for _, v := range th.Combinations {
+		for _, v := range ar.Combinations {
 			balls := NewFTNWithInts(v)
 			result[balls.Key()] = 0
 		}
@@ -129,7 +136,7 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 
 		for i := 0; i < total; i++ {
 			index := common.RandomNuber() % uint64(th.Sample)
-			balls := NewFTNWithInts(th.Combinations[index])
+			balls := NewFTNWithInts(ar.Combinations[index])
 			bK := balls.Key()
 			if v, ok := result[bK]; ok {
 				result[bK] = v + 1
@@ -209,6 +216,107 @@ func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
 		pickupsFile = pickupsFile + ar.Pickups.Distinct().Presentation()
 		// pickupsFile = pickupsFile + ar.Pickups.intervalBallsCountStatic()
 		common.Save(pickupsFile, fmt.Sprintf("./gendata/pickers%s.txt", time.Now().Format(time.RFC3339)), 0)
+	}
+}
+
+func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
+	common.SetRandomGenerator(th.Randomer)
+
+	for r := 0; r < th.Round; r++ {
+		bt := BackTest{}
+		result := map[string]int{}
+
+		for _, v := range ar.Combinations {
+			balls := NewFTNWithInts(v)
+			result[balls.Key()] = 0
+		}
+		total := int(float32(th.Sample) * th.SampleTime)
+
+		for i := 0; i < total; i++ {
+			index := common.RandomNuber() % uint64(th.Sample)
+			balls := NewFTNWithInts(ar.Combinations[index])
+			if v, ok := result[balls.Key()]; ok {
+				result[balls.Key()] = v + 1
+			}
+		}
+
+		features := ar.List.FeatureRange(th)
+		bt.Features.Title = "features row\n\n\n"
+		bt.Features.Balls = features
+
+		count := 0
+		pickupcount := 0
+		tops := FTNArray{}
+		threadholdNumbers := FTNArray{}
+		featuresFTNs := FTNArray{}
+		for k, v := range result {
+			if v > th.Value {
+				threadholdNumber := NewFTNWithStrings(strings.Split(k, "_"))
+				threadholdNumbers = append(threadholdNumbers, *threadholdNumber)
+				ftnarr := ar.List.findNumbers(threadholdNumber.toStringArray(), df.None)
+				if len(ftnarr) > 0 {
+					tops = append(tops, ftnarr...)
+				}
+
+				for _, l := range features {
+					if l.MatchFeature(threadholdNumber) {
+						featuresFTNs = append(featuresFTNs, *threadholdNumber)
+						pickupcount++
+						break
+					}
+				}
+				count++
+			}
+		}
+		bt.ThresholdNumbers.Title = "Thread Hold Numbers"
+		bt.ThresholdNumbers.Balls = threadholdNumbers
+
+		bt.HistoryTopsMatch.Title = "History Match Tops"
+		bt.HistoryTopsMatch.Balls = tops
+		bt.PickNumbers.Title = "Feature Close"
+		bt.PickNumbers.Balls = featuresFTNs
+		bt.ThreadHoldCount = count
+		bt.PickupCount = pickupcount
+		bt.ID = time.Now().Format("20060102150405")
+		bt.HistoryTopCount = len(tops)
+		bt.NumbersHistoryTopsPercent = float32(len(tops)) / float32(count)
+		bt.Threshold = th
+
+		// exclude tops
+		pures := FTNArray{}
+		for _, fFTN := range featuresFTNs {
+			for _, f := range ar.List {
+				if !fFTN.MatchFeature(&f) {
+					pures = append(pures, fFTN)
+					break
+				}
+			}
+		}
+
+		bt.ExcludeTops.Title = "Pures"
+		bt.ExcludeTops.Balls = pures
+
+		// common.Save(filestr, fmt.Sprintf("./gendata/content%s.txt", time.Now().Format(time.RFC3339)), r+1)
+		common.SaveJSON(bt, fmt.Sprintf("./gendata/content%s.json", time.Now().Format(time.RFC3339)), r+1)
+
+	}
+
+	if len(ar.Pickups) > 0 {
+		pickupsFile := "Pickups:\n"
+		pickupsFile = pickupsFile + ar.Pickups.Distinct().Presentation()
+		// pickupsFile = pickupsFile + ar.Pickups.intervalBallsCountStatic()
+		common.Save(pickupsFile, fmt.Sprintf("./gendata/pickers%s.txt", time.Now().Format(time.RFC3339)), 0)
+	}
+}
+
+func (ar *FTNsManager) readJSON(filenames []string) {
+	for _, filename := range filenames {
+		file, err := os.ReadFile(filename)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+		json.Unmarshal(file, &ar.BackTest)
 	}
 }
 

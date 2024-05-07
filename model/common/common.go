@@ -3,6 +3,7 @@ package common
 import (
 	crypto_rand "crypto/rand"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
 	"log"
 	"math/rand"
@@ -40,6 +41,11 @@ func Save(content, filename string, index int) {
 		fmt.Println(err)
 		return
 	}
+}
+
+func SaveJSON(content interface{}, filename string, index int) {
+	jsonString, _ := json.Marshal(content)
+	os.WriteFile(filename, jsonString, os.ModePerm)
 }
 
 func SetRandomGenerator(t int) {

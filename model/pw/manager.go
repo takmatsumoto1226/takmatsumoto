@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"gonum.org/v1/gonum/stat/combin"
 )
 
 type PowerManager struct {
@@ -20,6 +21,7 @@ type PowerManager struct {
 	RevList PowerList
 	// ballsCount    map[uint]NormalizeInfo
 	numberToIndex map[string]int
+	Combinations  [][]int
 }
 
 func (ar *PowerManager) Prepare() error {
@@ -28,6 +30,8 @@ func (ar *PowerManager) Prepare() error {
 
 	// LoadAllData
 	ar.loadAllData()
+
+	ar.Combinations = combin.Combinations(ballsCountPower, 6)
 	return nil
 }
 
@@ -72,17 +76,17 @@ func (mgr *PowerManager) GenerateTopPriceNumber(th interf.Threshold) {
 		filestr := ""
 
 		result := map[string]int{}
-		for _, v := range th.Combinations {
+		for _, v := range mgr.Combinations {
 			balls := NewPowerWithInts(v)
 			result[balls.Key()] = 0
 		}
 
 		featureMatchs := PowerList{}
 		features := mgr.List.FeatureRange(th)
-		total := len(th.Combinations) * int(th.SampleTime)
+		total := len(mgr.Combinations) * int(th.SampleTime)
 		for i := 0; i < total; i++ {
 			index := uint64(uint64(common.RandomNuber() % uint64(len(result))))
-			balls := NewPowerWithInts(th.Combinations[index])
+			balls := NewPowerWithInts(mgr.Combinations[index])
 			if v, ok := result[balls.Key()]; ok {
 				result[balls.Key()] = v + 1
 			}

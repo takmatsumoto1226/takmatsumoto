@@ -24,10 +24,10 @@ type PickParam struct {
 	Interval   uint
 	Whichfront uint
 	Spliter    uint
-	Hot        uint // 熱門號碼
+	Hot        uint
 }
 
-// GetKey 取得key
+// GetKey get key
 func (p *PickParam) GetKey() string {
 	return fmt.Sprintf("%d_%d_%d", p.SortType, p.Interval, p.Whichfront)
 }
@@ -38,12 +38,12 @@ const BallsOfFTN = 5
 // Balls ...
 type Balls []Ball
 
-// Ball 球
+// Ball
 type Ball struct {
-	Number   string
-	Position int // 出球的順序
-	Digit    int // int的球號
-	Period   int
+	Number   string `json:"number"`
+	Position int    `json:"position"`
+	Digit    int    `json:"digit"`
+	Period   int    `json:"period"`
 }
 
 func (b *Ball) Illegal() bool {
@@ -67,7 +67,7 @@ func NewBallI(n int, pos int) *Ball {
 // BallsCount ...
 type BallsCount []BallInfo
 type NormalizeInfo struct {
-	NorBalls BallsCount // 統計號碼多久沒出現
+	NorBalls BallsCount // disappear interval
 	Param    PickParam
 }
 
@@ -132,17 +132,18 @@ func initNumberToIndex() {
 
 // FTN ...
 type FTN struct {
-	Year     string
-	MonthDay string
-	LIdx     string
-	B1       Ball
-	B2       Ball
-	B3       Ball
-	B4       Ball
-	B5       Ball
-	TIdx     string
-	IBalls   []int
-	Feature  df.Feature
+	Year        string     `json:"year"`
+	MonthDay    string     `json:"monthday"`
+	LIdx        string     `json:"lidx"`
+	B1          Ball       `json:"b1"`
+	B2          Ball       `json:"b2"`
+	B3          Ball       `json:"b3"`
+	B4          Ball       `json:"b4"`
+	B5          Ball       `json:"b5"`
+	TIdx        string     `json:"tidx"`
+	IBalls      []int      `json:"iballs"`
+	Feature     df.Feature `json:"feature"`
+	RandomCount int        `json:"randomcount"`
 }
 
 func (fa *FTN) matchCount(n FTN) int {
@@ -190,6 +191,32 @@ func (fa *FTN) formRow() string {
 	if fa.Year == "====" {
 		rowmsg := fmt.Sprintf("%s|", fa.Year)
 		rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
+		for i := 1; i <= ballsCountFTN; i++ {
+			rowmsg = rowmsg + "==="
+		}
+		fmt.Println(rowmsg)
+		return rowmsg
+	} else {
+		rowmsg := fmt.Sprintf("%s|", fa.Year)
+		rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
+		bi := 0
+		for i := 1; i <= ballsCountFTN; i++ {
+			if fa.IBalls[bi] == i {
+				rowmsg = rowmsg + fmt.Sprintf("%02d|", fa.IBalls[bi])
+				if bi < 4 {
+					bi++
+				}
+			} else {
+				rowmsg = rowmsg + "  |"
+			}
+		}
+		return rowmsg
+	}
+}
+
+func (fa *FTN) simpleFormRow() string {
+	if fa.Year == "====" {
+		rowmsg := ""
 		for i := 1; i <= ballsCountFTN; i++ {
 			rowmsg = rowmsg + "==="
 		}
@@ -276,14 +303,14 @@ func NewFTNWithStrings(arr []string) *FTN {
 		Year:     "",
 		MonthDay: "",
 		LIdx:     "",
-		B1:       *NewBallI(i1, 0),
-		B2:       *NewBallI(i2, 0),
-		B3:       *NewBallI(i3, 0),
-		B4:       *NewBallI(i4, 0),
-		B5:       *NewBallI(i5, 0),
+		B1:       *NewBallI(i1+1, 0),
+		B2:       *NewBallI(i2+1, 0),
+		B3:       *NewBallI(i3+1, 0),
+		B4:       *NewBallI(i4+1, 0),
+		B5:       *NewBallI(i5+1, 0),
 		TIdx:     "",
-		IBalls:   []int{i1, i2, i3, i4, i5},
-		Feature:  *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN),
+		IBalls:   []int{i1 + 1, i2 + 1, i3 + 1, i4 + 1, i5 + 1},
+		Feature:  *df.NewFeature([]int{i1 + 1, i2 + 1, i3 + 1, i4 + 1, i5 + 1}, ballsCountFTN),
 	}
 }
 
@@ -319,7 +346,9 @@ func Empty() *FTN {
 		*NewBallS("==", 0),
 		*NewBallS("==", 0),
 		"==",
-		[]int{}, *df.DefaultFeature(),
+		[]int{},
+		*df.DefaultFeature(),
+		0,
 	}
 }
 

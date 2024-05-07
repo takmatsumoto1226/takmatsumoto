@@ -126,16 +126,16 @@ type GROUP int
 const UndefinedFeature = -1
 
 type Feature struct {
-	IBalls                  []int
-	TenGroupCount           [5]int
-	OddNumberCount          int
-	TenGroupOddNumberCount  [5]int
-	TenGroupEvenNumberCount [5]int
-	EvenNumberCount         int
-	TailDigit               [10]int
-	PrimeCount              int
-	MultiplesOfs            []int // 2,3,....helf of ball count
-	ContinueType            int
+	IBalls                  []int   `json:"iballs"`
+	TenGroupCount           [5]int  `json:"tengroupcount"`
+	OddNumberCount          int     `json:"oddnumbercount"`
+	TenGroupOddNumberCount  [5]int  `json:"tengroupoddnumbercount"`
+	TenGroupEvenNumberCount [5]int  `json:"tengroupevennumbercount"`
+	EvenNumberCount         int     `json:"evennumbercount"`
+	TailDigit               [10]int `json:"taildigit"`
+	PrimeCount              int     `json:"primecount"`
+	MultiplesOfs            [19]int `json:"multiplesofs"`
+	ContinueType            int     `json:"continuetype"`
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {

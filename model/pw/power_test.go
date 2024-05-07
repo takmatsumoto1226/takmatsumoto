@@ -9,15 +9,13 @@ import (
 	"lottery/model/interf"
 	"testing"
 	"time"
-
-	"gonum.org/v1/gonum/stat/combin"
 )
 
 func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = PowerManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	fmt.Println(as.List.Presentation())
+	fmt.Println(as.List.WithRange(0, 20).Presentation())
 }
 
 func Test_findnumber(t *testing.T) {
@@ -41,21 +39,17 @@ func Test_random(t *testing.T) {
 	config.LoadConfig("../../config.yaml") // 17591400
 	var as = PowerManager{}
 	as.Prepare()
-
-	balls := 6
-	combarr := combin.Combinations(38, balls)
 	// lens := len(combarr)
 
 	th := interf.Threshold{
 		Round:      1,
 		Value:      15,
 		SampleTime: 8,
-		Sample:     len(combarr),
+		Sample:     len(as.Combinations),
 		Interval: interf.Interval{
-			Index:  1057,
+			Index:  2,
 			Length: 20,
 		},
-		Combinations: combarr,
 		Smart: interf.Smart{
 			Enable: true,
 			Type:   interf.RangeTypeLatestRange,
@@ -67,4 +61,5 @@ func Test_random(t *testing.T) {
 	common.SetRandomGenerator(1)
 
 	as.GenerateTopPriceNumber(th)
+
 }

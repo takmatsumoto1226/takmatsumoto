@@ -44,15 +44,14 @@ func (s *Smart) typeName() string {
 }
 
 type Threshold struct {
-	Randomer     int
-	Round        int
-	SampleTime   float32
-	Sample       int
-	Value        int
-	RealSale     int32
-	Interval     Interval
-	Smart        Smart
-	Combinations [][]int
+	Randomer   int      `json:"randomer"`
+	Round      int      `json:"round"`
+	SampleTime float32  `json:"sampletime"`
+	Sample     int      `json:"sample"`
+	Value      int      `json:"value"`
+	RealSale   int32    `json:"realsale"`
+	Interval   Interval `json:"interval"`
+	Smart      Smart    `json:"smart"`
 }
 
 func (th *Threshold) GetRandomer() string {
