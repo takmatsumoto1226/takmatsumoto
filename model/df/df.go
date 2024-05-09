@@ -22,7 +22,7 @@ const (
 )
 
 const (
-	Descending = iota // raw data 年份大到小
+	Descending = iota // raw data 年份\
 	Ascending         // raw data 年份小到大
 )
 
@@ -34,16 +34,23 @@ const (
 
 // 特徵種類
 const (
-	ContinuePickupNumber1 = iota // 跟前一期號碼相比, 有1個號碼連續出現
-	ContinuePickupNumber2        // 跟前一期號碼相比, 有2個號碼連續出現
-	ContinuePickupNumber3        // 跟前一期號碼相比, 有3個號碼連續出現
-	ContinuePickupNumber4        // 跟前一期號碼相比, 有4個號碼連續出現
-	ContinueNumber2              // 同一期出現相連號碼(2個) ex: 01 05 06 23 33
-	ContinueNumber3              // 同一期出現相連號碼(3個) ex: 01 05 06 07 33
-	ContinueNumber4              // 同一期出現相連號碼(3個) ex: 01 05 06 07 08
-	ContinueNumber5              // 同一期出現相連號碼(3個) ex: 04 05 06 07 08
-	ContinueNumber22             //
-	ContinueNumber32             //
+	ContinueColNone = iota
+	ContinueCol1    // 跟前一期號碼相比, 有1個號碼連續出現
+	ContinueCol2    // 跟前一期號碼相比, 有2個號碼連續出現
+	ContinueCol3    // 跟前一期號碼相比, 有3個號碼連續出現
+	ContinueCol4    // 跟前一期號碼相比, 有4個號碼連續出現
+
+)
+
+const (
+	ContinueRowNone = iota
+	ContinueRow2    // 同一期出現相連號碼(2個) ex: 01 05 06 23 33
+	ContinueRow3    // 同一期出現相連號碼(3個) ex: 01 05 06 07 33
+	ContinueRow4    // 同一期出現相連號碼(4個) ex: 01 05 06 07 08
+	ContinueRow5    // 同一期出現相連號碼(5個) ex: 04 05 06 07 08
+	ContinueRow22   // 同一期出現相連號碼(2個*2)
+	ContinueRow32   // 同一期出現相連號碼(2個, 3個 葫蘆)
+
 )
 
 const (
@@ -91,8 +98,7 @@ const (
 	FilterTailDigit
 	FilterPrime
 	FilterPrimeCount
-	FilterContinue2
-	FilterContinue3
+	FilterContinueRowType
 )
 
 var filters = []bool{
@@ -104,7 +110,7 @@ var filters = []bool{
 	true, // tail digit
 	true, // prime
 	true, // prime count
-	true, // continue2
+	true, // continue type
 }
 
 func DistableFilters(fs []int) {
@@ -139,7 +145,7 @@ type Feature struct {
 	TailDigit               [10]int `json:"taildigit"`
 	PrimeCount              int     `json:"primecount"`
 	MultiplesOfs            [19]int `json:"multiplesofs"`
-	ContinueType            int     `json:"continuetype"`
+	ContinueRowType         int     `json:"continuerowtype"`
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {
@@ -166,7 +172,7 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 			primec++
 		}
 	}
-	return &Feature{
+	f := &Feature{
 		IBalls:                  numbers,
 		TenGroupCount:           gt,
 		OddNumberCount:          oc,
@@ -176,6 +182,8 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 		TailDigit:               td,
 		PrimeCount:              primec,
 	}
+	f.setContinueRowType()
+	return f
 }
 
 func DefaultFeature() *Feature {
@@ -184,6 +192,24 @@ func DefaultFeature() *Feature {
 		OddNumberCount:  UndefinedFeature,
 		EvenNumberCount: UndefinedFeature,
 		TailDigit:       [10]int{UndefinedFeature},
+	}
+}
+
+func (f *Feature) setContinueRowType() {
+	if f.IsContinue2() {
+		f.ContinueRowType = ContinueRow2
+	} else if f.IsContinue3() {
+		f.ContinueRowType = ContinueRow3
+	} else if f.IsContinue4() {
+		f.ContinueRowType = ContinueRow4
+	} else if f.IsContinue5() {
+		f.ContinueRowType = ContinueRow5
+	} else if f.IsContinue22() {
+		f.ContinueRowType = ContinueRow22
+	} else if f.IsContinue2() && f.IsContinue3() {
+		f.ContinueRowType = ContinueRow32
+	} else {
+		f.ContinueRowType = ContinueRowNone
 	}
 }
 
@@ -312,6 +338,12 @@ func (f *Feature) RCompare(t *Feature) bool {
 			return false
 		}
 	}
+
+	// if filters[FilterContinueRowType] {
+	// 	if f.ContinueRowType != t.ContinueRowType {
+	// 		return false
+	// 	}
+	// }
 
 	return true
 }

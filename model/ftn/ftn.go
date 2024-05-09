@@ -13,7 +13,8 @@ import (
 
 var ballPools = map[string]BallsInfo{}
 
-var ballIntervalStatic = map[int]int{}
+var ballPeriotStatic = map[int]int{}
+var ballContinueStatic = map[int]int{}
 
 // PickParams ...
 type PickParams []PickParam
@@ -45,6 +46,7 @@ type Ball struct {
 	Position int    `json:"position"`
 	Digit    int    `json:"digit"`
 	Period   int    `json:"period"`
+	Continue int    `json:"continue"`
 }
 
 func (b *Ball) Illegal() bool {
@@ -250,22 +252,33 @@ func NewFTN(arr []string) *FTN {
 		arrInt := []int{B1.Digit, B2.Digit, B3.Digit, B4.Digit, B5.Digit}
 		for i := 0; i < ballsCountFTN; i++ {
 			if i == B1.Digit {
-				B1.Period = ballIntervalStatic[i]
-				ballIntervalStatic[i] = 0
+				B1.Period = ballPeriotStatic[i]
+				ballPeriotStatic[i] = 0
+				ballContinueStatic[i]++
+				B1.Continue = ballContinueStatic[i]
 			} else if i == B2.Digit {
-				B2.Period = ballIntervalStatic[i]
-				ballIntervalStatic[i] = 0
+				B2.Period = ballPeriotStatic[i]
+				ballPeriotStatic[i] = 0
+				ballContinueStatic[i]++
+				B2.Continue = ballContinueStatic[i]
 			} else if i == B3.Digit {
-				B3.Period = ballIntervalStatic[i]
-				ballIntervalStatic[i] = 0
+				B3.Period = ballPeriotStatic[i]
+				ballPeriotStatic[i] = 0
+				ballContinueStatic[i]++
+				B3.Continue = ballContinueStatic[i]
 			} else if i == B4.Digit {
-				B4.Period = ballIntervalStatic[i]
-				ballIntervalStatic[i] = 0
+				B4.Period = ballPeriotStatic[i]
+				ballPeriotStatic[i] = 0
+				ballContinueStatic[i]++
+				B4.Continue = ballContinueStatic[i]
 			} else if i == B5.Digit {
-				B5.Period = ballIntervalStatic[i]
-				ballIntervalStatic[i] = 0
+				B5.Period = ballPeriotStatic[i]
+				ballPeriotStatic[i] = 0
+				ballContinueStatic[i]++
+				B5.Continue = ballContinueStatic[i]
 			} else {
-				ballIntervalStatic[i]++
+				ballPeriotStatic[i]++
+				ballContinueStatic[i] = 0
 			}
 		}
 

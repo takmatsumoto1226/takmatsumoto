@@ -2,8 +2,13 @@ package ftn
 
 import (
 	"fmt"
+	"lottery/model/common"
 	"lottery/model/interf"
+	"path/filepath"
 )
+
+const RootDir = "./gendata"
+const SubDir = "20240509"
 
 type SessionData struct {
 	Title string   `json:"title"`
@@ -63,6 +68,22 @@ func (bt *BackTest) Backtesting(filenames []string, tops FTNArray) int {
 		}
 	}
 	return total
+}
+
+func (bt *BackTest) BackFilter() FTNArray {
+	bfs := FTNArray{}
+	for _, pn := range bt.ThresholdNumbers.Balls {
+		for _, f := range bt.Features.Balls {
+			if pn.MatchFeature(&f) {
+				bfs = append(bfs, pn)
+			}
+		}
+	}
+	return bfs
+}
+
+func (bt *BackTest) Report() {
+	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s.txt", bt.ID)), 0)
 }
 
 type RowGroup struct {

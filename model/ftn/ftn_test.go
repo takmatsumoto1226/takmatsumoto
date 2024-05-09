@@ -11,8 +11,8 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"path/filepath"
 	"reflect"
-	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -43,14 +43,16 @@ func Test_loadFTNs(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	aipicks := as.List.FeatureRange(*interf.SmartPureIntervalTH(0, 20))
-	sort.Sort(aipicks)
-	aipicks.ShowAll()
-	fmt.Println("")
-	fmt.Println("")
-	fmt.Println("")
-	distinct := aipicks.Distinct()
-	distinct.ShowAll()
+	// aipicks := as.List.FeatureRange(*interf.SmartPureIntervalTH(0, 20))
+	// sort.Sort(aipicks)
+	// aipicks.ShowAll()
+	// fmt.Println("")
+	// fmt.Println("")
+	// fmt.Println("")
+	// distinct := aipicks.Distinct()
+	// distinct.ShowAll()
+	normalRange := as.List.WithRange(0, 20)
+	normalRange.ShowAll()
 
 }
 
@@ -146,7 +148,6 @@ func Test_combination2(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	as.List.findNumbers([]string{"01", "10", "20", "30", "36"}, df.None).ShowAll()
 
 }
 
@@ -273,53 +274,29 @@ func Test_findAdariPrice(t *testing.T) {
 	arr.adariPrice(NewFTNWithInts([]int{2, 4, 5, 6, 7}))
 }
 
-func Test_GenerateTopPriceNumber(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
-	config.LoadConfig("../../config.yaml")
-	var ar = FTNsManager{}
-	ar.Prepare()
-
-	df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
-	th := interf.Threshold{
-		Round:      5,
-		Value:      14,
-		SampleTime: 8,
-		Sample:     len(ar.Combinations),
-		Interval: interf.Interval{
-			Index:  2,
-			Length: 20,
-		},
-		Smart: interf.Smart{
-			Enable: true,
-			Type:   interf.RangeTypeLatestRange,
-		},
-		Randomer: 1,
-	}
-
-	ar.GenerateTopPriceNumber(th)
-}
-
 func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
 
-	df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
+	//
+	// df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
+	df.DistableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount})
 	th := interf.Threshold{
-		Round:      4,
-		Value:      15,
+		Round:      10,
+		Value:      14,
 		SampleTime: 9,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
-			Index:  0,
-			Length: 5,
+			Index:  4,
+			Length: 20,
 		},
 		Smart: interf.Smart{
 			Enable: true,
-			Type:   interf.RangeTypeLatestRange,
+			Type:   interf.RangeTypeSpecStartRange,
 		},
-		Randomer: 0,
+		Randomer: 1,
 	}
 
 	ar.JSONGenerateTopPriceNumber(th)
@@ -327,27 +304,53 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	// ar.BackTest()
 }
 
+func FileNames() []string {
+
+	return []string{
+		// filepath.Join(RootDir, SubDir, "content20240509124656"),
+		// filepath.Join(RootDir, SubDir, "content20240509124818"),
+		// filepath.Join(RootDir, SubDir, "content20240509124943"),
+		// filepath.Join(RootDir, SubDir, "content20240509125107"),
+		// filepath.Join(RootDir, SubDir, "content20240509125233"),
+		// filepath.Join(RootDir, SubDir, "content20240509125359"),
+		// filepath.Join(RootDir, SubDir, "content20240509125526"),
+		// filepath.Join(RootDir, SubDir, "content20240509125647"),
+		filepath.Join(RootDir, SubDir, "content20240509125808"),
+		// filepath.Join(RootDir, SubDir, "content20240509125929"),
+		// filepath.Join(RootDir, SubDir, "content20240509113459"),
+		// filepath.Join(RootDir, SubDir, "content20240509114028"),
+		// filepath.Join(RootDir, SubDir, "content20240509114311"),
+		// filepath.Join(RootDir, SubDir, "content20240509111120"),
+		// filepath.Join(RootDir, SubDir, "content20240509111437"),
+		// filepath.Join(RootDir, SubDir, "content20240509111724"),
+	}
+
+	// files, _ := os.ReadDir(filepath.Join(RootDir, SubDir))
+	// filenames := []string{}
+	// for _, f := range files {
+	// 	if strings.Contains(f.Name(), ".json") {
+	// 		filenames = append(filenames, filepath.Join(RootDir, SubDir, f.Name()))
+	// 	}
+	// }
+	// return filenames
+}
+
 func Test_readBackTesting(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Back Test")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	// filenames := []string{"./gendata/content2024-05-07T16:56:27+08:00", "./gendata/content2024-05-07T16:49:56+08:00"}
-	filenames := []string{"./gendata/content20240507174022", "./gendata/content20240507174114", "./gendata/content20240507174208", "./gendata/content20240507174330"}
-	ar.ReadJSON(filenames)
-	// fmt.Println(ar.BackTest.Presentation())
-	for _, bt := range ar.BackTest {
-		common.Save(bt.Presentation(), fmt.Sprintf("./gendata/content%s.txt", bt.ID), 0)
-	}
 
-	start := 0
+	ar.ReadJSON(FileNames())
+	interval := interf.Interval{Index: 0, Length: 5}
 	count := 0
-	for i := start; i < start+1; i++ {
+	for i := interval.Index; i < interval.Length; i++ {
 		tops := ar.List.WithRange(i, 1)
 		for _, bt := range ar.BackTest {
 			total := 0
+			testRows := bt.ThresholdNumbers
 			for _, ftn := range tops {
-				for _, pn := range bt.PickNumbers.Balls {
+				for _, pn := range testRows.Balls {
 					currentPrice := ftn.AdariPrice(&pn)
 					total = total + currentPrice
 					if currentPrice >= df.PriceTop {
@@ -355,8 +358,8 @@ func Test_readBackTesting(t *testing.T) {
 					}
 				}
 			}
-			if total > 500000 {
-				fmt.Printf("%d : %d, 第 %04d : %d\n", len(bt.ThresholdNumbers.Balls), len(bt.ThresholdNumbers.Balls)*50, i, total)
+			if total >= df.PriceTop {
+				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(testRows.Balls), len(testRows.Balls)*50, i, total)
 				count++
 			}
 		}
@@ -364,26 +367,60 @@ func Test_readBackTesting(t *testing.T) {
 	fmt.Println(count)
 }
 
+func Test_backtestreport(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.BackTestingReports(FileNames())
+}
+
+func Test_repick(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Back Test")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	filenames := []string{}
+
+	ar.ReadJSON(filenames)
+	featuresFTNs := FTNArray{}
+	for _, bt := range ar.BackTest {
+		bt.Threshold.Interval = interf.Interval{Index: 0, Length: 20}
+		features := ar.List.FeatureRange(bt.Threshold)
+		for _, tn := range bt.ThresholdNumbers.Balls {
+			for _, l := range features {
+				if l.MatchFeature(&tn) {
+					featuresFTNs = append(featuresFTNs, tn)
+					break
+				}
+			}
+		}
+	}
+	featuresFTNs.ShowAll()
+	fmt.Println(len(featuresFTNs))
+}
+
 func Test_groupNumbers(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Group Index")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
 	combarr := combin.Combinations(39, BallsOfFTN)
-	GroupCount := 100
+	GroupCount := 500
 
-	msg := ""
+	result := map[int]FTN{}
 	for _, ftn := range ar.List {
 		for idx, v := range combarr {
 			nftn := NewFTNWithInts(v)
 			if nftn.IsSame(&ftn) {
-				msg = msg + fmt.Sprintf("%05d,%s\n", idx/GroupCount, ftn.formRow())
-				// fmt.Printf("%05d,%s\n", idx/GroupCount, ftn.formRow())
+				result[idx] = *nftn
 				break
 			}
 		}
 	}
 
-	common.Save(msg, fmt.Sprintf("./gendata/topGroupedStatic_%d_%s.json", GroupCount, time.Now().Format(time.RFC3339)), 0)
+	bytes, _ := json.Marshal(result)
+
+	common.Save(string(bytes), fmt.Sprintf("./gendata/Group/topGroupedStatic_%d_%s.json", GroupCount, time.Now().Format("20060102150405")), 0)
 
 }
 
@@ -428,8 +465,8 @@ func Test_backTesting(t *testing.T) {
 	}
 	pickupsFile = pickupsFile + fmt.Sprintf("match : %d\n", count)
 	pickupsFile = pickupsFile + fmt.Sprintf("match percent : %.2f\n", float32(count)/float32(len(ar.List))*float32(100))
-
-	common.Save(pickupsFile, fmt.Sprintf("./gendata/backtesting%s.txt", time.Now().Format(time.RFC3339)), 0)
+	lp := filepath.Join(RootDir, SubDir, fmt.Sprintf("backtesting%s.txt", time.Now().Format("20060102150405")))
+	common.Save(pickupsFile, lp, 0)
 }
 
 func Test_montecarlo(t *testing.T) {

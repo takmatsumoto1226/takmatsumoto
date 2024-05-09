@@ -10,6 +10,7 @@ import (
 	"lottery/model/df"
 	"lottery/model/interf"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -120,106 +121,6 @@ func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 	return ballPools
 }
 
-func (ar *FTNsManager) GenerateTopPriceNumber(th interf.Threshold) {
-
-	resultss := map[string]int{} // n round result
-	common.SetRandomGenerator(th.Randomer)
-
-	for r := 0; r < th.Round; r++ {
-		filestr := ""
-		result := map[string]int{}
-
-		for _, v := range ar.Combinations {
-			balls := NewFTNWithInts(v)
-			result[balls.Key()] = 0
-		}
-		total := int(float32(th.Sample) * th.SampleTime)
-
-		for i := 0; i < total; i++ {
-			index := common.RandomNuber() % uint64(th.Sample)
-			balls := NewFTNWithInts(ar.Combinations[index])
-			bK := balls.Key()
-			if v, ok := result[bK]; ok {
-				result[bK] = v + 1
-			}
-		}
-
-		features := ar.List.FeatureRange(th)
-		filestr = filestr + "features row\n\n\n"
-		filestr = filestr + features.Presentation()
-		count := 0
-		tops := FTNArray{}
-		featuresFTNs := FTNArray{}
-		for k, v := range result {
-			if v > th.Value {
-				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
-				numbersArr := strings.Split(k, "_")
-				ftnarr := ar.List.findNumbers(numbersArr, df.None)
-				if len(ftnarr) > 0 {
-					filestr = filestr + ftnarr.Presentation()
-					tops = append(tops, ftnarr...)
-				}
-
-				ftn := NewFTNWithStrings(numbersArr)
-				for _, l := range features {
-					if l.MatchFeature(ftn) {
-						filestr = filestr + "F:M 一樣\n"
-						filestr = filestr + "F:" + l.formRow() + "\n"
-						filestr = filestr + "M:" + ftn.formRow() + "\n"
-						filestr = filestr + l.Feature.String() + "\n"
-						filestr = filestr + ftn.Feature.String() + "\n"
-						featuresFTNs = append(featuresFTNs, *ftn)
-						break
-					}
-				}
-
-				if v2, ok := resultss[k]; ok {
-					resultss[k] = v2 + v
-				} else {
-					resultss[k] = v
-				}
-				count++
-			}
-		}
-
-		filestr = filestr + fmt.Sprintf("%d TWD, %d\n", count*45, count)
-		filestr = filestr + fmt.Sprintf("群 %02d, get %d Top\n", r+1, len(tops))
-		filestr = filestr + fmt.Sprintf("%.9f tops\n", float32(len(tops))/float32(count))
-		filestr = filestr + fmt.Sprintf("done %02d\n", r+1)
-		filestr = filestr + "\n"
-		filestr = filestr + "\n"
-		filestr = filestr + "\n"
-
-		filestr = filestr + fmt.Sprintf("Value:%d\nRound:%d\n\n", th.Value, th.Round)
-		filestr = filestr + "Feature Close : \n"
-		filestr = filestr + featuresFTNs.Presentation()
-		// exclude tops
-		pures := FTNArray{}
-		for _, fFTN := range featuresFTNs {
-			for _, f := range ar.List {
-				if !fFTN.MatchFeature(&f) {
-					pures = append(pures, fFTN)
-					break
-				}
-			}
-		}
-		filestr = filestr + "Pures : \n"
-		filestr = filestr + pures.Presentation()
-		filestr = filestr + th.Presentation()
-
-		ar.Pickups = append(ar.Pickups, featuresFTNs...)
-
-		common.Save(filestr, fmt.Sprintf("./gendata/content%s.txt", time.Now().Format(time.RFC3339)), r+1)
-	}
-
-	if len(ar.Pickups) > 0 {
-		pickupsFile := "Pickups:\n"
-		pickupsFile = pickupsFile + ar.Pickups.Distinct().Presentation()
-		// pickupsFile = pickupsFile + ar.Pickups.intervalBallsCountStatic()
-		common.Save(pickupsFile, fmt.Sprintf("./gendata/pickers%s.txt", time.Now().Format(time.RFC3339)), 0)
-	}
-}
-
 func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string {
 	common.SetRandomGenerator(th.Randomer)
 	filenames := []string{}
@@ -297,8 +198,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string 
 		bt.ExcludeTops.Title = "Pures"
 		bt.ExcludeTops.Balls = pures
 
-		// common.Save(filestr, fmt.Sprintf("./gendata/content%s.txt", time.Now().Format(time.RFC3339)), r+1)
-		filename := fmt.Sprintf("./gendata/content%s.json", bt.ID)
+		filename := filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s.json", bt.ID))
 		common.SaveJSON(bt, filename, r+1)
 		filenames = append(filenames, filename)
 	}
@@ -321,6 +221,13 @@ func (ar *FTNsManager) ReadJSON(filenames []string) {
 			continue
 		}
 		ar.BackTest = append(ar.BackTest, bt)
+	}
+}
+
+func (ar *FTNsManager) BackTestingReports(filenames []string) {
+	ar.ReadJSON(filenames)
+	for _, bt := range ar.BackTest {
+		bt.Report()
 	}
 }
 

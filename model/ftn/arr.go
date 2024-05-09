@@ -104,6 +104,8 @@ func (fa FTNArray) FeatureRange(th interf.Threshold) FTNArray {
 			features = append(features, fa.SmartWithTh(*interf.PureIntervalTH(0, 1))...)
 		} else if th.Smart.Type == interf.RangeTypeLatestSame {
 			features = append(features, fa.SmartWithFeature(*interf.PureIntervalTH(0, 1))...)
+		} else if th.Smart.Type == interf.RangeTypeSpecStartRange {
+			features = append(features, fa.SmartWithTh(*interf.PureIntervalTH(th.Interval.Index, 1))...)
 		} else {
 			features = append(features, fa.SmartWithTh(th)...)
 		}
@@ -218,7 +220,7 @@ func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo 
 	}
 	arr := BallsCount{}
 	for i, count := range FTNIntervalCount {
-		b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0}}
+		b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0, 0}}
 		arr = append(arr, b)
 	}
 	ballsCount[p.Interval] = NormalizeInfo{NorBalls: arr, Param: p}
