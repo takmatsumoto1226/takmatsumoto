@@ -8,7 +8,7 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240509"
+const SubDir = "20240510"
 
 type SessionData struct {
 	Title string   `json:"title"`
@@ -83,7 +83,7 @@ func (bt *BackTest) BackFilter() FTNArray {
 }
 
 func (bt *BackTest) Report() {
-	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s.txt", bt.ID)), 0)
+	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s_report.json", bt.ID)), 0)
 }
 
 type RowGroup struct {

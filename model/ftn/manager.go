@@ -198,6 +198,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string 
 		bt.ExcludeTops.Title = "Pures"
 		bt.ExcludeTops.Balls = pures
 
+		fmt.Println(fmt.Sprintf("content%s.json", bt.ID))
 		filename := filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s.json", bt.ID))
 		common.SaveJSON(bt, filename, r+1)
 		filenames = append(filenames, filename)

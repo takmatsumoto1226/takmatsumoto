@@ -197,7 +197,12 @@ func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
 	return intersection
 }
 
-func (fa FTNArray) adariPrice(adari *FTN) int {
+func (fa FTNArray) AdariPrice(adari *FTN) int {
+	total := 0
+	for _, pn := range fa {
+		currentPrice := pn.AdariPrice(adari)
+		total = total + currentPrice
+	}
 	return 0
 }
 

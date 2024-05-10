@@ -35,8 +35,7 @@ func Test_initNumberToIndex(t *testing.T) {
 	// fmt.Println(bytes.IndexByte(df.Primes, 31))
 	// fmt.Println(bytes.IndexByte(df.Primes, 30))
 	// fmt.Println(df.FilterContinue3)
-	ftn := NewFTNWithStrings([]string{"10", "14", "25", "31", "36"})
-	ftn.ShowRow()
+
 }
 
 func Test_loadFTNs(t *testing.T) {
@@ -271,7 +270,7 @@ func Test_findAdariPrice(t *testing.T) {
 	for _, comb := range combarr {
 		arr = append(arr, *NewFTNWithInts(comb))
 	}
-	arr.adariPrice(NewFTNWithInts([]int{2, 4, 5, 6, 7}))
+	arr.AdariPrice(NewFTNWithInts([]int{2, 4, 5, 6, 7}))
 }
 
 func Test_GenerateTopPriceNumberJSON(t *testing.T) {
@@ -284,13 +283,13 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	// df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	df.DistableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount})
 	th := interf.Threshold{
-		Round:      10,
-		Value:      14,
-		SampleTime: 9,
+		Round:      5,
+		Value:      11,
+		SampleTime: 6,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
-			Index:  4,
-			Length: 20,
+			Index:  1,
+			Length: 100,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -307,22 +306,85 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 func FileNames() []string {
 
 	return []string{
-		// filepath.Join(RootDir, SubDir, "content20240509124656"),
-		// filepath.Join(RootDir, SubDir, "content20240509124818"),
-		// filepath.Join(RootDir, SubDir, "content20240509124943"),
-		// filepath.Join(RootDir, SubDir, "content20240509125107"),
-		// filepath.Join(RootDir, SubDir, "content20240509125233"),
-		// filepath.Join(RootDir, SubDir, "content20240509125359"),
-		// filepath.Join(RootDir, SubDir, "content20240509125526"),
-		// filepath.Join(RootDir, SubDir, "content20240509125647"),
-		filepath.Join(RootDir, SubDir, "content20240509125808"),
-		// filepath.Join(RootDir, SubDir, "content20240509125929"),
-		// filepath.Join(RootDir, SubDir, "content20240509113459"),
-		// filepath.Join(RootDir, SubDir, "content20240509114028"),
-		// filepath.Join(RootDir, SubDir, "content20240509114311"),
-		// filepath.Join(RootDir, SubDir, "content20240509111120"),
-		// filepath.Join(RootDir, SubDir, "content20240509111437"),
-		// filepath.Join(RootDir, SubDir, "content20240509111724"),
+		// filepath.Join(RootDir, SubDir, "content20240510090648"),
+		// filepath.Join(RootDir, SubDir, "content20240510090852"),
+		// filepath.Join(RootDir, SubDir, "content20240510091041"),
+		// filepath.Join(RootDir, SubDir, "content20240510091434"),
+		// filepath.Join(RootDir, SubDir, "content20240510094727"),
+		// filepath.Join(RootDir, SubDir, "content20240510094812"),
+		// filepath.Join(RootDir, SubDir, "content20240510094903"),
+		// filepath.Join(RootDir, SubDir, "content20240510094950"),
+		// filepath.Join(RootDir, SubDir, "content20240510095035"),
+		// filepath.Join(RootDir, SubDir, "content20240510095121"),
+		// filepath.Join(RootDir, SubDir, "content20240510095207"),
+		// filepath.Join(RootDir, SubDir, "content20240510095253"),
+		// filepath.Join(RootDir, SubDir, "content20240510095341"),
+		// filepath.Join(RootDir, SubDir, "content20240510095426"),
+		// filepath.Join(RootDir, SubDir, "content20240510095511"),
+		// filepath.Join(RootDir, SubDir, "content20240510095555"),
+		// filepath.Join(RootDir, SubDir, "content20240510095640"),
+		// filepath.Join(RootDir, SubDir, "content20240510095724"),
+		// filepath.Join(RootDir, SubDir, "content20240510095809"),
+		// filepath.Join(RootDir, SubDir, "content20240510095853"),
+		// filepath.Join(RootDir, SubDir, "content20240510095939"),
+		// filepath.Join(RootDir, SubDir, "content20240510100024"),
+		// filepath.Join(RootDir, SubDir, "content20240510100110"),
+		// filepath.Join(RootDir, SubDir, "content20240510100156"),
+		// filepath.Join(RootDir, SubDir, "content20240510103617"),
+		// filepath.Join(RootDir, SubDir, "content20240510103703"),
+		// filepath.Join(RootDir, SubDir, "content20240510103753"),
+		// filepath.Join(RootDir, SubDir, "content20240510103840"),
+		// filepath.Join(RootDir, SubDir, "content20240510103925"),
+		// filepath.Join(RootDir, SubDir, "content20240510104613"),
+		// filepath.Join(RootDir, SubDir, "content20240510104658"),
+		// filepath.Join(RootDir, SubDir, "content20240510104743"),
+		// filepath.Join(RootDir, SubDir, "content20240510104833"),
+		// filepath.Join(RootDir, SubDir, "content20240510104917"), top
+		// filepath.Join(RootDir, SubDir, "content20240510105211"),
+		// filepath.Join(RootDir, SubDir, "content20240510105255"),
+		// filepath.Join(RootDir, SubDir, "content20240510105338"),
+		// filepath.Join(RootDir, SubDir, "content20240510105423"),
+		// filepath.Join(RootDir, SubDir, "content20240510105514"),
+		// filepath.Join(RootDir, SubDir, "content20240510105600"),
+		// filepath.Join(RootDir, SubDir, "content20240510105645"),
+		// filepath.Join(RootDir, SubDir, "content20240510105732"),
+		// filepath.Join(RootDir, SubDir, "content20240510105817"),
+		// filepath.Join(RootDir, SubDir, "content20240510105902"),
+		// filepath.Join(RootDir, SubDir, "content20240510114548"),
+		// filepath.Join(RootDir, SubDir, "content20240510114634"),
+		// filepath.Join(RootDir, SubDir, "content20240510114721"),
+		// filepath.Join(RootDir, SubDir, "content20240510114809"), top
+		// filepath.Join(RootDir, SubDir, "content20240510114858"),
+		// filepath.Join(RootDir, SubDir, "content20240510120223"),
+		// filepath.Join(RootDir, SubDir, "content20240510120308"),
+		// filepath.Join(RootDir, SubDir, "content20240510120353"),
+		// filepath.Join(RootDir, SubDir, "content20240510120437"),
+		// filepath.Join(RootDir, SubDir, "content20240510120522"), // top
+		// filepath.Join(RootDir, SubDir, "content20240510130224"),
+		// filepath.Join(RootDir, SubDir, "content20240510130307"), //top
+		// filepath.Join(RootDir, SubDir, "content20240510130352"),
+		// filepath.Join(RootDir, SubDir, "content20240510130436"),
+		// filepath.Join(RootDir, SubDir, "content20240510130519"),
+		// filepath.Join(RootDir, SubDir, "content20240510130603"),
+		// filepath.Join(RootDir, SubDir, "content20240510130647"),
+		// filepath.Join(RootDir, SubDir, "content20240510130730"),
+		// filepath.Join(RootDir, SubDir, "content20240510130812"),
+		// filepath.Join(RootDir, SubDir, "content20240510130855"),
+		// filepath.Join(RootDir, SubDir, "content20240510130938"),
+		// filepath.Join(RootDir, SubDir, "content20240510131020"),
+		// filepath.Join(RootDir, SubDir, "content20240510131103"),
+		// filepath.Join(RootDir, SubDir, "content20240510131146"),
+		// filepath.Join(RootDir, SubDir, "content20240510131229"),
+		// filepath.Join(RootDir, SubDir, "content20240510131312"),
+		// filepath.Join(RootDir, SubDir, "content20240510131354"),
+		// filepath.Join(RootDir, SubDir, "content20240510131438"),
+		// filepath.Join(RootDir, SubDir, "content20240510131521"),
+		// filepath.Join(RootDir, SubDir, "content20240510131604"),
+		// filepath.Join(RootDir, SubDir, "content20240510152220"),
+		// filepath.Join(RootDir, SubDir, "content20240510152306"),
+		// filepath.Join(RootDir, SubDir, "content20240510152353"),
+		// filepath.Join(RootDir, SubDir, "content20240510152439"),
+		// filepath.Join(RootDir, SubDir, "content20240510152524"),
 	}
 
 	// files, _ := os.ReadDir(filepath.Join(RootDir, SubDir))
@@ -341,14 +403,17 @@ func Test_readBackTesting(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 
-	ar.ReadJSON(FileNames())
+	ar.ReadJSON(FileNames()) // 20240509111846, 20240509112008
 	interval := interf.Interval{Index: 0, Length: 5}
 	count := 0
-	for i := interval.Index; i < interval.Length; i++ {
-		tops := ar.List.WithRange(i, 1)
-		for _, bt := range ar.BackTest {
+	// totalPickupNumber := FTNArray{}
+
+	for _, bt := range ar.BackTest {
+		fmt.Println(len(bt.ThresholdNumbers.Balls))
+		for i := interval.Index; i < interval.Length; i++ {
+			tops := ar.List.WithRange(i, 1)
 			total := 0
-			testRows := bt.ThresholdNumbers
+			testRows := bt.PickNumbers
 			for _, ftn := range tops {
 				for _, pn := range testRows.Balls {
 					currentPrice := ftn.AdariPrice(&pn)
@@ -358,6 +423,7 @@ func Test_readBackTesting(t *testing.T) {
 					}
 				}
 			}
+			// totalPickupNumber = append(totalPickupNumber, testRows.Balls...)
 			if total >= df.PriceTop {
 				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(testRows.Balls), len(testRows.Balls)*50, i, total)
 				count++
@@ -365,6 +431,8 @@ func Test_readBackTesting(t *testing.T) {
 		}
 	}
 	fmt.Println(count)
+
+	// totalPickupNumber.ShowAll()
 }
 
 func Test_backtestreport(t *testing.T) {
