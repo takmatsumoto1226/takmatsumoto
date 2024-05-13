@@ -284,13 +284,13 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	// df.DisableFilters([]int{df.FilterTailDigit})
 	th := interf.Threshold{
-		Round:      1,
+		Round:      5,
 		Value:      11,
 		SampleTime: 6,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
 			Index:  start,
-			Length: len(ar.List)/2 - start,
+			Length: len(ar.List)/5 - start,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -376,7 +376,8 @@ func FileNames() []string {
 		// filepath.Join(RootDir, SubDir, "content20240513131616"),
 		// filepath.Join(RootDir, SubDir, "content20240513131709"),
 		// filepath.Join(RootDir, SubDir, "content20240513131802"),
-		filepath.Join(RootDir, SubDir, "content20240513131855"),
+		// filepath.Join(RootDir, SubDir, "content20240513131855"),
+		// filepath.Join(RootDir, SubDir, "content20240513144039"),
 	}
 
 	// files, _ := os.ReadDir(filepath.Join(RootDir, SubDir))

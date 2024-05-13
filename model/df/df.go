@@ -132,10 +132,6 @@ func setFilter(fs []bool) {
 type GROUP int
 
 const UndefinedFeature = -1
-const PriceTop = 80000000
-const PriceSecond = 20000
-const PriceThird = 300
-const PriceFourth = 50
 
 type Feature struct {
 	IBalls                  []int   `json:"iballs"`

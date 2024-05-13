@@ -7,6 +7,9 @@ import (
 	"lottery/model/common"
 	"lottery/model/df"
 	"lottery/model/interf"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 )
@@ -40,10 +43,11 @@ func Test_random(t *testing.T) {
 	var as = PowerManager{}
 	as.Prepare()
 	// lens := len(combarr)
+	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 
 	th := interf.Threshold{
 		Round:      1,
-		Value:      15,
+		Value:      14,
 		SampleTime: 8,
 		Sample:     len(as.Combinations),
 		Interval: interf.Interval{
@@ -62,8 +66,43 @@ func Test_random(t *testing.T) {
 	bts := as.JSONGenerateTopPriceNumber(th)
 
 	for r, bt := range bts {
-		fn := fmt.Sprintf("powercontent%s.txt", bt.ID)
+
+		fn := filepath.Join(RootDir, SubDir, fmt.Sprintf("powercontent%s.json", bt.ID))
 		common.SaveJSON(bt, fn, r+1)
 	}
 
+}
+
+func Test_backtesting(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Back Test")
+	config.LoadConfig("../../config.yaml")
+	var ar = PowerManager{}
+	ar.Prepare()
+	ar.ReadJSON(FileNames())
+	ar.Predictions()
+}
+
+func Test_backtestReport(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Back Test")
+	config.LoadConfig("../../config.yaml")
+	var ar = PowerManager{}
+	ar.Prepare()
+	ar.BackTestingReports(FileNames())
+}
+
+// func FileNames() []string {
+// 	return []string{
+// 		// filepath.Join(RootDir, SubDir, "content20240513111055"),
+// 	}
+// }
+
+func FileNames() []string {
+	files, _ := os.ReadDir(filepath.Join(RootDir, SubDir))
+	filenames := []string{}
+	for _, f := range files {
+		if strings.Contains(f.Name(), ".json") {
+			filenames = append(filenames, filepath.Join(RootDir, SubDir, f.Name()))
+		}
+	}
+	return filenames
 }

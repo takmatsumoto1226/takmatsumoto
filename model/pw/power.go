@@ -172,6 +172,28 @@ func (fa Power) formRow() string {
 	return rowmsg
 }
 
+func (fa *Power) matchCount(n Power) int {
+	set := make(map[string]bool)
+
+	for _, num := range n.toStringArray() {
+		set[num] = true // setting the initial value to true
+	}
+
+	// Check elements in the second array against the set
+	count := 0
+	for _, num := range fa.toStringArray() {
+		if set[num] {
+			count++
+		}
+	}
+
+	return count
+}
+
+func (fa *Power) smatch(n Power) bool {
+	return fa.S1 == n.S1
+}
+
 /*
 Power38 索引
 */
@@ -199,4 +221,30 @@ func initNumberToIndex() {
 
 func (fa *Power) MatchFeature(t *Power) bool {
 	return fa.Feature.Compare(&t.Feature)
+}
+
+func (fa *Power) AdariPrice(fb *Power) int {
+	mc := fa.matchCount(*fb)
+	smatch := fa.smatch(*fb)
+	if mc == 6 && smatch {
+		return PriceTop
+	} else if mc == 6 {
+		return PriceSecond
+	} else if mc == 5 && smatch {
+		return PriceThird
+	} else if mc == 5 {
+		return PriceFourth
+	} else if mc == 4 && smatch {
+		return PriceFifth
+	} else if mc == 4 {
+		return PriceSixth
+	} else if mc == 3 && smatch {
+		return PriceSeventh
+	} else if mc == 2 && smatch {
+		return PriceEigth
+	} else if (mc == 1 && smatch) || (mc == 3) {
+		return PriceNinth
+	} else {
+		return 0
+	}
 }

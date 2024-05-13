@@ -249,12 +249,12 @@ func (ar *FTNsManager) Predictions() {
 				for _, pn := range testRows.Balls {
 					currentPrice := ftn.AdariPrice(&pn)
 					total = total + currentPrice
-					if currentPrice >= df.PriceTop {
+					if currentPrice >= PriceTop {
 						fmt.Println(ftn.formRow())
 					}
 				}
 			}
-			if total >= df.PriceTop {
+			if total >= PriceTop {
 				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(testRows.Balls), len(testRows.Balls)*50, i, total)
 				count++
 			}

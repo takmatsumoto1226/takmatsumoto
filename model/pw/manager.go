@@ -1,12 +1,14 @@
 package pw
 
 import (
+	"encoding/json"
 	"fmt"
 	"lottery/config"
 	"lottery/csv"
 	"lottery/model/common"
 	"lottery/model/df"
 	"lottery/model/interf"
+	"os"
 	"sort"
 	"strconv"
 	"strings"
@@ -16,11 +18,22 @@ import (
 	"gonum.org/v1/gonum/stat/combin"
 )
 
+const PriceTop = 200000000
+const PriceSecond = 1000000
+const PriceThird = 150000
+const PriceFourth = 20000
+const PriceFifth = 4000
+const PriceSixth = 800
+const PriceSeventh = 400
+const PriceEigth = 200
+const PriceNinth = 100
+
 type PowerManager struct {
 	List    PowerList
 	RevList PowerList
 	// ballsCount    map[uint]NormalizeInfo
 	numberToIndex map[string]int
+	BackTest      []BackTest
 	Combinations  [][]int
 }
 
@@ -184,4 +197,56 @@ func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackT
 		bts = append(bts, bt)
 	}
 	return bts
+}
+
+func (mgr *PowerManager) Predictions() {
+	interval := interf.Interval{Index: 1, Length: 5}
+	count := 0
+
+	for _, bt := range mgr.BackTest {
+		for i := interval.Index; i < interval.Length; i++ {
+			tops := mgr.List.WithRange(i, 1)
+			total := 0
+			testRows := bt.PickNumbers
+			for _, ftn := range tops {
+				for _, pn := range testRows.Balls {
+					currentPrice := ftn.AdariPrice(&pn)
+					total = total + currentPrice
+					if currentPrice >= PriceTop {
+						fmt.Println(ftn.formRow())
+					}
+				}
+			}
+			if total >= PriceTop {
+				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(testRows.Balls), len(testRows.Balls)*50, i, total)
+				count++
+			}
+		}
+	}
+	fmt.Println(count)
+}
+
+func (mgr *PowerManager) ReadJSON(filenames []string) {
+	for _, filename := range filenames {
+		if !strings.Contains(filename, ".json") {
+			filename = filename + ".json"
+		}
+		bt := BackTest{}
+		file, err := os.ReadFile(filename)
+		if err != nil {
+			logrus.Error(err)
+			continue
+		}
+		if err := json.Unmarshal(file, &bt); err != nil {
+			continue
+		}
+		mgr.BackTest = append(mgr.BackTest, bt)
+	}
+}
+
+func (mgr *PowerManager) BackTestingReports(filenames []string) {
+	mgr.ReadJSON(filenames)
+	for _, bt := range mgr.BackTest {
+		bt.Report()
+	}
 }

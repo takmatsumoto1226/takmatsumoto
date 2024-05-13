@@ -150,6 +150,11 @@ type FTN struct {
 	RandomCount int        `json:"randomcount"`
 }
 
+const PriceTop = 80000000
+const PriceSecond = 20000
+const PriceThird = 300
+const PriceFourth = 50
+
 func (fa *FTN) matchCount(n FTN) int {
 	set := make(map[string]bool)
 
@@ -383,13 +388,13 @@ func (fa *FTN) IsDTree(next *FTN) bool {
 func (fa *FTN) AdariPrice(fb *FTN) int {
 	mc := fa.matchCount(*fb)
 	if mc == 5 {
-		return df.PriceTop
+		return PriceTop
 	} else if mc == 4 {
-		return df.PriceSecond
+		return PriceSecond
 	} else if mc == 3 {
-		return df.PriceThird
+		return PriceThird
 	} else if mc == 2 {
-		return df.PriceFourth
+		return PriceFourth
 	} else {
 		return 0
 	}
