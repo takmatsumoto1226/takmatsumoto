@@ -77,6 +77,15 @@ func (ar *FTNsManager) Prepare() error {
 	return nil
 }
 
+func (ar *FTNsManager) GroupIndexMapping(gc int) map[string]int {
+	groupMapping := map[string]int{}
+	for idx, v := range ar.Combinations {
+		nftn := NewFTNWithInts(v)
+		groupMapping[nftn.Key()] = idx / gc
+	}
+	return groupMapping
+}
+
 func (ar *FTNsManager) intervalBallsCountStatic(params PickParams) {
 	if len(params) == 0 {
 		logrus.Error(errors.New("不可沒設定interval"))

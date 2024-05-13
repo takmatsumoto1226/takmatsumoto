@@ -281,7 +281,7 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 
 	//
 	// df.DistableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
-	df.DistableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount})
+	df.DisableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount})
 	th := interf.Threshold{
 		Round:      5,
 		Value:      11,
@@ -343,7 +343,7 @@ func FileNames() []string {
 		// filepath.Join(RootDir, SubDir, "content20240510105211"),
 		// filepath.Join(RootDir, SubDir, "content20240510105255"),
 		// filepath.Join(RootDir, SubDir, "content20240510105338"),
-		// filepath.Join(RootDir, SubDir, "content20240510105423"),
+		filepath.Join(RootDir, SubDir, "content20240510105423"), // top
 		// filepath.Join(RootDir, SubDir, "content20240510105514"),
 		// filepath.Join(RootDir, SubDir, "content20240510105600"),
 		// filepath.Join(RootDir, SubDir, "content20240510105645"),
@@ -404,16 +404,15 @@ func Test_readBackTesting(t *testing.T) {
 	ar.Prepare()
 
 	ar.ReadJSON(FileNames()) // 20240509111846, 20240509112008
-	interval := interf.Interval{Index: 0, Length: 5}
+	interval := interf.Interval{Index: 1, Length: 2}
 	count := 0
 	// totalPickupNumber := FTNArray{}
 
 	for _, bt := range ar.BackTest {
-		fmt.Println(len(bt.ThresholdNumbers.Balls))
 		for i := interval.Index; i < interval.Length; i++ {
 			tops := ar.List.WithRange(i, 1)
 			total := 0
-			testRows := bt.PickNumbers
+			testRows := bt.ThresholdNumbers
 			for _, ftn := range tops {
 				for _, pn := range testRows.Balls {
 					currentPrice := ftn.AdariPrice(&pn)
@@ -447,24 +446,27 @@ func Test_repick(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	filenames := []string{}
-
-	ar.ReadJSON(filenames)
+	ar.ReadJSON(FileNames())
+	df.DisableFilters([]int{df.FilterTailDigit})
 	featuresFTNs := FTNArray{}
 	for _, bt := range ar.BackTest {
-		bt.Threshold.Interval = interf.Interval{Index: 0, Length: 20}
-		features := ar.List.FeatureRange(bt.Threshold)
+		features := bt.Features.Balls
 		for _, tn := range bt.ThresholdNumbers.Balls {
 			for _, l := range features {
-				if l.MatchFeature(&tn) {
+				if tn.MatchFeature(&l) {
 					featuresFTNs = append(featuresFTNs, tn)
 					break
 				}
 			}
 		}
 	}
-	featuresFTNs.ShowAll()
+
 	fmt.Println(len(featuresFTNs))
+
+	tops := ar.List.WithRange(1, 1)
+	for _, top := range tops {
+		featuresFTNs.findNumbers(top.toStringArray(), df.None).ShowAll()
+	}
 }
 
 func Test_groupNumbers(t *testing.T) {
@@ -472,24 +474,42 @@ func Test_groupNumbers(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	combarr := combin.Combinations(39, BallsOfFTN)
-	GroupCount := 500
+
+	GroupCount := 200
+
+	groupMapping := ar.GroupIndexMapping(GroupCount)
 
 	result := map[int]FTN{}
-	for _, ftn := range ar.List {
-		for idx, v := range combarr {
-			nftn := NewFTNWithInts(v)
-			if nftn.IsSame(&ftn) {
-				result[idx] = *nftn
-				break
-			}
-		}
+	for _, v := range ar.RevList {
+		gidx := groupMapping[v.Key()]
+		result[gidx] = v
 	}
 
 	bytes, _ := json.Marshal(result)
 
 	common.Save(string(bytes), fmt.Sprintf("./gendata/Group/topGroupedStatic_%d_%s.json", GroupCount, time.Now().Format("20060102150405")), 0)
 
+}
+
+func Test_FTNGroup(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Group Index")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	GroupCount := 500
+	gftn := NewFTNGroup(GroupCount, ar.Combinations, ar.RevList)
+	common.Save(string(gftn.Presentation()), fmt.Sprintf("./gendata/Group/ReportTopGroupedStatic_%d_%s.json", GroupCount, time.Now().Format("20060102150405")), 0)
+}
+
+func Test_FindGroupIndex(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Find Group Index")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	GroupCount := 200
+	gftn := NewFTNGroup(GroupCount, ar.Combinations, ar.RevList)
+	ftn := NewFTNWithInts([]int{8, 18, 24, 29, 37})
+	fmt.Println(gftn.FindGroupIndex(*ftn))
 }
 
 func Find(slice interface{}, f func(value interface{}) bool) int {

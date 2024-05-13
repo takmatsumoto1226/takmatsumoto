@@ -15,6 +15,7 @@ var ballPools = map[string]BallsInfo{}
 
 var ballPeriotStatic = map[int]int{}
 var ballContinueStatic = map[int]int{}
+var groupMapping = map[string]int{}
 
 // PickParams ...
 type PickParams []PickParam
@@ -436,5 +437,6 @@ func (fa *FTN) Key() string {
 
 func (fa *FTN) DateKey() string {
 	return fmt.Sprintf("%s%s==%s_%s_%s_%s_%s", fa.Year, fa.MonthDay, fa.B1.Number, fa.B2.Number, fa.B3.Number, fa.B4.Number, fa.B5.Number)
-
 }
+
+func (fa *FTN) Date() string { return fa.Year + fa.MonthDay }

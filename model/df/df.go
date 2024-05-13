@@ -87,7 +87,7 @@ const (
 	TailDigit0
 )
 
-var Primes = []byte{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
+var Primes = []byte{1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
 
 const (
 	FilterOddCount = iota
@@ -99,6 +99,7 @@ const (
 	FilterPrime
 	FilterPrimeCount
 	FilterContinueRowType
+	FilterDisableAll
 )
 
 var filters = []bool{
@@ -111,9 +112,10 @@ var filters = []bool{
 	true, // prime
 	true, // prime count
 	true, // continue type
+	true, // disable all
 }
 
-func DistableFilters(fs []int) {
+func DisableFilters(fs []int) {
 	for _, i := range fs {
 		filters[i] = false
 	}
@@ -219,6 +221,9 @@ func (f *Feature) CompareWithFilter(t *Feature, fs []bool) bool {
 }
 
 func (f *Feature) Compare(t *Feature) bool {
+	if !filters[FilterDisableAll] {
+		return true
+	}
 
 	if filters[FilterOddCount] {
 		if f.OddNumberCount != t.OddNumberCount {
