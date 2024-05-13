@@ -8,7 +8,7 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240510"
+const SubDir = "20240513"
 
 type SessionData struct {
 	Title string   `json:"title"`

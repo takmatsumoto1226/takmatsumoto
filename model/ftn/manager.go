@@ -207,7 +207,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string 
 		bt.ExcludeTops.Title = "Pures"
 		bt.ExcludeTops.Balls = pures
 
-		fmt.Println(fmt.Sprintf("content%s.json", bt.ID))
+		fmt.Printf("content%s.json\n", bt.ID)
 		filename := filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s.json", bt.ID))
 		common.SaveJSON(bt, filename, r+1)
 		filenames = append(filenames, filename)
@@ -239,6 +239,33 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 	for _, bt := range ar.BackTest {
 		bt.Report()
 	}
+}
+
+func (ar *FTNsManager) Predictions() {
+	interval := interf.Interval{Index: 1, Length: 5}
+	count := 0
+
+	for _, bt := range ar.BackTest {
+		for i := interval.Index; i < interval.Length; i++ {
+			tops := ar.List.WithRange(i, 1)
+			total := 0
+			testRows := bt.PickNumbers
+			for _, ftn := range tops {
+				for _, pn := range testRows.Balls {
+					currentPrice := ftn.AdariPrice(&pn)
+					total = total + currentPrice
+					if currentPrice >= df.PriceTop {
+						fmt.Println(ftn.formRow())
+					}
+				}
+			}
+			if total >= df.PriceTop {
+				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(testRows.Balls), len(testRows.Balls)*50, i, total)
+				count++
+			}
+		}
+	}
+	fmt.Println(count)
 }
 
 func (ar *FTNsManager) RandomInterval() interf.Interval {

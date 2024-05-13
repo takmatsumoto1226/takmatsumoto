@@ -19,7 +19,8 @@ const (
 	RangeTypeLatestDefault = iota
 	RangeTypeLatestRange
 	RangeTypeLatestSame
-	RangeTypeSpecStartRange
+	RangeTypeSpecStartAndRangeNotes
+	RangeTypeFullHistoryOnly
 )
 
 type Smart struct {
@@ -39,8 +40,10 @@ func (s *Smart) typeName() string {
 		return "RangeTypeLatest"
 	case RangeTypeLatestSame:
 		return "RangeTypeLatestSame"
-	case RangeTypeSpecStartRange:
+	case RangeTypeSpecStartAndRangeNotes:
 		return "RangeTypeSpecStartRange"
+	case RangeTypeFullHistoryOnly:
+		return "RangeTypeFullHistoryOnly"
 	default:
 		return "RangeTypeLatestDefault"
 	}

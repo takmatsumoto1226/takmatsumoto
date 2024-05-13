@@ -104,8 +104,10 @@ func (fa FTNArray) FeatureRange(th interf.Threshold) FTNArray {
 			features = append(features, fa.SmartWithTh(*interf.PureIntervalTH(0, 1))...)
 		} else if th.Smart.Type == interf.RangeTypeLatestSame {
 			features = append(features, fa.SmartWithFeature(*interf.PureIntervalTH(0, 1))...)
-		} else if th.Smart.Type == interf.RangeTypeSpecStartRange {
+		} else if th.Smart.Type == interf.RangeTypeSpecStartAndRangeNotes {
 			features = append(features, fa.SmartWithTh(*interf.PureIntervalTH(th.Interval.Index, 1))...)
+		} else if th.Smart.Type == interf.RangeTypeFullHistoryOnly {
+
 		} else {
 			features = append(features, fa.SmartWithTh(th)...)
 		}
