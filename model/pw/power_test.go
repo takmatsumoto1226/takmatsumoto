@@ -58,8 +58,12 @@ func Test_random(t *testing.T) {
 	}
 
 	// th := interf.Threshold{Round: 1, Value: 26, SampleTime: 10, Sample: len(combarr)}
-	common.SetRandomGenerator(1)
 
-	as.GenerateTopPriceNumber(th)
+	bts := as.JSONGenerateTopPriceNumber(th)
+
+	for r, bt := range bts {
+		fn := fmt.Sprintf("powercontent%s.txt", bt.ID)
+		common.SaveJSON(bt, fn, r+1)
+	}
 
 }

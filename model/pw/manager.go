@@ -127,3 +127,61 @@ func (mgr *PowerManager) GenerateTopPriceNumber(th interf.Threshold) {
 		common.Save(filestr, fmt.Sprintf("./gendata/powercontent%s.txt", time.Now().Format(time.RFC3339)), r+1)
 	}
 }
+
+func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTest {
+	common.SetRandomGenerator(th.Randomer)
+	bts := []BackTest{}
+
+	for r := 0; r < th.Round; r++ {
+		bt := BackTest{}
+		result := map[string]int{}
+		bt.Threshold = th
+		for _, v := range mgr.Combinations {
+			balls := NewPowerWithInts(v)
+			result[balls.Key()] = 0
+		}
+
+		featureMatchs := PowerList{}
+		bt.Features.Title = "Power Feature List"
+		bt.Features.Balls = mgr.List.FeatureRange(th)
+		total := len(mgr.Combinations) * int(th.SampleTime)
+		for i := 0; i < total; i++ {
+			index := uint64(uint64(common.RandomNuber() % uint64(len(result))))
+			balls := NewPowerWithInts(mgr.Combinations[index])
+			if v, ok := result[balls.Key()]; ok {
+				result[balls.Key()] = v + 1
+			}
+		}
+
+		for k, v := range result {
+			arr := strings.Split(k, "_")
+			if v > th.Value {
+				pw := NewPowerWithString(arr)
+				bt.ThresholdNumbers.Balls = append(bt.ThresholdNumbers.Balls, *pw)
+				findarr := mgr.List.findNumbers(arr, df.None)
+				if len(findarr) > 0 {
+					bt.HistoryTopsMatch.Balls = append(bt.HistoryTopsMatch.Balls, findarr...)
+				}
+
+				for _, f := range bt.Features.Balls {
+					if f.MatchFeature(pw) {
+						featureMatchs = append(featureMatchs, *pw)
+						break
+					}
+				}
+			}
+		}
+
+		bt.ThreadHoldCount = len(bt.ThresholdNumbers.Balls)
+
+		bt.PickNumbers.Title = "Pickup Numbers"
+		bt.PickNumbers.Balls = featureMatchs
+		bt.PickupCount = len(featureMatchs)
+
+		bt.HistoryTopCount = len(bt.HistoryTopsMatch.Balls)
+
+		bt.ID = time.Now().Format("20060102150405")
+		bts = append(bts, bt)
+	}
+	return bts
+}

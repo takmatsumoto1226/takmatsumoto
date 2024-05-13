@@ -10,7 +10,6 @@ import (
 	"lottery/model/df"
 	"lottery/model/interf"
 	"os"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -130,9 +129,9 @@ func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 	return ballPools
 }
 
-func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string {
+func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTest {
 	common.SetRandomGenerator(th.Randomer)
-	filenames := []string{}
+	bts := []BackTest{}
 	for r := 0; r < th.Round; r++ {
 		bt := BackTest{}
 		result := map[string]int{}
@@ -156,7 +155,6 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string 
 		bt.Features.Balls = features
 
 		count := 0
-		pickupcount := 0
 		tops := FTNArray{}
 		threadholdNumbers := FTNArray{}
 		featuresFTNs := FTNArray{}
@@ -172,7 +170,6 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string 
 				for _, l := range features {
 					if l.MatchFeature(threadholdNumber) {
 						featuresFTNs = append(featuresFTNs, *threadholdNumber)
-						pickupcount++
 						break
 					}
 				}
@@ -181,15 +178,16 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string 
 		}
 		bt.ThresholdNumbers.Title = "Thread Hold Numbers"
 		bt.ThresholdNumbers.Balls = threadholdNumbers
+		bt.ThreadHoldCount = len(threadholdNumbers)
 
-		bt.HistoryTopsMatch.Title = "History Match Tops"
+		bt.HistoryTopsMatch.Title = "History Match Tops(Thread Hold Numbers)"
 		bt.HistoryTopsMatch.Balls = tops
+		bt.HistoryTopCount = len(tops)
+
 		bt.PickNumbers.Title = "Feature Close"
 		bt.PickNumbers.Balls = featuresFTNs
-		bt.ThreadHoldCount = count
-		bt.PickupCount = pickupcount
+		bt.PickupCount = len(featuresFTNs)
 		bt.ID = time.Now().Format("20060102150405")
-		bt.HistoryTopCount = len(tops)
 		bt.NumbersHistoryTopsPercent = float32(len(tops)) / float32(count)
 		bt.Threshold = th
 
@@ -207,13 +205,10 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []string 
 		bt.ExcludeTops.Title = "Pures"
 		bt.ExcludeTops.Balls = pures
 
-		fmt.Printf("content%s.json\n", bt.ID)
-		filename := filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s.json", bt.ID))
-		common.SaveJSON(bt, filename, r+1)
-		filenames = append(filenames, filename)
+		bts = append(bts, bt)
 	}
 
-	return filenames
+	return bts
 }
 
 func (ar *FTNsManager) ReadJSON(filenames []string) {
