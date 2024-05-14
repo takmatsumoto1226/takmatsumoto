@@ -25,7 +25,7 @@ type FTNsManager struct {
 	RevList      FTNArray
 	ballsCount   map[uint]NormalizeInfo
 	Pickups      FTNArray
-	BackTest     []BackTest
+	BackTests    []BackTest
 	Combinations [][]int
 }
 
@@ -72,7 +72,7 @@ func (ar *FTNsManager) Prepare() error {
 	ar.loadAllData()
 
 	ar.Combinations = combin.Combinations(ballsCountFTN, BallsOfFTN)
-	ar.BackTest = []BackTest{}
+	ar.BackTests = []BackTest{}
 	return nil
 }
 
@@ -223,28 +223,31 @@ func (ar *FTNsManager) ReadJSON(filenames []string) {
 			continue
 		}
 		if err := json.Unmarshal(file, &bt); err != nil {
+			logrus.Error(err)
 			continue
 		}
-		ar.BackTest = append(ar.BackTest, bt)
+		ar.BackTests = append(ar.BackTests, bt)
 	}
 }
 
 func (ar *FTNsManager) BackTestingReports(filenames []string) {
 	ar.ReadJSON(filenames)
-	for _, bt := range ar.BackTest {
+	for _, bt := range ar.BackTests {
 		bt.Report()
 	}
 }
 
-func (ar *FTNsManager) Predictions() {
-	interval := interf.Interval{Index: 1, Length: 5}
+func (ar *FTNsManager) Predictions(filenames []string) {
+	ar.ReadJSON(filenames)
+
+	interval := interf.Interval{Index: 0, Length: 5}
 	count := 0
 
-	for _, bt := range ar.BackTest {
+	for _, bt := range ar.BackTests {
 		for i := interval.Index; i < interval.Length; i++ {
 			tops := ar.List.WithRange(i, 1)
 			total := 0
-			testRows := bt.PickNumbers
+			testRows := bt.ThresholdNumbers
 			for _, ftn := range tops {
 				for _, pn := range testRows.Balls {
 					currentPrice := ftn.AdariPrice(&pn)

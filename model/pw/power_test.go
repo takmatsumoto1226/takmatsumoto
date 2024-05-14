@@ -43,7 +43,7 @@ func Test_random(t *testing.T) {
 	var as = PowerManager{}
 	as.Prepare()
 	// lens := len(combarr)
-	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
+	df.DisableFilters([]int{df.FilterOddCount, df.FilterTenGroup, df.FilterTailDigit})
 
 	th := interf.Threshold{
 		Round:      1,
@@ -92,7 +92,9 @@ func Test_backtestReport(t *testing.T) {
 
 // func FileNames() []string {
 // 	return []string{
-// 		// filepath.Join(RootDir, SubDir, "content20240513111055"),
+// 		filepath.Join(RootDir, SubDir, "powercontent20240513154337"),
+// 		filepath.Join(RootDir, SubDir, "powercontent20240513155407"),
+// 		filepath.Join(RootDir, SubDir, "powercontent20240513160317"),
 // 	}
 // }
 

@@ -8,7 +8,7 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240513"
+const SubDir = "20240514"
 
 type SessionData struct {
 	Title string   `json:"title"`
@@ -29,6 +29,7 @@ type BackTest struct {
 	ThresholdNumbers          SessionData      `json:"thresholdnumbers"`
 	HistoryTopsMatch          SessionData      `json:"historytopsmatch"`
 	PickNumbers               SessionData      `json:"picknumbers"`
+	PickNumbersTopMatch       SessionData      `json:"picknumberstopmatch"`
 	ExcludeTops               SessionData      `json:"excludetops"`
 	ThreadHoldCount           int              `json:"threadholdcount"`
 	PickupCount               int              `json:"pickupcount"`
@@ -41,16 +42,16 @@ func (bt *BackTest) Presentation() string {
 	msg = msg + bt.Features.Presentation()
 	msg = msg + "\n\n"
 
-	msg = msg + bt.ThresholdNumbers.Presentation()
-	msg = msg + "\n\n"
+	// msg = msg + bt.ThresholdNumbers.Presentation()
+	// msg = msg + "\n\n"
 
-	msg = msg + bt.HistoryTopsMatch.Presentation()
-	msg = msg + "\n\n"
+	// msg = msg + bt.HistoryTopsMatch.Presentation()
+	// msg = msg + "\n\n"
 
 	msg = msg + bt.PickNumbers.Presentation()
 	msg = msg + "\n\n"
 
-	msg = msg + fmt.Sprintf("Tops:%d, EnumCount:%d\n", bt.HistoryTopCount, bt.ThreadHoldCount)
+	msg = msg + fmt.Sprintf("Tops:%d, EnumCount:%d, Pickup:%d\n", bt.HistoryTopCount, bt.ThreadHoldCount, bt.PickupCount)
 	msg = msg + fmt.Sprintf("%f\n", bt.NumbersHistoryTopsPercent)
 
 	msg = msg + bt.Threshold.Presentation()
@@ -83,7 +84,8 @@ func (bt *BackTest) BackFilter() FTNArray {
 }
 
 func (bt *BackTest) Report() {
-	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, fmt.Sprintf("content%s_report.json", bt.ID)), 0)
+	filename := fmt.Sprintf("content_%02d_%02.1f_%s_report.txt", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
+	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, filename), 0)
 }
 
 type RowGroup struct {

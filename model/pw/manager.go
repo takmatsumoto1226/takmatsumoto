@@ -200,7 +200,7 @@ func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackT
 }
 
 func (mgr *PowerManager) Predictions() {
-	interval := interf.Interval{Index: 1, Length: 5}
+	interval := interf.Interval{Index: 0, Length: 1}
 	count := 0
 
 	for _, bt := range mgr.BackTest {
