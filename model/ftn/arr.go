@@ -97,6 +97,13 @@ func (fa FTNArray) WithRange(i, r int) FTNArray {
 	return fa
 }
 
+func (fa FTNArray) GetFTN(i int) FTN {
+	if i >= len(fa) {
+		return fa[i]
+	}
+	return fa[len(fa)-1]
+}
+
 func (fa FTNArray) FeatureRange(th interf.Threshold) FTNArray {
 	features := fa.WithRange(th.Interval.Index, th.Interval.Length)
 	if th.Smart.Enable {
@@ -121,12 +128,10 @@ func (fa FTNArray) Distinct() FTNArray {
 	for _, f := range fa {
 		if _, ok := tmp[f.Key()]; !ok {
 			tmp[f.Key()] = f
+			results = append(results, f)
 		}
 	}
 
-	for _, v := range tmp {
-		results = append(results, v)
-	}
 	return results
 }
 

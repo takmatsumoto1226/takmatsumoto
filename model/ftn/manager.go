@@ -24,7 +24,6 @@ type FTNsManager struct {
 	List         FTNArray
 	RevList      FTNArray
 	ballsCount   map[uint]NormalizeInfo
-	Pickups      FTNArray
 	BackTests    []BackTest
 	Combinations [][]int
 }
@@ -270,4 +269,16 @@ func (ar *FTNsManager) RandomInterval() interf.Interval {
 	interval := interf.Interval{}
 
 	return interval
+}
+
+func (ar *FTNsManager) GroupZero(arr FTNArray) {
+	GroupCount := 200
+
+	groupMapping := ar.GroupIndexMapping(GroupCount)
+
+	result := map[int]FTN{}
+	for _, v := range ar.RevList {
+		gidx := groupMapping[v.Key()]
+		result[gidx] = v
+	}
 }
