@@ -247,27 +247,21 @@ func (ar *FTNsManager) DoBackTesting(filenames []string) {
 func (ar *FTNsManager) Predictions(filenames []string) {
 	ar.ReadJSON(filenames)
 
-	interval := interf.Interval{Index: 0, Length: 1}
+	interval := interf.Interval{Index: 0, Length: 5}
 	count := 0
 
 	for _, bt := range ar.BackTests {
 		for i := interval.Index; i < interval.Length; i++ {
 			tops := ar.List.WithRange(i, 1)
 			total := 0
-			testRows := bt.PickNumbers
-			for _, ftn := range tops {
-				for _, pn := range testRows.Balls {
-					currentPrice := ftn.AdariPrice(&pn)
-					total = total + currentPrice
-					if currentPrice >= PriceTop {
-						fmt.Println(ftn.formRow())
-					}
-				}
-			}
+
+			bt.ThresholdNumbers.DoPrediction(tops)
 			if total >= PriceTop {
-				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(testRows.Balls), len(testRows.Balls)*50, i, total)
+				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(bt.ThresholdNumbers.Balls), len(bt.ThresholdNumbers.Balls)*50, i, total)
 				count++
 			}
+
+			bt.PickNumbers.DoPrediction(tops)
 		}
 	}
 	fmt.Println(count)

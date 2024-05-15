@@ -10,12 +10,14 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240514"
+const SubDir = "20240515"
 
 type SessionData struct {
-	Title    string   `json:"title"`
-	Balls    FTNArray `json:"balls"`
-	TopMatch FTNArray `json:"topmatch"`
+	Title          string   `json:"title"`
+	Balls          FTNArray `json:"balls"`
+	TopMatch       FTNArray `json:"topmatch"`
+	PredictionTops FTNArray `json:"predictiontops"`
+	Price          int      `json:"price"`
 }
 
 func (sd *SessionData) append(ftn FTN) {
@@ -26,12 +28,29 @@ func (sd *SessionData) appendTop(top FTN) {
 	sd.TopMatch = append(sd.TopMatch, top)
 }
 
-func (sd *SessionData) DoBTFrom(top FTN) {
+func (sd *SessionData) appendPTop(top FTN) {
+	sd.TopMatch = append(sd.PredictionTops, top)
+}
+
+func (sd *SessionData) DoBT(top FTN) {
 	sd.TopMatch = FTNArray{}
 	for _, pn := range sd.Balls {
-		currentPrice := top.AdariPrice(&pn)
-		if currentPrice >= PriceTop {
+		price := top.AdariPrice(&pn)
+		sd.Price = sd.Price + price
+		if price >= PriceTop {
 			sd.appendTop(pn)
+		}
+	}
+}
+
+func (sd *SessionData) DoPrediction(ftns FTNArray) {
+	sd.PredictionTops = FTNArray{}
+	for _, ftn := range ftns {
+		for _, pn := range sd.Balls {
+			price := ftn.AdariPrice(&pn)
+			if price >= PriceTop {
+				sd.appendPTop(pn)
+			}
 		}
 	}
 }
@@ -82,10 +101,17 @@ func (bt *BackTest) Presentation() string {
 }
 
 func (bt *BackTest) DoBacktesting(top FTN) {
-	bt.ThresholdNumbers.DoBTFrom(top)
-	bt.PickNumbers.DoBTFrom(top)
+	bt.ThresholdNumbers.DoBT(top)
+	bt.PickNumbers.DoBT(top)
 	bt.Save()
 }
+
+// func (bt *BackTest) DoPrediction(ftns FTNArray) {
+// 	for _, ftn := range ftns {
+// 		bt.ThresholdNumbers.DoPrediction(ftn)
+// 		bt.PickNumbers.DoPrediction(ftn)
+// 	}
+// }
 
 func (bt *BackTest) BackFilter() FTNArray {
 	bfs := FTNArray{}
@@ -109,10 +135,8 @@ func (bt *BackTest) Save() {
 }
 
 func (bt *BackTest) Report() {
-	if len(bt.ThresholdNumbers.TopMatch) > 0 {
-		filename := fmt.Sprintf("content_%02d_%02.1f_%s_report.txt", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
-		common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, filename), 0)
-	}
+	filename := fmt.Sprintf("content_%02d_%02.1f_%s_report.txt", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
+	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, filename), 0)
 }
 
 type RowGroup struct {
