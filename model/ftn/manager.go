@@ -187,7 +187,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTes
 		bt.PickNumbers.Balls = featuresFTNs
 		bt.PickupCount = len(featuresFTNs)
 		bt.ID = time.Now().Format("20060102150405")
-		bt.NumbersHistoryTopsPercent = float32(len(tops)) / float32(count)
+		bt.NumbersHistoryTopsPercent = float32(len(tops)) / float32(count) * 100.0
 		bt.Threshold = th
 
 		// exclude tops
@@ -233,6 +233,14 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 	ar.ReadJSON(filenames)
 	for _, bt := range ar.BackTests {
 		bt.Report()
+	}
+}
+
+func (ar *FTNsManager) DoBackTesting(filenames []string) {
+	ar.ReadJSON(filenames)
+	top := ar.List.GetFTN(0)
+	for _, bt := range ar.BackTests {
+		bt.DoBacktesting(top)
 	}
 }
 

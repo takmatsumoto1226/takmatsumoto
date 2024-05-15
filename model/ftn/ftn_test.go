@@ -438,6 +438,14 @@ func Test_repick(t *testing.T) {
 	}
 }
 
+func Test_DoBackTesting(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Back Test")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.DoBackTesting(FileNames())
+}
+
 func Test_pickupSum(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Back Test")
 	config.LoadConfig("../../config.yaml")

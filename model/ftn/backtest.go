@@ -51,7 +51,6 @@ type BackTest struct {
 	ThresholdNumbers          SessionData      `json:"thresholdnumbers"`
 	HistoryTopsMatch          SessionData      `json:"historytopsmatch"`
 	PickNumbers               SessionData      `json:"picknumbers"`
-	PickNumbersTopMatch       SessionData      `json:"picknumberstopmatch"`
 	ExcludeTops               SessionData      `json:"excludetops"`
 	ThreadHoldCount           int              `json:"threadholdcount"`
 	PickupCount               int              `json:"pickupcount"`
@@ -81,7 +80,7 @@ func (bt *BackTest) Presentation() string {
 	return msg
 }
 
-func (bt *BackTest) Backtesting(top FTN) {
+func (bt *BackTest) DoBacktesting(top FTN) {
 	bt.ThresholdNumbers.DoBTFrom(top)
 	bt.PickNumbers.DoBTFrom(top)
 	bt.Save()
