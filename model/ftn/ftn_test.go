@@ -307,18 +307,18 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 		logrus.Error(err)
 		return
 	}
-	for r, bt := range bts {
+	for _, bt := range bts {
 		fn := fmt.Sprintf("content_%02d_%02.1f_%s.json", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
 		fmt.Println(fn)
 		filename := filepath.Join(RootDir, SubDir, fn)
-		common.SaveJSON(bt, filename, r+1)
+		common.SaveJSON(bt, filename)
 	}
 }
 
 func FileNames() []string {
 
 	return []string{
-		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514091854.json"),
+		filepath.Join(RootDir, SubDir, "content_10_6.0_20240514091854.json"),
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514092011.json"), //
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514092128.json"), //
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514092244.json"),
@@ -330,7 +330,7 @@ func FileNames() []string {
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514095628.json"),
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514100447.json"),
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514100604.json"),
-		filepath.Join(RootDir, SubDir, "content_10_6.0_20240514100719.json"), //
+		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514100719.json"), //
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514100834.json"),
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514100948.json"),
 		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240514101101.json"),
@@ -508,7 +508,7 @@ func Test_groupNumbers(t *testing.T) {
 
 	filteragain := FTNArray{}
 	for _, ftn := range findnumbers {
-		if ftn.Feature.IsContinue2() && !ftn.Feature.IsContinue3() {
+		if ftn.Feature.IsContinue2() && ftn.Feature.IsContinue3() {
 			filteragain = append(filteragain, ftn)
 		}
 	}

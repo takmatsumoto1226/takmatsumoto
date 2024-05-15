@@ -1,9 +1,11 @@
 package ftn
 
 import (
+	"encoding/json"
 	"fmt"
 	"lottery/model/common"
 	"lottery/model/interf"
+	"os"
 	"path/filepath"
 )
 
@@ -11,8 +13,26 @@ const RootDir = "./gendata"
 const SubDir = "20240514"
 
 type SessionData struct {
-	Title string   `json:"title"`
-	Balls FTNArray `json:"balls"`
+	Title    string   `json:"title"`
+	Balls    FTNArray `json:"balls"`
+	TopMatch FTNArray `json:"topmatch"`
+}
+
+func (sd *SessionData) append(ftn FTN) {
+	sd.Balls = append(sd.Balls, ftn)
+}
+
+func (sd *SessionData) appendTop(top FTN) {
+	sd.TopMatch = append(sd.TopMatch, top)
+}
+
+func (sd *SessionData) DoBTFrom(top FTN) {
+	for _, pn := range sd.Balls {
+		currentPrice := top.AdariPrice(&pn)
+		if currentPrice >= PriceTop {
+			sd.appendTop(pn)
+		}
+	}
 }
 
 func (sd *SessionData) Presentation() string {
@@ -24,6 +44,8 @@ func (sd *SessionData) Presentation() string {
 
 type BackTest struct {
 	ID                        string           `json:"id"`
+	FileName                  string           `json:"file_name"`
+	FullPath                  string           `json:"full_path"`
 	Threshold                 interf.Threshold `json:"Threshold"`
 	Features                  SessionData      `json:"features"`
 	ThresholdNumbers          SessionData      `json:"thresholdnumbers"`
@@ -59,16 +81,10 @@ func (bt *BackTest) Presentation() string {
 	return msg
 }
 
-func (bt *BackTest) Backtesting(filenames []string, tops FTNArray) int {
-	total := 0
-
-	fmt.Println(len(bt.ThresholdNumbers.Balls) * 50)
-	for _, ftn := range tops {
-		for _, pn := range bt.ThresholdNumbers.Balls {
-			total = total + ftn.AdariPrice(&pn)
-		}
-	}
-	return total
+func (bt *BackTest) Backtesting(top FTN) {
+	bt.ThresholdNumbers.DoBTFrom(top)
+	bt.PickNumbers.DoBTFrom(top)
+	bt.Save()
 }
 
 func (bt *BackTest) BackFilter() FTNArray {
@@ -81,6 +97,15 @@ func (bt *BackTest) BackFilter() FTNArray {
 		}
 	}
 	return bfs
+}
+
+func (bt *BackTest) Save() {
+	if bt.FileName == "" {
+		bt.FileName = fmt.Sprintf("content_%02d_%02.1f_%s.json", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
+		bt.FullPath = filepath.Join(RootDir, SubDir, bt.FileName)
+	}
+	jsonString, _ := json.Marshal(bt)
+	os.WriteFile(bt.FullPath, jsonString, os.ModePerm)
 }
 
 func (bt *BackTest) Report() {

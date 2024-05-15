@@ -65,10 +65,9 @@ func Test_random(t *testing.T) {
 
 	bts := as.JSONGenerateTopPriceNumber(th)
 
-	for r, bt := range bts {
-
+	for _, bt := range bts {
 		fn := filepath.Join(RootDir, SubDir, fmt.Sprintf("powercontent%s.json", bt.ID))
-		common.SaveJSON(bt, fn, r+1)
+		common.SaveJSON(bt, fn)
 	}
 
 }

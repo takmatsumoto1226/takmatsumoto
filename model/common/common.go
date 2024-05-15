@@ -43,7 +43,7 @@ func Save(content, filename string, index int) {
 	}
 }
 
-func SaveJSON(content interface{}, filename string, index int) {
+func SaveJSON(content interface{}, filename string) {
 	jsonString, _ := json.Marshal(content)
 	os.WriteFile(filename, jsonString, os.ModePerm)
 }
