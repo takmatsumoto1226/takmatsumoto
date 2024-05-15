@@ -27,6 +27,7 @@ func (sd *SessionData) appendTop(top FTN) {
 }
 
 func (sd *SessionData) DoBTFrom(top FTN) {
+	sd.TopMatch = FTNArray{}
 	for _, pn := range sd.Balls {
 		currentPrice := top.AdariPrice(&pn)
 		if currentPrice >= PriceTop {
@@ -108,8 +109,10 @@ func (bt *BackTest) Save() {
 }
 
 func (bt *BackTest) Report() {
-	filename := fmt.Sprintf("content_%02d_%02.1f_%s_report.txt", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
-	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, filename), 0)
+	if len(bt.ThresholdNumbers.TopMatch) > 0 {
+		filename := fmt.Sprintf("content_%02d_%02.1f_%s_report.txt", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
+		common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, filename), 0)
+	}
 }
 
 type RowGroup struct {
