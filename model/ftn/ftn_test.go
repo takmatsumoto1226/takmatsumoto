@@ -282,11 +282,11 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 
 	start := 0
 	//
-	df.DisableFilters([]int{df.FilterTenGroupEvenCount, df.FilterTenGroupOddCount})
+	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	// df.DisableFilters([]int{df.FilterTailDigit})
 	th := interf.Threshold{
 		Round:      5,
-		Value:      10,
+		Value:      8,
 		SampleTime: 6,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
@@ -319,20 +319,6 @@ func FileNames() []string {
 
 	return []string{
 		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515142422.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515142524.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515142626.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515142726.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515142826.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515144140.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515144238.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515144335.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515144432.json"),
-		// filepath.Join(RootDir, SubDir, "content_09_5.0_20240515144528.json"),
-		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240515151441.json"),
-		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240515151558.json"),
-		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240515151715.json"),
-		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240515151831.json"),
-		// filepath.Join(RootDir, SubDir, "content_10_6.0_20240515151947.json"),
 	}
 
 	// files, _ := os.ReadDir(filepath.Join(RootDir, SubDir))
@@ -382,7 +368,7 @@ func Test_repick(t *testing.T) {
 
 	fmt.Println(len(featuresFTNs))
 
-	tops := ar.List.WithRange(1, 1)
+	tops := ar.List.WithRange(0, 1)
 	for _, top := range tops {
 		featuresFTNs.findNumbers(top.toStringArray(), df.None).ShowAll()
 	}
@@ -394,6 +380,30 @@ func Test_DoBackTesting(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	ar.DoBackTesting(FileNames())
+}
+
+func Test_FindPickTop(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "FindPickTop")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.ReadJSON(FileNames())
+
+	fmt.Printf("PickNumbers:\n")
+	for _, bt := range ar.BackTests {
+		if len(bt.PickNumbers.TopMatch) > 0 {
+			fmt.Println(bt.Summery())
+			bt.PickNumbers.TopMatch.ShowAll()
+		}
+	}
+
+	fmt.Printf("\n\n\n\nThresholdNumbers:\n")
+	for _, bt := range ar.BackTests {
+		if len(bt.ThresholdNumbers.TopMatch) > 0 {
+			fmt.Println(bt.Summery())
+			bt.ThresholdNumbers.TopMatch.ShowAll()
+		}
+	}
 }
 
 func Test_pickupSum(t *testing.T) {
@@ -466,7 +476,7 @@ func Test_groupNumbers(t *testing.T) {
 
 	filteragain := FTNArray{}
 	for _, ftn := range findnumbers {
-		if ftn.Feature.IsContinue2() && ftn.Feature.IsContinue3() {
+		if ftn.Feature.IsContinue2() {
 			filteragain = append(filteragain, ftn)
 		}
 	}

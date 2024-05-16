@@ -253,15 +253,15 @@ func (ar *FTNsManager) Predictions(filenames []string) {
 	for _, bt := range ar.BackTests {
 		for i := interval.Index; i < interval.Length; i++ {
 			tops := ar.List.WithRange(i, 1)
-			total := 0
 
+			backtests := bt.PickNumbers
 			bt.ThresholdNumbers.DoPrediction(tops)
+
+			total := bt.PickNumbers.DoPrediction(tops)
 			if total >= PriceTop {
-				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(bt.ThresholdNumbers.Balls), len(bt.ThresholdNumbers.Balls)*50, i, total)
+				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(backtests.Balls), len(backtests.Balls)*50, i, total)
 				count++
 			}
-
-			bt.PickNumbers.DoPrediction(tops)
 		}
 	}
 	fmt.Println(count)

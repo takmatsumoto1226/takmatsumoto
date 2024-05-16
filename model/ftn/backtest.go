@@ -10,7 +10,7 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240515"
+const SubDir = "20240516"
 
 type SessionData struct {
 	Title          string   `json:"title"`
@@ -29,7 +29,7 @@ func (sd *SessionData) appendTop(top FTN) {
 }
 
 func (sd *SessionData) appendPTop(top FTN) {
-	sd.TopMatch = append(sd.PredictionTops, top)
+	sd.PredictionTops = append(sd.PredictionTops, top)
 }
 
 func (sd *SessionData) DoBT(top FTN) {
@@ -43,16 +43,19 @@ func (sd *SessionData) DoBT(top FTN) {
 	}
 }
 
-func (sd *SessionData) DoPrediction(ftns FTNArray) {
+func (sd *SessionData) DoPrediction(ftns FTNArray) int {
 	sd.PredictionTops = FTNArray{}
+	total := 0
 	for _, ftn := range ftns {
 		for _, pn := range sd.Balls {
 			price := ftn.AdariPrice(&pn)
+			total = total + price
 			if price >= PriceTop {
 				sd.appendPTop(pn)
 			}
 		}
 	}
+	return total
 }
 
 func (sd *SessionData) Presentation() string {
@@ -97,6 +100,14 @@ func (bt *BackTest) Presentation() string {
 
 	msg = msg + bt.Threshold.Presentation()
 
+	return msg
+}
+
+func (bt *BackTest) Summery() string {
+	msg := "ID : " + bt.ID + "\n"
+	msg = msg + fmt.Sprintf("Tops:%d, EnumCount:%d, Pickup:%d\n", bt.HistoryTopCount, bt.ThreadHoldCount, bt.PickupCount)
+	msg = msg + fmt.Sprintf("%f\n", bt.NumbersHistoryTopsPercent)
+	msg = msg + bt.Threshold.Presentation()
 	return msg
 }
 
