@@ -71,8 +71,9 @@ func NewBallI(n int, pos int) *Ball {
 // BallsCount ...
 type BallsCount []BallInfo
 type NormalizeInfo struct {
-	NorBalls BallsCount // disappear interval
-	Param    PickParam
+	AppearBalls    BallsCount `json:"appearballs"`    // appear interval
+	DisappearBalls BallsCount `json:"disappearballs"` // disappear interval
+	Param          PickParam  `json:"param"`
 }
 
 // Len ...
@@ -244,6 +245,10 @@ func (fa *FTN) simpleFormRow() string {
 
 func (fa *FTN) ShowRow() {
 	fmt.Println(fa.formRow())
+}
+
+func (fa *FTN) SameDate(date string) bool {
+	return fa.Year == date[0:4] && fa.MonthDay == date[4:8]
 }
 
 // NewFTN ...

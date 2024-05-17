@@ -24,7 +24,7 @@ type FTNsManager struct {
 	List         FTNArray
 	RevList      FTNArray
 	ballsCount   map[uint]NormalizeInfo
-	BackTests    []BackTest
+	BackTests    []FTNBT
 	Combinations [][]int
 }
 
@@ -71,7 +71,7 @@ func (ar *FTNsManager) Prepare() error {
 	ar.loadAllData()
 
 	ar.Combinations = combin.Combinations(ballsCountFTN, BallsOfFTN)
-	ar.BackTests = []BackTest{}
+	ar.BackTests = []FTNBT{}
 	return nil
 }
 
@@ -105,17 +105,17 @@ func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 	for _, p := range params {
 		norball := ar.ballsCount[p.Interval]
 		if p.Whichfront == df.Biggerfront {
-			sort.Sort(sort.Reverse(norball.NorBalls))
+			sort.Sort(sort.Reverse(norball.AppearBalls))
 		} else if p.Whichfront == df.Smallfront {
-			sort.Sort(norball.NorBalls)
+			sort.Sort(norball.AppearBalls)
 		} else {
 
 		}
 
-		if len(norball.NorBalls) > 5 {
+		if len(norball.AppearBalls) > 5 {
 			pool := BallsInfo{}
 			// logrus.Infof("%s %s %s %s %s", balls[blIdx].Ball.Number, balls[blIdx-1].Ball.Number, balls[blIdx-2].Ball.Number, balls[blIdx-3].Ball.Number, balls[blIdx-4].Ball.Number)
-			for _, ball := range norball.NorBalls {
+			for _, ball := range norball.AppearBalls {
 
 				pool = append(pool, ball)
 			}
@@ -128,11 +128,11 @@ func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 	return ballPools
 }
 
-func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTest {
+func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []FTNBT {
 	common.SetRandomGenerator(th.Randomer)
-	bts := []BackTest{}
+	bts := []FTNBT{}
 	for r := 0; r < th.Round; r++ {
-		bt := BackTest{}
+		bt := NewBackTest(time.Now(), th)
 		result := map[string]int{}
 
 		for _, v := range ar.Combinations {
@@ -159,16 +159,16 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTes
 		featuresFTNs := FTNArray{}
 		for k, v := range result {
 			if v > th.Value {
-				threadholdNumber := NewFTNWithStrings(strings.Split(k, "_"))
-				threadholdNumbers = append(threadholdNumbers, *threadholdNumber)
-				ftnarr := ar.List.findNumbers(threadholdNumber.toStringArray(), df.None)
+				thNumb := NewFTNWithStrings(strings.Split(k, "_"))
+				threadholdNumbers = append(threadholdNumbers, *thNumb)
+				ftnarr := ar.List.findNumbers(thNumb.toStringArray(), df.None)
 				if len(ftnarr) > 0 {
 					tops = append(tops, ftnarr...)
 				}
 
 				for _, l := range features {
-					if l.MatchFeature(threadholdNumber) {
-						featuresFTNs = append(featuresFTNs, *threadholdNumber)
+					if l.MatchFeature(thNumb) {
+						featuresFTNs = append(featuresFTNs, *thNumb)
 						break
 					}
 				}
@@ -179,16 +179,12 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTes
 		bt.ThresholdNumbers.Balls = threadholdNumbers
 		bt.ThreadHoldCount = len(threadholdNumbers)
 
-		bt.HistoryTopsMatch.Title = "History Match Tops(Thread Hold Numbers)"
-		bt.HistoryTopsMatch.Balls = tops
 		bt.HistoryTopCount = len(tops)
 
 		bt.PickNumbers.Title = "Feature Close"
 		bt.PickNumbers.Balls = featuresFTNs
 		bt.PickupCount = len(featuresFTNs)
-		bt.ID = time.Now().Format("20060102150405")
 		bt.NumbersHistoryTopsPercent = float32(len(tops)) / float32(count) * 100.0
-		bt.Threshold = th
 
 		// exclude tops
 		pures := FTNArray{}
@@ -204,7 +200,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTes
 		bt.ExcludeTops.Title = "Pures"
 		bt.ExcludeTops.Balls = pures
 
-		bts = append(bts, bt)
+		bts = append(bts, *bt)
 	}
 
 	return bts
@@ -215,7 +211,7 @@ func (ar *FTNsManager) ReadJSON(filenames []string) {
 		if !strings.Contains(filename, ".json") {
 			filename = filename + ".json"
 		}
-		bt := BackTest{}
+		bt := FTNBT{}
 		file, err := os.ReadFile(filename)
 		if err != nil {
 			logrus.Error(err)
@@ -238,7 +234,7 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 
 func (ar *FTNsManager) DoBackTesting(filenames []string) {
 	ar.ReadJSON(filenames)
-	top := ar.List.GetFTN(0)
+	top := ar.RevList.GetFTNWithDate("20240516")
 	for _, bt := range ar.BackTests {
 		bt.DoBacktesting(top)
 	}
@@ -259,10 +255,15 @@ func (ar *FTNsManager) Predictions(filenames []string) {
 
 			total := bt.PickNumbers.DoPrediction(tops)
 			if total >= PriceTop {
-				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(backtests.Balls), len(backtests.Balls)*50, i, total)
+				fmt.Printf("ID: %s, %d : %d, 第 %04d : %d\n\n\n", bt.ID, len(backtests.Balls), len(backtests.Balls)*50, i, total)
+				if len(tops) > 0 {
+					fmt.Println(tops[0].formRow())
+				}
+
 				count++
 			}
 		}
+		bt.Save()
 	}
 	fmt.Println(count)
 }
@@ -282,5 +283,24 @@ func (ar *FTNsManager) GroupZero(arr FTNArray) {
 	for _, v := range ar.RevList {
 		gidx := groupMapping[v.Key()]
 		result[gidx] = v
+	}
+}
+
+func (ar *FTNsManager) FinalPick(filenames []string) {
+	if len(filenames) == 0 {
+		fmt.Errorf("no file names !!!\n")
+		return
+	}
+	filterPick := FTNArray{}
+	ar.ReadJSON(filenames)
+
+	group := NewFTNGroup(200, ar.Combinations, ar.RevList)
+
+	for _, bt := range ar.BackTests {
+		for _, ftn := range bt.PickNumbers.Balls {
+			if _, gcount := group.FindGroupIndex(ftn); gcount == 0 {
+				filterPick = append(filterPick, ftn)
+			}
+		}
 	}
 }

@@ -104,6 +104,15 @@ func (fa FTNArray) GetFTN(i int) FTN {
 	return fa[len(fa)-1]
 }
 
+func (fa FTNArray) GetFTNWithDate(date string) FTN {
+	for _, ftn := range fa {
+		if ftn.SameDate(date) {
+			return ftn
+		}
+	}
+	return *Empty()
+}
+
 func (fa FTNArray) FeatureRange(th interf.Threshold) FTNArray {
 	features := fa.WithRange(th.Interval.Index, th.Interval.Length)
 	if th.Smart.Enable {
@@ -158,6 +167,18 @@ func (fa FTNArray) SmartWithFeature(th interf.Threshold) FTNArray {
 		}
 	}
 	return features
+}
+
+func (fa FTNArray) MatchElements(fb FTNArray) FTNArray {
+	ta := FTNArray{}
+	for _, a := range fa {
+		for _, b := range fb {
+			if a.MatchFeature(&b) {
+				ta = append(ta, b)
+			}
+		}
+	}
+	return ta
 }
 
 func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
@@ -222,6 +243,7 @@ func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo 
 		return map[uint]NormalizeInfo{}
 	}
 	var FTNIntervalCount = [ballsCountFTN]uint{}
+	var disappearCount = [ballsCountFTN]uint{}
 
 	for _, t := range ar {
 		FTNIntervalCount[numberToIndex[t.B1.Number]]++
@@ -229,13 +251,28 @@ func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo 
 		FTNIntervalCount[numberToIndex[t.B3.Number]]++
 		FTNIntervalCount[numberToIndex[t.B4.Number]]++
 		FTNIntervalCount[numberToIndex[t.B5.Number]]++
+		for i := 0; i < ballsCountFTN; i++ {
+			if i != numberToIndex[t.B1.Number] ||
+				i != numberToIndex[t.B2.Number] ||
+				i != numberToIndex[t.B3.Number] ||
+				i != numberToIndex[t.B4.Number] ||
+				i != numberToIndex[t.B5.Number] {
+				disappearCount[i]++
+			} else {
+				disappearCount[i] = 0
+			}
+		}
 	}
+
 	arr := BallsCount{}
+	disarr := BallsCount{}
 	for i, count := range FTNIntervalCount {
 		b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0, 0}}
 		arr = append(arr, b)
+		c := BallInfo{Count: disappearCount[i], Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0, 0}}
+		disarr = append(disarr, c)
 	}
-	ballsCount[p.Interval] = NormalizeInfo{NorBalls: arr, Param: p}
+	ballsCount[p.Interval] = NormalizeInfo{AppearBalls: arr, Param: p}
 
 	return ballsCount
 }

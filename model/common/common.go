@@ -74,3 +74,17 @@ func RandomNuber() uint64 {
 		return defaultRand.Uint64()
 	}
 }
+
+func MAX(x, y int) int {
+	if x <= y {
+		return y
+	}
+	return x
+}
+
+func MIN(x, y int) int {
+	if x >= y {
+		return y
+	}
+	return x
+}

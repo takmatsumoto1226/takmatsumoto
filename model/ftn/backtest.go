@@ -7,10 +7,11 @@ import (
 	"lottery/model/interf"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240516"
 
 type SessionData struct {
 	Title          string   `json:"title"`
@@ -44,7 +45,6 @@ func (sd *SessionData) DoBT(top FTN) {
 }
 
 func (sd *SessionData) DoPrediction(ftns FTNArray) int {
-	sd.PredictionTops = FTNArray{}
 	total := 0
 	for _, ftn := range ftns {
 		for _, pn := range sd.Balls {
@@ -65,14 +65,14 @@ func (sd *SessionData) Presentation() string {
 	return msg
 }
 
-type BackTest struct {
+type FTNBT struct {
 	ID                        string           `json:"id"`
+	Date                      time.Time        `json:"date"`
 	FileName                  string           `json:"file_name"`
 	FullPath                  string           `json:"full_path"`
 	Threshold                 interf.Threshold `json:"Threshold"`
 	Features                  SessionData      `json:"features"`
 	ThresholdNumbers          SessionData      `json:"thresholdnumbers"`
-	HistoryTopsMatch          SessionData      `json:"historytopsmatch"`
 	PickNumbers               SessionData      `json:"picknumbers"`
 	ExcludeTops               SessionData      `json:"excludetops"`
 	ThreadHoldCount           int              `json:"threadholdcount"`
@@ -81,7 +81,19 @@ type BackTest struct {
 	NumbersHistoryTopsPercent float32          `json:"numbershistorytopspercent"`
 }
 
-func (bt *BackTest) Presentation() string {
+func NewBackTest(date time.Time, th interf.Threshold) *FTNBT {
+	id := date.Format("20060102150405")
+	filename := fmt.Sprintf("content_%02d_%02.1f_%s.json", th.Value, th.SampleTime, id)
+	return &FTNBT{
+		ID:        id,
+		Date:      date,
+		FileName:  filename,
+		FullPath:  filepath.Join(RootDir, date.Format("20060102"), filename),
+		Threshold: th,
+	}
+}
+
+func (bt *FTNBT) Presentation() string {
 	msg := "ID : " + bt.ID + "\n"
 	msg = msg + bt.Features.Presentation()
 	msg = msg + "\n\n"
@@ -103,7 +115,7 @@ func (bt *BackTest) Presentation() string {
 	return msg
 }
 
-func (bt *BackTest) Summery() string {
+func (bt *FTNBT) Summery() string {
 	msg := "ID : " + bt.ID + "\n"
 	msg = msg + fmt.Sprintf("Tops:%d, EnumCount:%d, Pickup:%d\n", bt.HistoryTopCount, bt.ThreadHoldCount, bt.PickupCount)
 	msg = msg + fmt.Sprintf("%f\n", bt.NumbersHistoryTopsPercent)
@@ -111,7 +123,7 @@ func (bt *BackTest) Summery() string {
 	return msg
 }
 
-func (bt *BackTest) DoBacktesting(top FTN) {
+func (bt *FTNBT) DoBacktesting(top FTN) {
 	bt.ThresholdNumbers.DoBT(top)
 	bt.PickNumbers.DoBT(top)
 	bt.Save()
@@ -124,7 +136,7 @@ func (bt *BackTest) DoBacktesting(top FTN) {
 // 	}
 // }
 
-func (bt *BackTest) BackFilter() FTNArray {
+func (bt *FTNBT) BackFilter() FTNArray {
 	bfs := FTNArray{}
 	for _, pn := range bt.ThresholdNumbers.Balls {
 		for _, f := range bt.Features.Balls {
@@ -136,18 +148,23 @@ func (bt *BackTest) BackFilter() FTNArray {
 	return bfs
 }
 
-func (bt *BackTest) Save() {
+func (bt *FTNBT) Save() string {
 	if bt.FileName == "" {
 		bt.FileName = fmt.Sprintf("content_%02d_%02.1f_%s.json", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
-		bt.FullPath = filepath.Join(RootDir, SubDir, bt.FileName)
+		bt.FullPath = filepath.Join(RootDir, bt.Date.Format("0102"), bt.FileName)
 	}
 	jsonString, _ := json.Marshal(bt)
 	os.WriteFile(bt.FullPath, jsonString, os.ModePerm)
+	return bt.FileName
 }
 
-func (bt *BackTest) Report() {
-	filename := fmt.Sprintf("content_%02d_%02.1f_%s_report.txt", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
-	common.Save(bt.Presentation(), filepath.Join(RootDir, SubDir, filename), 0)
+func (bt *FTNBT) Report() {
+	if bt.FileName == "" {
+		bt.FileName = fmt.Sprintf("content_%02d_%02.1f_%s_report.txt", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
+	}
+	reportfile := strings.Replace(bt.FileName, ".json", ".txt", 1)
+	fullpath := filepath.Join(RootDir, bt.Date.Format("20060102"), reportfile)
+	common.Save(bt.Presentation(), fullpath, 0)
 }
 
 type RowGroup struct {

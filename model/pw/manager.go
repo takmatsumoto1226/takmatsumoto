@@ -118,8 +118,8 @@ func (mgr *PowerManager) GenerateTopPriceNumber(th interf.Threshold) {
 				pw := NewPowerWithString(arr)
 				for _, f := range features {
 					if f.MatchFeature(pw) {
-						filestr = filestr + f.Feature.String() + "\n"
-						filestr = filestr + pw.Feature.String() + "\n"
+						filestr = filestr + f.Feature.Presentation() + "\n"
+						filestr = filestr + pw.Feature.Presentation() + "\n"
 						featureMatchs = append(featureMatchs, *pw)
 						break
 					}

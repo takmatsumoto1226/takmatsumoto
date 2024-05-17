@@ -20,11 +20,14 @@ func NewFTNGroup(gc int, combinations [][]int, arr FTNArray) *FTNGroup {
 	}
 
 	length := len(combinations)/gc + 1
-	statics := make([]int, length, length)
+	statics := make([]int, length)
 
 	for _, ftn := range arr {
 		idx := groupMapping[ftn.Key()]
 		statics[idx]++
+	}
+	for i, v := range statics {
+		fmt.Printf("%04d:%d\n", i, v)
 	}
 
 	return &FTNGroup{GroupCount: gc, GroupMapping: groupMapping, Statics: statics}
