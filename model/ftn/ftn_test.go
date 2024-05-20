@@ -111,6 +111,7 @@ func Test_findnumbers(t *testing.T) {
 	as.intervalBallsCountStatic(params)
 	static := as.Picknumber(params)[p.GetKey()]
 	static.ShowAll()
+
 	result := algorithm.Combinations(as.RevList[0].toStringArray(), 3)
 	for _, v := range result {
 		fmt.Println("")
@@ -275,13 +276,13 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	df.DisableFilters([]int{df.FilterTenGroupOddCount, df.FilterTenGroupEvenCount})
 	// df.DisableFilters([]int{df.FilterTailDigit})
 	th := interf.Threshold{
-		Round:      10,
-		Value:      9,
+		Round:      20,
+		Value:      10,
 		SampleTime: 6,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
 			Index:  start,
-			Length: len(ar.List)/2 + start,
+			Length: len(ar.List)/3 + start,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -371,7 +372,7 @@ func Test_DoBackTesting(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.DoBackTesting(FileNames())
+	ar.DoBackTesting(FileNames(), "20240518")
 }
 
 func Test_FindPickTop(t *testing.T) {
@@ -426,7 +427,7 @@ func Test_groupNumbers(t *testing.T) {
 	filterPick := FTNArray{}
 
 	for _, bt := range ar.BackTests {
-		for _, ftn := range bt.PickNumbers.Balls {
+		for _, ftn := range bt.ThresholdNumbers.Balls {
 
 			if gi, gcount := group.FindGroupIndex(ftn); gcount == 0 {
 				fmt.Println(gi)
@@ -561,151 +562,151 @@ func Test_compareTest(t *testing.T) {
 func FileNames() []string {
 	targetsub := "20240517"
 	fmt.Println("date : " + targetsub)
-	return []string{
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093355.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093511.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093628.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093744.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093900.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094018.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094139.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094256.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094413.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094529.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517095758.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517095918.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100041.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100200.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100327.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100448.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100610.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100735.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100856.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517101015.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102213.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102338.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102500.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102621.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102742.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102901.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103023.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103143.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103303.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103424.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517112920.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113045.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113209.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113332.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113454.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113616.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113738.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113901.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114024.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114146.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114721.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114846.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115011.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115137.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115303.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115429.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115554.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115721.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115843.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517120006.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517125757.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517125920.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130047.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130212.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130340.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130505.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130626.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130748.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130910.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131033.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131155.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131316.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131438.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131559.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131718.json"), // ++++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131835.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131955.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517132111.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133512.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133636.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133758.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133919.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134042.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134203.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134322.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134443.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134602.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134722.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134839.json"), //
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134959.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135116.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135234.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135352.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135510.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135630.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135747.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517140925.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141053.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141215.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141338.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141501.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141624.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141753.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141917.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142042.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142205.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142328.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142454.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142618.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142739.json"),
-		filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142904.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143029.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143153.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143315.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143441.json"),
-		filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143603.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143726.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143851.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144012.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144135.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144255.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144422.json"),
-		filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144545.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144707.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144830.json"),
-		filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144954.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145116.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145239.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145404.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145527.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145650.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145814.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145936.json"),
-		filepath.Join(RootDir, targetsub, "content_10_6.0_20240517150108.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517150229.json"),
-		// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517150353.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517153850.json"),
-		filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154120.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154345.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154611.json"),
-		filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154843.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155110.json"),
-		filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155349.json"), // ++
-		// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155614.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155837.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517160110.json"),
-	}
-
-	// files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
-	// filenames := []string{}
-	// for _, f := range files {
-	// 	if strings.Contains(f.Name(), ".json") {
-	// 		filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
-	// 	}
+	// rseturn []string{
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093355.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093511.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093628.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093744.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517093900.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094018.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094139.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094256.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094413.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517094529.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517095758.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517095918.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100041.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100200.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100327.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100448.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100610.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100735.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517100856.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517101015.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102213.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102338.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102500.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102621.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102742.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517102901.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103023.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103143.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103303.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517103424.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517112920.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113045.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113209.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113332.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113454.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113616.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113738.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517113901.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114024.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114146.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114721.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517114846.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115011.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115137.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115303.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115429.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115554.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115721.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517115843.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517120006.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517125757.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517125920.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130047.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130212.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130340.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130505.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130626.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130748.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517130910.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131033.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131155.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131316.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131438.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131559.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131718.json"), // ++++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131835.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517131955.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517132111.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133512.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133636.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133758.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517133919.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134042.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134203.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134322.json"), // --
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134443.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134602.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134722.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134839.json"), //
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517134959.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135116.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135234.json"), // --
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135352.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135510.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135630.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517135747.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517140925.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141053.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141215.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141338.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141501.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141624.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141753.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517141917.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142042.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142205.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142328.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142454.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142618.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142739.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517142904.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143029.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143153.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143315.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143441.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143603.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143726.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517143851.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144012.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144135.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144255.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144422.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144545.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144707.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144830.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517144954.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145116.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145239.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145404.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145527.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145650.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145814.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517145936.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517150108.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517150229.json"),
+	// filepath.Join(RootDir, targetsub, "content_10_6.0_20240517150353.json"),
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517153850.json"),
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154120.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154345.json"),
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154611.json"),
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517154843.json"), // --
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155110.json"),
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155349.json"), // ++
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155614.json"),
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517155837.json"),
+	// filepath.Join(RootDir, targetsub, "content_09_6.0_20240517160110.json"),
 	// }
-	// return filenames
+
+	files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
+	filenames := []string{}
+	for _, f := range files {
+		if strings.Contains(f.Name(), ".json") {
+			filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
+		}
+	}
+	return filenames
 }

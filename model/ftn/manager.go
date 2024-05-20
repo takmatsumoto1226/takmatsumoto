@@ -19,6 +19,11 @@ import (
 	"gonum.org/v1/gonum/stat/combin"
 )
 
+type IntervalCount struct {
+	Appear    []int `json:"appear"`
+	Disappear []int `json:"disappear"`
+}
+
 // FTNsManager ...
 type FTNsManager struct {
 	List         FTNArray
@@ -232,9 +237,9 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 	}
 }
 
-func (ar *FTNsManager) DoBackTesting(filenames []string) {
+func (ar *FTNsManager) DoBackTesting(filenames []string, d string) {
 	ar.ReadJSON(filenames)
-	top := ar.RevList.GetFTNWithDate("20240516")
+	top := ar.RevList.GetFTNWithDate(d)
 	for _, bt := range ar.BackTests {
 		bt.DoBacktesting(top)
 	}
