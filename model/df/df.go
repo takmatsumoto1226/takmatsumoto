@@ -144,6 +144,7 @@ type Feature struct {
 	PrimeCount              int     `json:"primecount"`
 	MultiplesOfs            [19]int `json:"multiplesofs"`
 	ContinueRowType         int     `json:"continuerowtype"`
+	Point                   float32 `json:"point"`
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {

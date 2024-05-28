@@ -277,6 +277,38 @@ func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo 
 	return ballsCount
 }
 
+func (ar FTNArray) BallsCountStatic() BallsCount {
+	var FTNIntervalCount = [ballsCountFTN]uint{}
+	var disappearCount = [ballsCountFTN]uint{}
+
+	for _, t := range ar {
+		FTNIntervalCount[numberToIndex[t.B1.Number]]++
+		FTNIntervalCount[numberToIndex[t.B2.Number]]++
+		FTNIntervalCount[numberToIndex[t.B3.Number]]++
+		FTNIntervalCount[numberToIndex[t.B4.Number]]++
+		FTNIntervalCount[numberToIndex[t.B5.Number]]++
+		for i := 0; i < ballsCountFTN; i++ {
+			if i != numberToIndex[t.B1.Number] ||
+				i != numberToIndex[t.B2.Number] ||
+				i != numberToIndex[t.B3.Number] ||
+				i != numberToIndex[t.B4.Number] ||
+				i != numberToIndex[t.B5.Number] {
+				disappearCount[i]++
+			} else {
+				disappearCount[i] = 0
+			}
+		}
+	}
+
+	arr := BallsCount{}
+	for i, count := range FTNIntervalCount {
+		b := BallInfo{Count: count, Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0, 0}}
+		arr = append(arr, b)
+	}
+
+	return arr
+}
+
 func (ar FTNArray) featureBackTesting() map[string]FTNArray {
 	result := map[string]FTNArray{}
 	for _, ftn := range ar {

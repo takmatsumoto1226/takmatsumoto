@@ -45,6 +45,7 @@ func (sd *SessionData) DoBT(top FTN) {
 }
 
 func (sd *SessionData) DoPrediction(ftns FTNArray) int {
+	sd.PredictionTops = FTNArray{}
 	total := 0
 	for _, ftn := range ftns {
 		for _, pn := range sd.Balls {

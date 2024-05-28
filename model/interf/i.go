@@ -58,6 +58,7 @@ type Threshold struct {
 	RealSale   int32    `json:"realsale"`
 	Interval   Interval `json:"interval"`
 	Smart      Smart    `json:"smart"`
+	Match      bool     `json:"match"`
 }
 
 func (th *Threshold) GetRandomer() string {

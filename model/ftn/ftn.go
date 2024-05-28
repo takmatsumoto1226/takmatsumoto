@@ -54,6 +54,10 @@ func (b *Ball) Illegal() bool {
 	return b.Number == "" || b.Number == "00"
 }
 
+func (b *Ball) Same(cb Ball) bool {
+	return b.Digit == cb.Digit
+}
+
 func NewBallS(n string, pos int) *Ball {
 	iB1, _ := strconv.Atoi(n)
 	if strings.Contains(n, "==") {
@@ -89,6 +93,18 @@ func (fa BallsCount) Less(i, j int) bool {
 // Swap swaps the elements with indexes i and j.
 func (fa BallsCount) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
+}
+
+func (bsi BallsCount) Presentation(dshift bool) string {
+	rowmsg := "\n  "
+	if dshift {
+		rowmsg = "          "
+	}
+
+	for _, bi := range bsi {
+		rowmsg = rowmsg + fmt.Sprintf("%2d ", bi.Count)
+	}
+	return rowmsg
 }
 
 // BallCount ...
@@ -172,6 +188,14 @@ func (fa *FTN) matchCount(n FTN) int {
 	}
 
 	return count
+}
+
+func (fa *FTN) IsExclude(n FTN) bool {
+	return !fa.B1.Same(n.B1) && !fa.B2.Same(n.B2) && !fa.B3.Same(n.B3) && !fa.B4.Same(n.B4) && !fa.B5.Same(n.B5)
+}
+
+func (fa *FTN) Similar(n FTN, b byte) bool {
+	return true
 }
 
 func Ball39() []string {
