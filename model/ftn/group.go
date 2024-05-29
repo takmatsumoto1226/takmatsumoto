@@ -12,7 +12,7 @@ type FTNGroup struct {
 	ZeroCount    int            `json:"zero_count"`
 	Max          int            `json:"max"`
 	Avg          float64        `json:"avg"`
-	next         Filter
+	// next         Filter
 }
 
 func NewFTNGroup(gc int, combinations [][]int, arr FTNArray) *FTNGroup {
@@ -72,6 +72,6 @@ func (fg *FTNGroup) filter(bt *FTNBT) {
 
 }
 
-func (fg *FTNGroup) setNext(next Filter) {
-	fg.next = next
-}
+// func (fg *FTNGroup) setNext(next Filter) {
+// 	fg.next = next
+// }

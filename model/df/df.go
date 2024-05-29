@@ -427,3 +427,7 @@ func (f *Feature) Presentation() string {
 		f.TailDigit,
 		f.PrimeCount)
 }
+
+func (f *Feature) NoContinue() bool {
+	return !f.IsContinue2() && !f.IsContinue3() && !f.IsContinue4() && !f.IsContinue5() && !f.IsContinue22()
+}

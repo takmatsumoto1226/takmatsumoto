@@ -239,8 +239,8 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 }
 
 func (ar *FTNsManager) DoBackTesting(filenames []string, d string) {
-	ar.ReadJSON(filenames)
 	top := ar.RevList.GetFTNWithDate(d)
+	ar.ReadJSON(filenames)
 	for _, bt := range ar.BackTests {
 		bt.DoBacktesting(top)
 	}
@@ -323,4 +323,19 @@ func (ar *FTNsManager) SaveBTs() {
 	for _, bt := range ar.BackTests {
 		fmt.Println(bt.Save())
 	}
+}
+
+func (ar *FTNsManager) FilterByGroupIndex() FTNArray {
+	group := NewFTNGroup(100, ar.Combinations, ar.RevList)
+	// fmt.Println(group.Presentation())
+	arr := FTNArray{}
+	for _, bt := range ar.BackTests {
+		for _, ftn := range bt.PickNumbers.Balls {
+			if _, gcount := group.FindGroupIndex(ftn); gcount > 0 {
+				arr = append(arr, ftn)
+			}
+		}
+	}
+
+	return arr.Distinct()
 }
