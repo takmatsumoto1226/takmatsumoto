@@ -2,22 +2,17 @@ package ftn
 
 import "lottery/model/df"
 
-func (ar *FTNArray) FilterByGroupIndex(group *FTNGroup, bts []FTNBT) FTNArray {
-
-	// fmt.Println(group.Presentation())
+func (ar FTNArray) FilterByGroupIndex(group *FTNGroup) FTNArray {
 	arr := FTNArray{}
-	for _, bt := range bts {
-		for _, ftn := range bt.PickNumbers.Balls {
-			if _, gcount := group.FindGroupIndex(ftn); gcount == 0 {
-				arr = append(arr, ftn)
-			}
+	for _, ftn := range ar {
+		if _, gcount := group.FindGroupIndex(ftn); gcount == 0 {
+			arr = append(arr, ftn)
 		}
 	}
-
 	return arr.Distinct()
 }
 
-func (ar *FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]BallsInfo) FTNArray {
+func (ar FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]BallsInfo) FTNArray {
 	arr := FTNArray{}
 	for _, p := range params {
 		ar.intervalBallsCountStatic(p)

@@ -196,7 +196,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 		pures := FTNArray{}
 		for _, fFTN := range featuresFTNs {
 			for _, f := range ar.List {
-				if fFTN.MatchFeature(&f) {
+				if !fFTN.MatchFeature(&f) {
 					pures = append(pures, fFTN)
 					break
 				}
@@ -210,6 +210,13 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 	}
 
 	ar.BackTests = bts
+}
+
+func B2i(b bool) int8 {
+	if b {
+		return 1
+	}
+	return 0
 }
 
 func (ar *FTNsManager) ReadJSON(filenames []string) {
@@ -325,17 +332,10 @@ func (ar *FTNsManager) SaveBTs() {
 	}
 }
 
-func (ar *FTNsManager) FilterByGroupIndex() FTNArray {
-	group := NewFTNGroup(100, ar.Combinations, ar.RevList)
-	// fmt.Println(group.Presentation())
+func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, bts []FTNBT) FTNArray {
 	arr := FTNArray{}
-	for _, bt := range ar.BackTests {
-		for _, ftn := range bt.PickNumbers.Balls {
-			if _, gcount := group.FindGroupIndex(ftn); gcount > 0 {
-				arr = append(arr, ftn)
-			}
-		}
+	for _, bt := range bts {
+		arr = bt.PickNumbers.Balls.FilterByGroupIndex(group)
 	}
-
 	return arr.Distinct()
 }
