@@ -28,6 +28,7 @@ type PickParam struct {
 	Whichfront uint
 	Spliter    uint
 	Hot        uint
+	Freq       int
 }
 
 // GetKey get key
@@ -190,8 +191,19 @@ func (fa *FTN) matchCount(n FTN) int {
 	return count
 }
 
-func (fa *FTN) IsExclude(n FTN) bool {
-	return !fa.B1.Same(n.B1) && !fa.B2.Same(n.B2) && !fa.B3.Same(n.B3) && !fa.B4.Same(n.B4) && !fa.B5.Same(n.B5)
+func (f *FTN) IsExclude(n FTN) bool {
+	for _, i := range f.Feature.IBalls {
+		for _, j := range n.Feature.IBalls {
+			if i == j {
+				return false
+			}
+		}
+	}
+	return true
+}
+
+func (fa *FTN) IsInclude(n FTN) bool {
+	return fa.B1.Same(n.B1) || fa.B2.Same(n.B2) && fa.B3.Same(n.B3) || fa.B4.Same(n.B4) || fa.B5.Same(n.B5)
 }
 
 func (fa *FTN) Similar(n FTN, b byte) bool {

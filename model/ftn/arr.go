@@ -234,13 +234,11 @@ func (fa FTNArray) AdariPrice(adari *FTN) int {
 	return 0
 }
 
-func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo {
-
-	ballsCount := map[uint]NormalizeInfo{}
+func (ar FTNArray) IntervalBallsCountStatic(p PickParam) NormalizeInfo {
 
 	if p.Interval == 0 {
 		logrus.Error(errors.New("不可指定0"))
-		return map[uint]NormalizeInfo{}
+		return NormalizeInfo{}
 	}
 	var FTNIntervalCount = [ballsCountFTN]uint{}
 	var disappearCount = [ballsCountFTN]uint{}
@@ -272,9 +270,8 @@ func (ar FTNArray) intervalBallsCountStatic(p PickParam) map[uint]NormalizeInfo 
 		c := BallInfo{Count: disappearCount[i], Ball: Ball{fmt.Sprintf("%02d", i+1), i, i + 1, 0, 0}}
 		disarr = append(disarr, c)
 	}
-	ballsCount[p.Interval] = NormalizeInfo{AppearBalls: arr, Param: p}
 
-	return ballsCount
+	return NormalizeInfo{AppearBalls: arr, Param: p}
 }
 
 func (ar FTNArray) BallsCountStatic() BallsCount {

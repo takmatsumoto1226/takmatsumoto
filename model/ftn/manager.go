@@ -90,21 +90,25 @@ func (ar *FTNsManager) GroupIndexMapping(gc int) map[string]int {
 	return groupMapping
 }
 
-func (ar *FTNsManager) intervalBallsCountStatic(params PickParams) {
+func (ar *FTNsManager) IntervalBallsCountStatic(params PickParams) {
+
 	if len(params) == 0 {
 		logrus.Error(errors.New("不可沒設定interval"))
 		return
 	}
+	result := map[uint]NormalizeInfo{}
 	for _, p := range params {
 		if p.SortType == df.Descending {
-			ar.ballsCount = ar.RevList[:p.Interval].intervalBallsCountStatic(p)
+			result[p.Interval] = ar.RevList[:p.Interval].IntervalBallsCountStatic(p)
 		} else if p.SortType == df.Ascending {
-			ar.ballsCount = ar.List[:p.Interval].intervalBallsCountStatic(p)
+			result[p.Interval] = ar.List[:p.Interval].IntervalBallsCountStatic(p)
 		} else {
 			logrus.Error("必須指定型態")
 			break
 		}
 	}
+
+	ar.ballsCount = result
 }
 
 func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
