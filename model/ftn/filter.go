@@ -1,13 +1,14 @@
 package ftn
 
 import (
+	"fmt"
 	"lottery/model/df"
 )
 
-func (fa FTNArray) FilterByGroupIndex(group *FTNGroup) FTNArray {
+func (fa FTNArray) FilterByGroupIndex(group *FTNGroup, c int) FTNArray {
 	arr := FTNArray{}
 	for _, ftn := range fa {
-		if _, gcount := group.FindGroupIndex(ftn); gcount == 0 {
+		if _, gcount := group.FindGroupIndex(ftn); gcount == c {
 			arr = append(arr, ftn)
 		}
 	}
@@ -21,7 +22,7 @@ func (fa FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]Ball
 		static := staticmap[p.GetKey()]
 		numbers := []string{}
 		for _, b := range static {
-			if b.Count > 3 {
+			if b.Count == 0 {
 				numbers = append(numbers, b.Ball.Number)
 			}
 		}
@@ -33,12 +34,17 @@ func (fa FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]Ball
 	return arr.Distinct()
 }
 
-func (fa FTNArray) FilterExcludes(tops FTNArray) FTNArray {
+func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 	result := FTNArray{}
 	search := map[int]bool{}
 	for _, t := range tops {
 		for _, i := range t.Feature.IBalls {
 			search[i] = true
+		}
+	}
+	if len(sb) > 0 {
+		for _, b := range sb {
+			search[b] = true
 		}
 	}
 
@@ -81,6 +87,7 @@ func (fa FTNArray) FilterIncludeLatest(tops FTNArray) FTNArray {
 func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArray {
 	result := FTNArray{}
 	ballsCount := highFreqs.IntervalBallsCountStatic(p)
+	fmt.Println(ballsCount.AppearBalls.Presentation(false))
 
 	numbers := []string{}
 	for _, b := range ballsCount.AppearBalls {
@@ -98,7 +105,26 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.IsContinue2() {
+		if ftn.Feature.IsContinue2() || ftn.Feature.NoContinue() {
+			result = append(result, ftn)
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterFeatureExcludes(tops FTNArray) FTNArray {
+	result := FTNArray{}
+
+	for _, ftn := range fa {
+		add := true
+		for _, top := range tops {
+			if ftn.MatchFeature(&top) {
+				add = false
+				break
+			}
+		}
+
+		if add {
 			result = append(result, ftn)
 		}
 	}

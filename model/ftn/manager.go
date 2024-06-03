@@ -197,15 +197,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 		bt.NumbersHistoryTopsPercent = float32(len(thNumbTops)) / float32(count) * 100.0
 
 		// exclude tops
-		pures := FTNArray{}
-		for _, fFTN := range featuresFTNs {
-			for _, f := range ar.List {
-				if !fFTN.MatchFeature(&f) {
-					pures = append(pures, fFTN)
-					break
-				}
-			}
-		}
+		pures := featuresFTNs.FilterFeatureExcludes(ar.List)
 
 		bt.ExcludeTops.Title = "Pures"
 		bt.ExcludeTops.Balls = pures
@@ -336,10 +328,10 @@ func (ar *FTNsManager) SaveBTs() {
 	}
 }
 
-func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, bts []FTNBT) FTNArray {
+func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, c int) FTNArray {
 	arr := FTNArray{}
-	for _, bt := range bts {
-		arr = bt.PickNumbers.Balls.FilterByGroupIndex(group)
+	for _, bt := range ar.BackTests {
+		arr = append(arr, bt.PickNumbers.Balls.FilterByGroupIndex(group, c)...)
 	}
 	return arr.Distinct()
 }

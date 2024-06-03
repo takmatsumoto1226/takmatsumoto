@@ -103,7 +103,12 @@ func (bsi BallsCount) Presentation(dshift bool) string {
 	}
 
 	for _, bi := range bsi {
-		rowmsg = rowmsg + fmt.Sprintf("%2d ", bi.Count)
+		rowmsg = rowmsg + fmt.Sprintf("%3d|", bi.Ball.Digit)
+	}
+	rowmsg = rowmsg + "\n  "
+
+	for _, bi := range bsi {
+		rowmsg = rowmsg + fmt.Sprintf("%3d|", bi.Count)
 	}
 	return rowmsg
 }
