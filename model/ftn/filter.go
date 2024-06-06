@@ -130,3 +130,29 @@ func (fa FTNArray) FilterFeatureExcludes(tops FTNArray) FTNArray {
 	}
 	return result
 }
+
+func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
+	result := FTNArray{}
+	sames := FTNArray{}
+	for _, f := range fa {
+		add := true
+		for _, t := range tops {
+			if f.IsSame(&t) {
+				sames = append(sames, f)
+				add = false
+				break
+			}
+		}
+		if add {
+			result = append(result, f)
+		}
+	}
+	if len(sames) > 0 {
+		fmt.Println("same ....")
+		for _, s := range sames {
+			s.ShowRow()
+		}
+		fmt.Println("so much...")
+	}
+	return result
+}

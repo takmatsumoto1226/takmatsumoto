@@ -1,6 +1,9 @@
 package ftn
 
-import "lottery/model/df"
+import (
+	"lottery/model/df"
+	"sort"
+)
 
 func (ar *FTNsManager) findDate(date string, t int) FTNArray {
 	intersection := FTNArray{}
@@ -31,7 +34,59 @@ func (ar *FTNsManager) findDate(date string, t int) FTNArray {
 	return intersection
 }
 
-// Number MA - 移動平均數字
-type BallMA struct {
-	Interval int
+func (ar FTNArray) StaticTotalNotInclude(r int) float64 {
+	count := 0.
+	if r > len(ar) {
+		return count
+	}
+	for i, _ := range ar {
+		if i >= r {
+			fs := ar.WithRange(i-r, 1)
+			tops := ar.WithRange(i-(r-1), r)
+			result := fs.FilterExcludes(tops, []int{})
+			if len(result) > 0 {
+				// fmt.Println(fs.Presentation())
+				// fmt.Println(tops.Presentation())
+				count++
+			}
+		}
+	}
+	return count / float64(len(ar))
+}
+
+func (ar FTNArray) StaticNumberShowTwiceup(r int) float64 {
+	count := 0.
+	if r >= len(ar)-1 {
+		return count
+	}
+
+	for i, _ := range ar {
+		if i >= len(ar)-1 {
+			continue
+		}
+		intcounts := []int{}
+		var first = ar.GetFTN(i)
+		staticr := ar.WithRange(i+1, r-1)
+		sort.Sort(staticr)
+		for _, rf := range staticr {
+			intcounts = append(intcounts, first.IncludeNumbers(rf)...)
+		}
+
+		static := map[int]int{}
+		for _, v := range intcounts {
+			if c, ok := static[v]; ok {
+				static[v] = c + 1
+			} else {
+				static[v] = 1
+			}
+		}
+
+		for _, c := range static {
+			if c > r {
+				count++
+				break
+			}
+		}
+	}
+	return count / float64(len(ar))
 }

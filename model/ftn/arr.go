@@ -92,13 +92,16 @@ func (fa FTNArray) ShowAll() {
 func (fa FTNArray) WithRange(i, r int) FTNArray {
 	al := len(fa)
 	if r > 0 {
-		return fa[al-r-i : al-i]
+		s := al - r - i
+		e := al - i
+		ra := fa[s:e]
+		return ra
 	}
 	return fa
 }
 
 func (fa FTNArray) GetFTN(i int) FTN {
-	if i >= len(fa) {
+	if i <= len(fa) {
 		return fa[i]
 	}
 	return fa[len(fa)-1]

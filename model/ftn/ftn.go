@@ -207,8 +207,17 @@ func (f *FTN) IsExclude(n FTN) bool {
 	return true
 }
 
-func (fa *FTN) IsInclude(n FTN) bool {
-	return fa.B1.Same(n.B1) || fa.B2.Same(n.B2) && fa.B3.Same(n.B3) || fa.B4.Same(n.B4) || fa.B5.Same(n.B5)
+func (f *FTN) IncludeNumbers(n FTN) []int {
+
+	arr := []int{}
+	for _, i := range f.Feature.IBalls {
+		for _, j := range n.Feature.IBalls {
+			if i == j {
+				arr = append(arr, i)
+			}
+		}
+	}
+	return arr
 }
 
 func (fa *FTN) Similar(n FTN, b byte) bool {

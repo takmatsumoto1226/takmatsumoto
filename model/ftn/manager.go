@@ -197,7 +197,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 		bt.NumbersHistoryTopsPercent = float32(len(thNumbTops)) / float32(count) * 100.0
 
 		// exclude tops
-		pures := featuresFTNs.FilterFeatureExcludes(ar.List)
+		pures := threadholdNumbers.FilterFeatureExcludes(ar.List)
 
 		bt.ExcludeTops.Title = "Pures"
 		bt.ExcludeTops.Balls = pures
@@ -253,21 +253,12 @@ func (ar *FTNsManager) Predictions(filenames []string) {
 	ar.ReadJSON(filenames)
 
 	interval := interf.Interval{Index: 0, Length: 20}
-	count := 0
 	tops := ar.List.WithRange(interval.Index, interval.Length)
 	for _, bt := range ar.BackTests {
 		bt.ThresholdNumbers.DoPrediction(tops)
-		total := bt.PickNumbers.DoPrediction(tops)
-		if total >= PriceTop {
-			if len(tops) > 0 {
-				fmt.Println(tops[0].formRow())
-			}
-
-			count++
-		}
+		bt.PickNumbers.DoPrediction(tops)
 		bt.Save()
 	}
-	fmt.Println(count)
 }
 
 func (ar *FTNsManager) RandomInterval() interf.Interval {
@@ -334,4 +325,17 @@ func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, c int) FTNArray {
 		arr = append(arr, bt.PickNumbers.Balls.FilterByGroupIndex(group, c)...)
 	}
 	return arr.Distinct()
+}
+
+func (ar *FTNsManager) GodPick(arr FTNArray, c int) {
+	if len(arr) == 0 {
+		return
+	}
+	common.SetRandomGenerator(1)
+	picks := FTNArray{}
+	for i := 0; i < c; i++ {
+		a := arr[common.RandomNuber()%uint64(len(arr))]
+		picks = append(picks, a)
+	}
+	fmt.Println(picks.Presentation())
 }
