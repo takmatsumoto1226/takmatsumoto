@@ -243,7 +243,7 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 }
 
 func (ar *FTNsManager) DoBackTesting(filenames []string, d string) {
-	top := ar.RevList.GetFTNWithDate(d)
+	top := ar.RevList.GetNodeWithDate(d)
 	ar.ReadJSON(filenames)
 	for _, bt := range ar.BackTests {
 		bt.DoBacktesting(top)

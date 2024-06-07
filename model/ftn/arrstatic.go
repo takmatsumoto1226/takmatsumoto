@@ -65,7 +65,7 @@ func (ar FTNArray) StaticNumberShowTwiceup(r int) float64 {
 			continue
 		}
 		intcounts := []int{}
-		var first = ar.GetFTN(i)
+		var first = ar.GetNode(i)
 		staticr := ar.WithRange(i+1, r-1)
 		sort.Sort(staticr)
 		for _, rf := range staticr {

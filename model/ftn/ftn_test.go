@@ -250,7 +250,7 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount})
 	// df.DisableFilters([]int{df.FilterTailDigit})
 	th := interf.Threshold{
-		Round:      10,
+		Round:      30,
 		Value:      7,
 		SampleTime: 4,
 		Sample:     len(ar.Combinations),
@@ -408,7 +408,7 @@ func Test_groupNumbers(t *testing.T) {
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(false))
 	fmt.Println("got top")
-	top := ar.List.GetFTN(0)
+	top := ar.List.GetNode(0)
 
 	for _, f := range filterPick {
 		if f.IsSame(&top) {

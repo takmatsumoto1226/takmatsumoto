@@ -74,6 +74,7 @@ type FTNBT struct {
 	Threshold                 interf.Threshold `json:"Threshold"`
 	Features                  SessionData      `json:"features"`
 	ThresholdNumbers          SessionData      `json:"thresholdnumbers"`
+	HistoryTopsMatch          SessionData      `json:"historytopsmatch"`
 	PickNumbers               SessionData      `json:"picknumbers"`
 	ExcludeTops               SessionData      `json:"excludetops"`
 	ThreadHoldCount           int              `json:"threadholdcount"`

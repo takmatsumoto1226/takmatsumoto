@@ -5,6 +5,7 @@ import (
 	"lottery/algorithm"
 	"lottery/model/df"
 	"lottery/model/interf"
+	"sort"
 	"strconv"
 )
 
@@ -35,11 +36,23 @@ func (fa PowerList) Presentation() string {
 }
 
 func (fa PowerList) WithRange(i, r int) PowerList {
-	al := len(fa)
 	if r > 0 {
-		return fa[al-r-i : al-i]
+		return fa[i : i+r]
 	}
 	return fa
+}
+
+func (fa PowerList) Reverse() PowerList {
+	sort.Sort(sort.Reverse(fa))
+	return fa
+}
+
+func (fa PowerList) FragmentRange(indexs []int) PowerList {
+	result := PowerList{}
+	for _, i := range indexs {
+		result = append(result, fa[i])
+	}
+	return result
 }
 
 func (fa PowerList) FeatureRange(th interf.Threshold) PowerList {
@@ -100,50 +113,17 @@ func (ar PowerList) findNumbers(numbers []string, t int) PowerList {
 	return intersection
 }
 
-func (fa PowerList) FilterHighFreqNumber(highFreqs PowerList, p PickParam) PowerList {
-	result := PowerList{}
-	ballsCount := highFreqs.IntervalBallsCountStatic(p)
-	fmt.Println(ballsCount.Presentation(false))
-
-	numbers := []string{}
-	for _, b := range ballsCount {
-		if b.Count > uint(p.Freq) {
-			numbers = append(numbers, b.Number)
-		}
-	}
-
-	for _, b := range numbers {
-		result = append(result, fa.findNumbers([]string{b}, df.None)...)
-	}
-	return result
-}
-
-func (fa PowerList) Distinct() PowerList {
-	results := PowerList{}
-	tmp := map[string]Power{}
-	for _, f := range fa {
-		if _, ok := tmp[f.Key()]; !ok {
-			tmp[f.Key()] = f
-		}
-	}
-
-	for _, v := range tmp {
-		results = append(results, v)
-	}
-	return results
-}
-
 func (fa PowerList) ShowWithRange(r int) {
-	tmp := fa
-	al := len(fa)
-	if r > 0 {
-		tmp = fa[al-r : al]
-	}
-	for _, ftn := range tmp {
-		ftn.ShowRow()
-	}
+	fmt.Println(fa[:r].Presentation())
 }
 
 func (fa PowerList) ShowAll() {
 	fa.ShowWithRange(0)
+}
+
+func (fa PowerList) GetNode(i int) Power {
+	if i >= len(fa) {
+		return fa[0]
+	}
+	return fa[i]
 }

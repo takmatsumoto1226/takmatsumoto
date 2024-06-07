@@ -9,6 +9,7 @@ import (
 	"lottery/model/df"
 	"lottery/model/interf"
 	"os"
+	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -29,8 +30,7 @@ const PriceEigth = 200
 const PriceNinth = 100
 
 type PowerManager struct {
-	List    PowerList
-	RevList PowerList
+	List PowerList
 	// ballsCount    map[uint]NormalizeInfo
 	numberToIndex map[string]int
 	BackTests     []BackTest
@@ -77,18 +77,17 @@ func (ar *PowerManager) loadAllData() {
 			ftns = append(ftns, *ftn)
 		}
 	}
-	ar.RevList = make(PowerList, len(ftns))
-	copy(ar.RevList, ftns)
+	sort.Sort(ftns)
 	ar.List = ftns
-	sort.Sort(ar.RevList)
+
 }
 
-func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTest {
+func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 	common.SetRandomGenerator(th.Randomer)
 	bts := []BackTest{}
 
 	for r := 0; r < th.Round; r++ {
-		bt := BackTest{}
+		bt := NewBackTest(time.Now(), th)
 		result := map[string]int{}
 		bt.Threshold = th
 		for _, v := range mgr.Combinations {
@@ -96,7 +95,6 @@ func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackT
 			result[balls.Key()] = 0
 		}
 
-		featureMatchs := PowerList{}
 		bt.Features.Title = "Power Feature List"
 		bt.Features.Balls = mgr.List.FeatureRange(th)
 		total := len(mgr.Combinations) * int(th.SampleTime)
@@ -120,52 +118,43 @@ func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackT
 
 				for _, f := range bt.Features.Balls {
 					if f.MatchFeature(pw) {
-						featureMatchs = append(featureMatchs, *pw)
+						bt.PickNumbers.Balls = append(bt.PickNumbers.Balls, *pw)
 						break
 					}
 				}
 			}
 		}
 
+		bt.ThresholdNumbers.Title = "Thread Hold Numbers"
 		bt.ThreadHoldCount = len(bt.ThresholdNumbers.Balls)
-
-		bt.PickNumbers.Title = "Pickup Numbers"
-		bt.PickNumbers.Balls = featureMatchs
-		bt.PickupCount = len(featureMatchs)
 
 		bt.HistoryTopCount = len(bt.HistoryTopsMatch.Balls)
 
+		bt.PickNumbers.Title = "Pickup Numbers"
+		bt.PickupCount = len(bt.PickNumbers.Balls)
+
+		bt.HistoryTopCount = len(bt.HistoryTopsMatch.Balls)
+
+		pures := bt.ThresholdNumbers.Balls.FilterFeatureExcludes(mgr.List)
+
+		bt.ExcludeTops.Title = "Pures"
+		bt.ExcludeTops.Balls = pures
+
 		bt.ID = time.Now().Format("20060102150405")
-		bts = append(bts, bt)
+		bts = append(bts, *bt)
 	}
-	return bts
+	mgr.BackTests = bts
 }
 
 func (mgr *PowerManager) Predictions() {
-	interval := interf.Interval{Index: 0, Length: 1}
-	count := 0
-
+	interval := interf.Interval{Index: 0, Length: 20}
+	tops := mgr.List.WithRange(interval.Index, interval.Length)
 	for _, bt := range mgr.BackTests {
-		for i := interval.Index; i < interval.Length; i++ {
-			tops := mgr.List.WithRange(i, 1)
-			total := 0
-			testRows := bt.PickNumbers
-			for _, ftn := range tops {
-				for _, pn := range testRows.Balls {
-					currentPrice := ftn.AdariPrice(&pn)
-					total = total + currentPrice
-					if currentPrice >= PriceTop {
-						fmt.Println(ftn.formRow())
-					}
-				}
-			}
-			if total >= PriceTop {
-				fmt.Printf("Limit: %5d ID: %s, %d : %d, 第 %04d : %d\n\n\n", i, bt.ID, len(testRows.Balls), len(testRows.Balls)*50, i, total)
-				count++
-			}
-		}
+		bt.ThresholdNumbers.DoPrediction(tops)
+		bt.PickNumbers.DoPrediction(tops)
+		bt.ExcludeTops.DoPrediction(tops)
+		bt.Save()
 	}
-	fmt.Println(count)
 }
 
 func (mgr *PowerManager) ReadJSON(filenames []string) {
@@ -194,12 +183,44 @@ func (mgr *PowerManager) BackTestingReports(filenames []string) {
 }
 
 func (mgr *PowerManager) CompareLatestAndHistoryFeature() {
-	latest := mgr.RevList[0]
-	i := interf.Interval{Index: 1, Length: len(mgr.RevList) - 1}
+	latest := mgr.List[0]
+	i := interf.Interval{Index: 1, Length: len(mgr.List) - 1}
 	histories := mgr.List.WithRange(i.Index, i.Length)
 	for _, his := range histories {
 		if his.MatchFeature(&latest) {
 			fmt.Println(his.formRow())
 		}
+	}
+}
+
+func (ar *PowerManager) ListByGroupIndex(group *PWGroup, c int) PowerList {
+	arr := PowerList{}
+	for _, bt := range ar.BackTests {
+		arr = append(arr, bt.ExcludeTops.Balls.FilterByGroupIndex(group, c)...)
+	}
+	return arr.Distinct()
+}
+
+func GodPick(arr PowerList, c int) {
+	if len(arr) == 0 {
+		return
+	}
+	common.SetRandomGenerator(1)
+	picks := PowerList{}
+	for i := 0; i < c; i++ {
+		a := arr[common.RandomNuber()%uint64(len(arr))]
+		picks = append(picks, a)
+	}
+	fmt.Println(picks.Presentation())
+}
+
+func (ar *PowerManager) SaveBTs() {
+	err := os.MkdirAll(filepath.Join(RootDir, time.Now().Format("20060102")), 0755)
+	if err != nil {
+		logrus.Error(err)
+		return
+	}
+	for _, bt := range ar.BackTests {
+		fmt.Println(bt.Save())
 	}
 }

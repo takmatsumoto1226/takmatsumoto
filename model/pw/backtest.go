@@ -11,7 +11,8 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240513"
+const SubDir = "20240607"
+const FileNameTemplate = "content_%02d_%02.1f_%s.json"
 
 type SessionData struct {
 	Title          string    `json:"title"`
@@ -26,6 +27,44 @@ func (sd *SessionData) Presentation() string {
 	msg = msg + "Title : " + sd.Title + "\n"
 	msg = msg + sd.Balls.Presentation()
 	return msg
+}
+
+func (sd *SessionData) append(ftn Power) {
+	sd.Balls = append(sd.Balls, ftn)
+}
+
+func (sd *SessionData) appendTop(top Power) {
+	sd.TopMatch = append(sd.TopMatch, top)
+}
+
+func (sd *SessionData) appendPTop(top Power) {
+	sd.PredictionTops = append(sd.PredictionTops, top)
+}
+
+func (sd *SessionData) DoBT(top Power) {
+	sd.TopMatch = PowerList{}
+	for _, pn := range sd.Balls {
+		price := top.AdariPrice(&pn)
+		sd.Price = sd.Price + price
+		if price >= PriceTop {
+			sd.appendTop(pn)
+		}
+	}
+}
+
+func (sd *SessionData) DoPrediction(ftns PowerList) int {
+	sd.PredictionTops = PowerList{}
+	total := 0
+	for _, ftn := range ftns {
+		for _, pn := range sd.Balls {
+			price := ftn.AdariPrice(&pn)
+			total = total + price
+			if price >= PriceTop {
+				sd.appendPTop(pn)
+			}
+		}
+	}
+	return total
 }
 
 type BackTest struct {
@@ -43,6 +82,18 @@ type BackTest struct {
 	PickupCount               int              `json:"pickupcount"`
 	HistoryTopCount           int              `json:"historytopcount"`
 	NumbersHistoryTopsPercent float32          `json:"numbershistorytopspercent"`
+}
+
+func NewBackTest(date time.Time, th interf.Threshold) *BackTest {
+	id := date.Format("20060102150405")
+	filename := fmt.Sprintf("content_%02d_%02.1f_%s.json", th.Value, th.SampleTime, id)
+	return &BackTest{
+		ID:        id,
+		Date:      date,
+		FileName:  filename,
+		FullPath:  filepath.Join(RootDir, date.Format("20060102"), filename),
+		Threshold: th,
+	}
 }
 
 func (bt *BackTest) Presentation() string {
@@ -69,7 +120,7 @@ func (bt *BackTest) Presentation() string {
 
 func (bt *BackTest) Save() string {
 	if bt.FileName == "" {
-		bt.FileName = fmt.Sprintf("content_%02d_%02.1f_%s.json", bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
+		bt.FileName = fmt.Sprintf(FileNameTemplate, bt.Threshold.Value, bt.Threshold.SampleTime, bt.ID)
 		bt.FullPath = filepath.Join(RootDir, bt.Date.Format("0102"), bt.FileName)
 	}
 	jsonString, _ := json.Marshal(bt)

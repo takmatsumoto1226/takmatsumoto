@@ -44,12 +44,12 @@ func NewPower(arr []string) *Power {
 
 func NewPowerWithString(arr []string) *Power {
 	if len(arr) == 6 {
-		B1 := *NewBallS(arr[1], 0)
-		B2 := *NewBallS(arr[2], 0)
-		B3 := *NewBallS(arr[3], 0)
-		B4 := *NewBallS(arr[4], 0)
-		B5 := *NewBallS(arr[5], 0)
-		B6 := *NewBallS(arr[6], 0)
+		B1 := *NewBallS(arr[0], 0)
+		B2 := *NewBallS(arr[1], 0)
+		B3 := *NewBallS(arr[2], 0)
+		B4 := *NewBallS(arr[3], 0)
+		B5 := *NewBallS(arr[4], 0)
+		B6 := *NewBallS(arr[5], 0)
 		S1 := *NewBallS("==", 0)
 		return &Power{
 			"",
@@ -121,7 +121,7 @@ func (pw *Power) toStringArray() []string {
 }
 
 func (pw *Power) Key() string {
-	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", pw.B1, pw.B2, pw.B3, pw.B4, pw.B5, pw.B6)
+	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", pw.B1.Number, pw.B2.Number, pw.B3.Number, pw.B4.Number, pw.B5.Number, pw.B6.Number)
 }
 
 func Empty() *Power {
@@ -258,4 +258,12 @@ func (pw *Power) AdariPrice(fb *Power) int {
 
 func (pw *Power) ShowRow() {
 	fmt.Println(pw.formRow())
+}
+
+func (fa *Power) IsFullSame(t *Power) bool {
+	return fa.Year == t.Year && fa.MonthDay == t.MonthDay && fa.B1.Digit == t.B1.Digit && fa.B2.Digit == t.B2.Digit && fa.B3.Digit == t.B3.Digit && fa.B4.Digit == t.B4.Digit && fa.B5.Digit == t.B5.Digit && fa.B6.Digit == t.B6.Digit
+}
+
+func (fa *Power) IsSame(t *Power) bool {
+	return fa.B1.Digit == t.B1.Digit && fa.B2.Digit == t.B2.Digit && fa.B3.Digit == t.B3.Digit && fa.B4.Digit == t.B4.Digit && fa.B5.Digit == t.B5.Digit && fa.B6.Digit == t.B6.Digit
 }

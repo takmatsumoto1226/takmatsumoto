@@ -63,9 +63,8 @@ func (fa FTNArray) Presentation() string {
 func (fa FTNArray) PresentationWithRange(r int) string {
 	msg := ""
 	tmp := fa
-	al := len(fa)
 	if r > 0 {
-		tmp = fa[al-r : al]
+		tmp = fa[:r]
 	}
 	for _, ftn := range tmp {
 		msg = msg + ftn.formRow() + "\n"
@@ -75,14 +74,7 @@ func (fa FTNArray) PresentationWithRange(r int) string {
 }
 
 func (fa FTNArray) ShowWithRange(r int) {
-	tmp := fa
-	al := len(fa)
-	if r > 0 {
-		tmp = fa[al-r : al]
-	}
-	for _, ftn := range tmp {
-		ftn.ShowRow()
-	}
+	fmt.Println(fa.PresentationWithRange(r))
 }
 
 func (fa FTNArray) ShowAll() {
@@ -90,10 +82,10 @@ func (fa FTNArray) ShowAll() {
 }
 
 func (fa FTNArray) WithRange(i, r int) FTNArray {
-	al := len(fa)
+
 	if r > 0 {
-		s := al - r - i
-		e := al - i
+		s := i
+		e := i
 		ra := fa[s:e]
 		return ra
 	}
@@ -108,14 +100,14 @@ func (fa FTNArray) FragmentRange(indexs []int) FTNArray {
 	return result
 }
 
-func (fa FTNArray) GetFTN(i int) FTN {
-	if i <= len(fa) {
-		return fa[i]
+func (fa FTNArray) GetNode(i int) FTN {
+	if i >= len(fa) {
+		return fa[0]
 	}
-	return fa[len(fa)-1]
+	return fa[i]
 }
 
-func (fa FTNArray) GetFTNWithDate(date string) FTN {
+func (fa FTNArray) GetNodeWithDate(date string) FTN {
 	for _, ftn := range fa {
 		if ftn.SameDate(date) {
 			return ftn
