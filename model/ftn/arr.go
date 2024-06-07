@@ -100,6 +100,14 @@ func (fa FTNArray) WithRange(i, r int) FTNArray {
 	return fa
 }
 
+func (fa FTNArray) FragmentRange(indexs []int) FTNArray {
+	result := FTNArray{}
+	for _, i := range indexs {
+		result = append(result, fa[i])
+	}
+	return result
+}
+
 func (fa FTNArray) GetFTN(i int) FTN {
 	if i <= len(fa) {
 		return fa[i]

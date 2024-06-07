@@ -3,7 +3,6 @@ package pw
 import (
 	"fmt"
 	"lottery/model/df"
-	"strconv"
 
 	"github.com/sirupsen/logrus"
 )
@@ -13,39 +12,30 @@ const ballsCountPowerS2 = 8
 
 var numberToIndex = map[string]int{}
 
-// PickParam ...
-type PickParam struct {
-	Ball       Power
-	Key        string
-	SortType   uint
-	Interval   uint
-	Whichfront uint
-	Spliter    uint
-	Hot        uint
-}
-
 func NewPower(arr []string) *Power {
 	if len(arr) == arrPowerCount {
-		i1, _ := strconv.Atoi(arr[arrIdxB1])
-		i2, _ := strconv.Atoi(arr[arrIdxB2])
-		i3, _ := strconv.Atoi(arr[arrIdxB3])
-		i4, _ := strconv.Atoi(arr[arrIdxB4])
-		i5, _ := strconv.Atoi(arr[arrIdxB5])
-		i6, _ := strconv.Atoi(arr[arrIdxB6])
+		b1 := *NewBallS(arr[arrIdxB1], 0)
+		b2 := *NewBallS(arr[arrIdxB2], 0)
+		b3 := *NewBallS(arr[arrIdxB3], 0)
+		b4 := *NewBallS(arr[arrIdxB4], 0)
+		b5 := *NewBallS(arr[arrIdxB5], 0)
+		b6 := *NewBallS(arr[arrIdxB6], 0)
+		s1 := *NewBallS(arr[arrIdxS1], 0)
+
 		return &Power{
-			arr[arrIdxYear],
-			arr[arrIdxMonthDay],
-			arr[arrIdxLIdx],
-			arr[arrIdxB1],
-			arr[arrIdxB2],
-			arr[arrIdxB3],
-			arr[arrIdxB4],
-			arr[arrIdxB5],
-			arr[arrIdxB6],
-			arr[arrIdxS1],
-			arr[arrIdxTIdx],
-			[]int{i1, i2, i3, i4, i5, i6},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountPower),
+			Year:     arr[arrIdxYear],
+			MonthDay: arr[arrIdxMonthDay],
+			LIdx:     arr[arrIdxLIdx],
+			B1:       b1,
+			B2:       b2,
+			B3:       b3,
+			B4:       b4,
+			B5:       b5,
+			B6:       b6,
+			S1:       s1,
+			TIdx:     arr[arrIdxTIdx],
+			IBalls:   []int{b1.Digit, b2.Digit, b3.Digit, b4.Digit, b5.Digit, b6.Digit},
+			Feature:  *df.NewFeature([]int{b1.Digit, b2.Digit, b3.Digit, b4.Digit, b5.Digit, b6.Digit}, ballsCountPower),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")
@@ -54,26 +44,27 @@ func NewPower(arr []string) *Power {
 
 func NewPowerWithString(arr []string) *Power {
 	if len(arr) == 6 {
-		i1, _ := strconv.Atoi(arr[0])
-		i2, _ := strconv.Atoi(arr[1])
-		i3, _ := strconv.Atoi(arr[2])
-		i4, _ := strconv.Atoi(arr[3])
-		i5, _ := strconv.Atoi(arr[4])
-		i6, _ := strconv.Atoi(arr[5])
+		B1 := *NewBallS(arr[1], 0)
+		B2 := *NewBallS(arr[2], 0)
+		B3 := *NewBallS(arr[3], 0)
+		B4 := *NewBallS(arr[4], 0)
+		B5 := *NewBallS(arr[5], 0)
+		B6 := *NewBallS(arr[6], 0)
+		S1 := *NewBallS("==", 0)
 		return &Power{
 			"",
 			"",
 			"",
-			arr[0],
-			arr[1],
-			arr[2],
-			arr[3],
-			arr[4],
-			arr[5],
+			B1,
+			B2,
+			B3,
+			B4,
+			B5,
+			B6,
+			S1,
 			"",
-			"",
-			[]int{i1, i2, i3, i4, i5, i6},
-			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountPower),
+			[]int{B1.Digit, B2.Digit, B3.Digit, B4.Digit, B5.Digit, B6.Digit},
+			*df.NewFeature([]int{B1.Digit, B2.Digit, B3.Digit, B4.Digit, B5.Digit, B6.Digit}, ballsCountPower),
 		}
 	}
 	logrus.Error("POWER 資料格式錯誤")
@@ -92,13 +83,13 @@ func NewPowerWithInts(arr []int) *Power {
 			"",
 			"",
 			"",
-			fmt.Sprintf("%02d", i1),
-			fmt.Sprintf("%02d", i2),
-			fmt.Sprintf("%02d", i3),
-			fmt.Sprintf("%02d", i4),
-			fmt.Sprintf("%02d", i5),
-			fmt.Sprintf("%02d", i6),
-			"",
+			*NewBallI(i1, 0),
+			*NewBallI(i2, 0),
+			*NewBallI(i3, 0),
+			*NewBallI(i4, 0),
+			*NewBallI(i5, 0),
+			*NewBallI(i6, 0),
+			*NewBallI(0, 0),
 			"",
 			[]int{i1, i2, i3, i4, i5, i6},
 			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountPower),
@@ -113,41 +104,57 @@ type Power struct {
 	Year     string
 	MonthDay string
 	LIdx     string
-	B1       string
-	B2       string
-	B3       string
-	B4       string
-	B5       string
-	B6       string
-	S1       string
+	B1       Ball
+	B2       Ball
+	B3       Ball
+	B4       Ball
+	B5       Ball
+	B6       Ball
+	S1       Ball
 	TIdx     string
 	IBalls   []int
 	Feature  df.Feature
 }
 
-func (fa *Power) toStringArray() []string {
-	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5, fa.B6}
+func (pw *Power) toStringArray() []string {
+	return []string{pw.B1.Number, pw.B2.Number, pw.B3.Number, pw.B4.Number, pw.B5.Number, pw.B6.Number}
 }
 
-func (b *Power) Key() string {
-	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", b.B1, b.B2, b.B3, b.B4, b.B5, b.B6)
+func (pw *Power) Key() string {
+	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", pw.B1, pw.B2, pw.B3, pw.B4, pw.B5, pw.B6)
 }
 
 func Empty() *Power {
-	return &Power{"====", "====", "==", "==", "==", "==", "==", "==", "==", "==", "==", []int{0, 0, 0, 0, 0, 0}, *df.DefaultFeature()}
+	return &Power{
+		"====",
+		"====",
+		"==",
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		*NewBallS("==", 0),
+		"==",
+		[]int{0, 0, 0, 0, 0, 0},
+		*df.DefaultFeature(),
+	}
 }
 
-func (fa Power) formRow() string {
-	rowmsg := fmt.Sprintf("%s|", fa.Year)
-	rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
-	iB1, _ := strconv.Atoi(fa.B1)
-	iB2, _ := strconv.Atoi(fa.B2)
-	iB3, _ := strconv.Atoi(fa.B3)
-	iB4, _ := strconv.Atoi(fa.B4)
-	iB5, _ := strconv.Atoi(fa.B5)
-	iB6, _ := strconv.Atoi(fa.B6)
-	iS1, _ := strconv.Atoi(fa.S1)
-	ballarr := []int{iB1, iB2, iB3, iB4, iB5, iB6}
+func (pw *Power) formRow() string {
+	rowmsg := fmt.Sprintf("%s|", pw.Year)
+	rowmsg = rowmsg + fmt.Sprintf("%s|", pw.MonthDay)
+
+	ballarr := []int{
+		pw.B1.Digit,
+		pw.B2.Digit,
+		pw.B3.Digit,
+		pw.B4.Digit,
+		pw.B5.Digit,
+		pw.B6.Digit,
+		pw.S1.Digit,
+	}
 	bi := 0
 	for i := 1; i <= ballsCountPower; i++ {
 		if ballarr[bi] == i {
@@ -163,8 +170,8 @@ func (fa Power) formRow() string {
 	rowmsg = rowmsg + "      |"
 
 	for i := 1; i <= ballsCountPowerS2; i++ {
-		if iS1 == i {
-			rowmsg = rowmsg + fmt.Sprintf("%02d|", iS1)
+		if pw.S1.Digit == i {
+			rowmsg = rowmsg + pw.S1.Number
 		} else {
 			rowmsg = rowmsg + "  |"
 		}
@@ -172,7 +179,7 @@ func (fa Power) formRow() string {
 	return rowmsg
 }
 
-func (fa *Power) matchCount(n Power) int {
+func (pw *Power) matchCount(n Power) int {
 	set := make(map[string]bool)
 
 	for _, num := range n.toStringArray() {
@@ -181,7 +188,7 @@ func (fa *Power) matchCount(n Power) int {
 
 	// Check elements in the second array against the set
 	count := 0
-	for _, num := range fa.toStringArray() {
+	for _, num := range pw.toStringArray() {
 		if set[num] {
 			count++
 		}
@@ -219,13 +226,13 @@ func initNumberToIndex() {
 	}
 }
 
-func (fa *Power) MatchFeature(t *Power) bool {
-	return fa.Feature.Compare(&t.Feature)
+func (pw *Power) MatchFeature(t *Power) bool {
+	return pw.Feature.Compare(&t.Feature)
 }
 
-func (fa *Power) AdariPrice(fb *Power) int {
-	mc := fa.matchCount(*fb)
-	smatch := fa.smatch(*fb)
+func (pw *Power) AdariPrice(fb *Power) int {
+	mc := pw.matchCount(*fb)
+	smatch := pw.smatch(*fb)
 	if mc == 6 && smatch {
 		return PriceTop
 	} else if mc == 6 {
@@ -247,4 +254,8 @@ func (fa *Power) AdariPrice(fb *Power) int {
 	} else {
 		return 0
 	}
+}
+
+func (pw *Power) ShowRow() {
+	fmt.Println(pw.formRow())
 }

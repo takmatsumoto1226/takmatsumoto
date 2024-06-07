@@ -36,23 +36,21 @@ func Test_findnumber(t *testing.T) {
 
 func Test_random(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Top Price Taken Time")
-	// Create and seed the generator.
-	// Typically a non-fixed seed should be used, such as time.Now().UnixNano().
-	// Using a fixed seed will produce the same output on every run.
+
 	config.LoadConfig("../../config.yaml") // 17591400
-	var as = PowerManager{}
-	as.Prepare()
+	var pwm = PowerManager{}
+	pwm.Prepare()
 	// lens := len(combarr)
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterTenGroup, df.FilterTailDigit})
-
+	start := 0
 	th := interf.Threshold{
 		Round:      1,
 		Value:      14,
 		SampleTime: 8,
-		Sample:     len(as.Combinations),
+		Sample:     len(pwm.Combinations),
 		Interval: interf.Interval{
-			Index:  2,
-			Length: 20,
+			Index:  start,
+			Length: len(pwm.List)/3 + start,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -61,9 +59,7 @@ func Test_random(t *testing.T) {
 		Randomer: 1,
 	}
 
-	// th := interf.Threshold{Round: 1, Value: 26, SampleTime: 10, Sample: len(combarr)}
-
-	bts := as.JSONGenerateTopPriceNumber(th)
+	bts := pwm.JSONGenerateTopPriceNumber(th)
 
 	for _, bt := range bts {
 		fn := filepath.Join(RootDir, SubDir, fmt.Sprintf("powercontent%s.json", bt.ID))
@@ -81,12 +77,60 @@ func Test_backtesting(t *testing.T) {
 	ar.Predictions()
 }
 
+func Test_listPredictionTops(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "listPredictionTops")
+	config.LoadConfig("../../config.yaml")
+	var ar = PowerManager{}
+	ar.Prepare()
+	ar.ReadJSON(FileNames())
+
+	for _, bt := range ar.BackTests {
+		if len(bt.PickNumbers.PredictionTops) > 0 {
+			fmt.Printf("\n\n\n%s", bt.Summery())
+			fmt.Printf("PickNumbers.PredictionTops : %d\n", len(bt.PickNumbers.PredictionTops))
+			bt.PickNumbers.PredictionTops.ShowAll()
+		} else {
+			if len(bt.ThresholdNumbers.PredictionTops) > 0 {
+				fmt.Printf("\n\n\n%s", bt.Summery())
+				fmt.Printf("ThresholdNumbers.PredictionTops : %d\n", len(bt.ThresholdNumbers.PredictionTops))
+				bt.ThresholdNumbers.PredictionTops.ShowAll()
+			}
+		}
+
+		if len(bt.ExcludeTops.PredictionTops) > 0 {
+			fmt.Printf("\n\n\nExcludeTops:")
+			fmt.Printf("ExcludeTops.PredictionTops : %d\n", len(bt.ExcludeTops.PredictionTops))
+			bt.ExcludeTops.PredictionTops.ShowAll()
+		}
+
+	}
+}
+
 func Test_backtestReport(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Back Test")
 	config.LoadConfig("../../config.yaml")
 	var ar = PowerManager{}
 	ar.Prepare()
 	ar.BackTestingReports(FileNames())
+}
+
+func Test_NewPowerGroupTest(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Back Test")
+	config.LoadConfig("../../config.yaml")
+	var ar = PowerManager{}
+	ar.Prepare()
+	GroupCount := 200
+	gpw := NewPWGroup(GroupCount, ar.Combinations, ar.RevList)
+	fmt.Println(gpw.Presentation())
+}
+
+func Test_CompareLatestAndHistoryFeature(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "CompareLatestAndHistoryFeature")
+	config.LoadConfig("../../config.yaml")
+	var ar = PowerManager{}
+	ar.Prepare()
+	df.DisableFilters([]int{df.FilterTailDigit, df.FilterEvenCount, df.FilterOddCount})
+	ar.CompareLatestAndHistoryFeature()
 }
 
 // func FileNames() []string {

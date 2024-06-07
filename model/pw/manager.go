@@ -33,7 +33,7 @@ type PowerManager struct {
 	RevList PowerList
 	// ballsCount    map[uint]NormalizeInfo
 	numberToIndex map[string]int
-	BackTest      []BackTest
+	BackTests     []BackTest
 	Combinations  [][]int
 }
 
@@ -71,7 +71,7 @@ func (ar *PowerManager) loadAllData() {
 		}
 		for _, yd := range yearDatas {
 			ftn := NewPower(yd)
-			if ftn.B1 == "" || ftn.B1 == "00" {
+			if ftn.B1.Number == "" || ftn.B1.Number == "00" {
 				continue
 			}
 			ftns = append(ftns, *ftn)
@@ -81,64 +81,6 @@ func (ar *PowerManager) loadAllData() {
 	copy(ar.RevList, ftns)
 	ar.List = ftns
 	sort.Sort(ar.RevList)
-}
-
-func (mgr *PowerManager) GenerateTopPriceNumber(th interf.Threshold) {
-
-	for r := 0; r < th.Round; r++ {
-		filestr := ""
-
-		result := map[string]int{}
-		for _, v := range mgr.Combinations {
-			balls := NewPowerWithInts(v)
-			result[balls.Key()] = 0
-		}
-
-		featureMatchs := PowerList{}
-		features := mgr.List.FeatureRange(th)
-		total := len(mgr.Combinations) * int(th.SampleTime)
-		for i := 0; i < total; i++ {
-			index := uint64(uint64(common.RandomNuber() % uint64(len(result))))
-			balls := NewPowerWithInts(mgr.Combinations[index])
-			if v, ok := result[balls.Key()]; ok {
-				result[balls.Key()] = v + 1
-			}
-		}
-
-		count := 0
-		for k, v := range result {
-			arr := strings.Split(k, "_")
-			if v > th.Value {
-				filestr = filestr + fmt.Sprintf("%v:%v\n", k, v)
-				findarr := mgr.List.findNumbers(arr, df.None)
-				if len(findarr) > 0 {
-					filestr = filestr + findarr.Presentation()
-				}
-				count++
-				pw := NewPowerWithString(arr)
-				for _, f := range features {
-					if f.MatchFeature(pw) {
-						filestr = filestr + f.Feature.Presentation() + "\n"
-						filestr = filestr + pw.Feature.Presentation() + "\n"
-						featureMatchs = append(featureMatchs, *pw)
-						break
-					}
-				}
-			}
-
-		}
-		filestr = filestr + "Feature Close\n"
-		if len(featureMatchs) > 0 {
-			for _, fpw := range featureMatchs {
-				filestr = filestr + fpw.formRow() + "\n"
-			}
-		}
-
-		filestr = filestr + fmt.Sprintf("%d coco, %d \n", count*100, count)
-		filestr = filestr + fmt.Sprintf("done : %03d\n", r+1)
-		filestr = filestr + th.Presentation()
-		common.Save(filestr, fmt.Sprintf("./gendata/powercontent%s.txt", time.Now().Format(time.RFC3339)), r+1)
-	}
 }
 
 func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) []BackTest {
@@ -203,7 +145,7 @@ func (mgr *PowerManager) Predictions() {
 	interval := interf.Interval{Index: 0, Length: 1}
 	count := 0
 
-	for _, bt := range mgr.BackTest {
+	for _, bt := range mgr.BackTests {
 		for i := interval.Index; i < interval.Length; i++ {
 			tops := mgr.List.WithRange(i, 1)
 			total := 0
@@ -240,13 +182,24 @@ func (mgr *PowerManager) ReadJSON(filenames []string) {
 		if err := json.Unmarshal(file, &bt); err != nil {
 			continue
 		}
-		mgr.BackTest = append(mgr.BackTest, bt)
+		mgr.BackTests = append(mgr.BackTests, bt)
 	}
 }
 
 func (mgr *PowerManager) BackTestingReports(filenames []string) {
 	mgr.ReadJSON(filenames)
-	for _, bt := range mgr.BackTest {
+	for _, bt := range mgr.BackTests {
 		bt.Report()
+	}
+}
+
+func (mgr *PowerManager) CompareLatestAndHistoryFeature() {
+	latest := mgr.RevList[0]
+	i := interf.Interval{Index: 1, Length: len(mgr.RevList) - 1}
+	histories := mgr.List.WithRange(i.Index, i.Length)
+	for _, his := range histories {
+		if his.MatchFeature(&latest) {
+			fmt.Println(his.formRow())
+		}
 	}
 }

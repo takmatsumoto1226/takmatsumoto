@@ -217,6 +217,7 @@ func B2i(b bool) int8 {
 
 func (ar *FTNsManager) ReadJSON(filenames []string) {
 	for _, filename := range filenames {
+		fmt.Println("reading....." + filename)
 		if !strings.Contains(filename, ".json") {
 			filename = filename + ".json"
 		}
@@ -257,6 +258,7 @@ func (ar *FTNsManager) Predictions(filenames []string) {
 	for _, bt := range ar.BackTests {
 		bt.ThresholdNumbers.DoPrediction(tops)
 		bt.PickNumbers.DoPrediction(tops)
+		bt.ExcludeTops.DoPrediction(tops)
 		bt.Save()
 	}
 }
@@ -298,8 +300,9 @@ func (ar *FTNsManager) FinalPick(filenames []string) {
 	}
 }
 
-func (ar *FTNsManager) CompareLatestAndHistoryFeature(i interf.Interval) {
+func (ar *FTNsManager) CompareLatestAndHistoryFeature() {
 	latest := ar.RevList[0]
+	i := interf.Interval{Index: 1, Length: len(ar.RevList) - 1}
 	histories := ar.List.WithRange(i.Index, i.Length)
 	for _, his := range histories {
 		if his.MatchFeature(&latest) {
@@ -322,7 +325,7 @@ func (ar *FTNsManager) SaveBTs() {
 func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, c int) FTNArray {
 	arr := FTNArray{}
 	for _, bt := range ar.BackTests {
-		arr = append(arr, bt.PickNumbers.Balls.FilterByGroupIndex(group, c)...)
+		arr = append(arr, bt.ExcludeTops.Balls.FilterByGroupIndex(group, c)...)
 	}
 	return arr.Distinct()
 }

@@ -1,6 +1,7 @@
 package pw
 
 import (
+	"fmt"
 	"lottery/algorithm"
 	"lottery/model/df"
 	"lottery/model/interf"
@@ -99,6 +100,24 @@ func (ar PowerList) findNumbers(numbers []string, t int) PowerList {
 	return intersection
 }
 
+func (fa PowerList) FilterHighFreqNumber(highFreqs PowerList, p PickParam) PowerList {
+	result := PowerList{}
+	ballsCount := highFreqs.IntervalBallsCountStatic(p)
+	fmt.Println(ballsCount.Presentation(false))
+
+	numbers := []string{}
+	for _, b := range ballsCount {
+		if b.Count > uint(p.Freq) {
+			numbers = append(numbers, b.Number)
+		}
+	}
+
+	for _, b := range numbers {
+		result = append(result, fa.findNumbers([]string{b}, df.None)...)
+	}
+	return result
+}
+
 func (fa PowerList) Distinct() PowerList {
 	results := PowerList{}
 	tmp := map[string]Power{}
@@ -112,4 +131,19 @@ func (fa PowerList) Distinct() PowerList {
 		results = append(results, v)
 	}
 	return results
+}
+
+func (fa PowerList) ShowWithRange(r int) {
+	tmp := fa
+	al := len(fa)
+	if r > 0 {
+		tmp = fa[al-r : al]
+	}
+	for _, ftn := range tmp {
+		ftn.ShowRow()
+	}
+}
+
+func (fa PowerList) ShowAll() {
+	fa.ShowWithRange(0)
 }

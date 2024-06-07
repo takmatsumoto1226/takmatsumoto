@@ -108,7 +108,7 @@ func (bt *FTNBT) Presentation() string {
 	msg = msg + bt.PickNumbers.Presentation()
 	msg = msg + "\n\n"
 
-	msg = msg + fmt.Sprintf("Tops:%d, EnumCount:%d, Pickup:%d\n", bt.HistoryTopCount, bt.ThreadHoldCount, bt.PickupCount)
+	msg = msg + fmt.Sprintf("Tops:%d, EnumCount:%d, Pickup:%d, PureCount:%d\n", bt.HistoryTopCount, bt.ThreadHoldCount, bt.PickupCount, len(bt.ExcludeTops.Balls))
 	msg = msg + fmt.Sprintf("%f\n", bt.NumbersHistoryTopsPercent)
 
 	msg = msg + bt.Threshold.Presentation()
