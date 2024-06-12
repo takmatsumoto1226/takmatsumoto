@@ -115,7 +115,7 @@ func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	fmt.Println("FilterPickBySpecConfition")
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.IsContinue2() || ftn.Feature.NoContinue() {
+		if ftn.Feature.NoContinue() {
 			result = append(result, ftn)
 		}
 	}
@@ -165,5 +165,36 @@ func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
 		}
 		fmt.Println("so much...")
 	}
+	return result
+}
+
+func (fa FTNArray) FilterNeighberNumber(top *FTN, c int) FTNArray {
+	fmt.Println("FilterNeighberNumber")
+	result := FTNArray{}
+	for _, f := range fa {
+		if f.haveNeighber(top, c) {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterByTebGroup(tt []int, hh []int) FTNArray {
+	fmt.Println("FilterTebGroup")
+	result := FTNArray{}
+
+	for _, f := range fa {
+		count := 0
+		for ti, t := range tt {
+			if f.Feature.TenGroupCount[t] != hh[ti] {
+				break
+			}
+			count++
+			if count == len(tt) {
+				result = append(result, f)
+			}
+		}
+	}
+
 	return result
 }

@@ -2,6 +2,7 @@ package ftn
 
 import (
 	"lottery/model/df"
+	"lottery/model/interf"
 	"sort"
 )
 
@@ -89,4 +90,48 @@ func (ar FTNArray) StaticNumberShowTwiceup(r int) float64 {
 		}
 	}
 	return count / float64(len(ar))
+}
+
+func (ar FTNArray) StaticContinue2Percent(i interf.Interval) float64 {
+
+	sr := ar
+	if i.Length > 0 && i.Index+i.Length < len(ar) {
+		sr = ar[i.Index : i.Index+i.Length]
+	}
+	count := 0
+	for _, f := range sr {
+		if f.Feature.IsContinue2() {
+			count++
+		}
+	}
+	return (float64(count) / float64(len(sr))) * 100
+}
+
+func (ar FTNArray) StaticContinue3Percent(i interf.Interval) float64 {
+
+	sr := ar
+	if i.Length > 0 && i.Index+i.Length < len(ar) {
+		sr = ar[i.Index : i.Index+i.Length]
+	}
+	count := 0
+	for _, f := range sr {
+		if f.Feature.IsContinue3() {
+			count++
+		}
+	}
+	return (float64(count) / float64(len(sr))) * 100
+}
+
+func (ar FTNArray) StaticGroupTen(i interf.Interval, t int, v int) float64 {
+	sr := ar
+	if i.Length > 0 && i.Index+i.Length < len(ar) {
+		sr = ar[i.Index : i.Index+i.Length]
+	}
+	count := 0
+	for _, f := range sr {
+		if f.Feature.TenGroupCount[t] == v {
+			count++
+		}
+	}
+	return (float64(count) / float64(len(sr))) * 100
 }

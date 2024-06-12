@@ -28,7 +28,6 @@ type IntervalCount struct {
 // FTNsManager ...
 type FTNsManager struct {
 	List         FTNArray
-	RevList      FTNArray
 	ballsCount   map[uint]NormalizeInfo
 	BackTests    []FTNBT
 	Combinations [][]int
@@ -63,10 +62,9 @@ func (ar *FTNsManager) loadAllData() {
 			ftns = append(ftns, *ftn)
 		}
 	}
-	ar.RevList = make(FTNArray, len(ftns))
-	copy(ar.RevList, ftns)
+
 	ar.List = ftns
-	sort.Sort(ar.RevList)
+	sort.Sort(ar.List)
 }
 
 func (ar *FTNsManager) Prepare() error {
@@ -99,7 +97,7 @@ func (ar *FTNsManager) IntervalBallsCountStatic(params PickParams) {
 	result := map[uint]NormalizeInfo{}
 	for _, p := range params {
 		if p.SortType == df.Descending {
-			result[p.Interval] = ar.RevList[:p.Interval].IntervalBallsCountStatic(p)
+			result[p.Interval] = ar.List[:p.Interval].IntervalBallsCountStatic(p)
 		} else if p.SortType == df.Ascending {
 			result[p.Interval] = ar.List[:p.Interval].IntervalBallsCountStatic(p)
 		} else {
@@ -216,8 +214,8 @@ func B2i(b bool) int8 {
 }
 
 func (ar *FTNsManager) ReadJSON(filenames []string) {
-	for _, filename := range filenames {
-		fmt.Println("reading....." + filename)
+	for i, filename := range filenames {
+		fmt.Println(fmt.Sprintf("%03d : ", i+1) + "reading....." + filename)
 		if !strings.Contains(filename, ".json") {
 			filename = filename + ".json"
 		}
@@ -243,7 +241,7 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 }
 
 func (ar *FTNsManager) DoBackTesting(filenames []string, d string) {
-	top := ar.RevList.GetNodeWithDate(d)
+	top := ar.List.GetNodeWithDate(d)
 	ar.ReadJSON(filenames)
 	for _, bt := range ar.BackTests {
 		bt.DoBacktesting(top)
@@ -275,7 +273,7 @@ func (ar *FTNsManager) GroupZero(arr FTNArray) {
 	groupMapping := ar.GroupIndexMapping(GroupCount)
 
 	result := map[int]FTN{}
-	for _, v := range ar.RevList {
+	for _, v := range ar.List {
 		gidx := groupMapping[v.Key()]
 		result[gidx] = v
 	}
@@ -289,7 +287,7 @@ func (ar *FTNsManager) FinalPick(filenames []string) {
 	filterPick := FTNArray{}
 	ar.ReadJSON(filenames)
 
-	group := NewFTNGroup(200, ar.Combinations, ar.RevList)
+	group := NewGroup(200, ar.Combinations, ar.List)
 
 	for _, bt := range ar.BackTests {
 		for _, ftn := range bt.PickNumbers.Balls {
@@ -301,8 +299,8 @@ func (ar *FTNsManager) FinalPick(filenames []string) {
 }
 
 func (ar *FTNsManager) CompareLatestAndHistoryFeature() {
-	latest := ar.RevList[0]
-	i := interf.Interval{Index: 1, Length: len(ar.RevList) - 1}
+	latest := ar.List[0]
+	i := interf.Interval{Index: 1, Length: len(ar.List) - 1}
 	histories := ar.List.WithRange(i.Index, i.Length)
 	for _, his := range histories {
 		if his.MatchFeature(&latest) {
@@ -335,10 +333,10 @@ func (ar *FTNsManager) GodPick(arr FTNArray, c int) {
 		return
 	}
 	common.SetRandomGenerator(1)
-	picks := FTNArray{}
 	for i := 0; i < c; i++ {
-		a := arr[common.RandomNuber()%uint64(len(arr))]
-		picks = append(picks, a)
+		index := common.RandomNuber() % uint64(len(arr))
+		a := arr[index]
+		fmt.Printf("%4d:%s\n", index, a.formRow())
 	}
-	fmt.Println(picks.Presentation())
+	fmt.Print("\n\n\n")
 }

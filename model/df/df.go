@@ -431,3 +431,15 @@ func (f *Feature) Presentation() string {
 func (f *Feature) NoContinue() bool {
 	return !f.IsContinue2() && !f.IsContinue3() && !f.IsContinue4() && !f.IsContinue5() && !f.IsContinue22()
 }
+
+func (f *Feature) IsJump2() bool {
+	return f.IBalls[0]-f.IBalls[1] == 1 || f.IBalls[1]-f.IBalls[2] == 1 || f.IBalls[2]-f.IBalls[3] == 1 || f.IBalls[3]-f.IBalls[4] == 1
+}
+
+func (f *Feature) IsJump3() bool {
+	return (f.IBalls[0]-f.IBalls[1] == 1 && f.IBalls[1]-f.IBalls[2] == 1) || (f.IBalls[1]-f.IBalls[2] == 1 && f.IBalls[2]-f.IBalls[3] == 1) || (f.IBalls[2]-f.IBalls[3] == 1 && f.IBalls[3]-f.IBalls[4] == 1)
+}
+
+func (f *Feature) IsJump4() bool {
+	return f.IBalls[0]-f.IBalls[1] == 1 && f.IBalls[1]-f.IBalls[2] == 1 && f.IBalls[2]-f.IBalls[3] == 1 && f.IBalls[3]-f.IBalls[4] == 1
+}

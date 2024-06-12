@@ -6,6 +6,7 @@ import (
 	"lottery/algorithm"
 	"lottery/model/df"
 	"lottery/model/interf"
+	"sort"
 	"strconv"
 
 	"github.com/sirupsen/logrus"
@@ -85,10 +86,20 @@ func (fa FTNArray) WithRange(i, r int) FTNArray {
 
 	if r > 0 {
 		s := i
-		e := i
+		e := i + r
 		ra := fa[s:e]
 		return ra
 	}
+	return fa
+}
+
+func (fa FTNArray) WithInterval(i interf.Interval) FTNArray {
+
+	return fa.WithRange(i.Index, i.Length)
+}
+
+func (fa FTNArray) Reverse() FTNArray {
+	sort.Sort(sort.Reverse(fa))
 	return fa
 }
 

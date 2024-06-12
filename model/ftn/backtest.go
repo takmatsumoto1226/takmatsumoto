@@ -44,15 +44,15 @@ func (sd *SessionData) DoBT(top FTN) {
 	}
 }
 
-func (sd *SessionData) DoPrediction(ftns FTNArray) int {
+func (sd *SessionData) DoPrediction(tops FTNArray) int {
 	sd.PredictionTops = FTNArray{}
 	total := 0
-	for _, ftn := range ftns {
+	for _, top := range tops {
 		for _, pn := range sd.Balls {
-			price := ftn.AdariPrice(&pn)
+			price := top.AdariPrice(&pn)
 			total = total + price
 			if price >= PriceTop {
-				sd.appendPTop(pn)
+				sd.appendPTop(top)
 			}
 		}
 	}

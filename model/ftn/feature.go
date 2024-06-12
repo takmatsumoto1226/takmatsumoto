@@ -78,8 +78,7 @@ func (fa FTNArray) Continue5(p PickParam) FTNArray {
 }
 
 /*
-二組2連號
-*/
+ */
 func (fa FTNArray) Continue22(p PickParam) FTNArray {
 	result := FTNArray{}
 	l := uint(0)
@@ -103,13 +102,6 @@ func (fa FTNArray) Continue22(p PickParam) FTNArray {
 // func (fa FTNArray) CountOf2Balls(p PickParam) FTNArray {
 
 // }
-
-/*
-	3個號碼的組合號出現次數
-*/
-/*
-	4個號碼的組合號出現次數
-*/
 
 /**!SECTION
 model

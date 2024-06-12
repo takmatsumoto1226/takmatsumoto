@@ -11,6 +11,14 @@ type Interval struct {
 	Length int
 }
 
+func NewInterval(index int, length int) Interval {
+	return Interval{index, length}
+}
+
+func NewIntervalR(length int) Interval {
+	return Interval{0, length}
+}
+
 func (i Interval) String() string {
 	return fmt.Sprintf("Start : %d, Len:%d", i.Index, i.Length)
 }

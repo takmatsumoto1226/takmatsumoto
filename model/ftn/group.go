@@ -12,10 +12,11 @@ type FTNGroup struct {
 	ZeroCount    int            `json:"zero_count"`
 	Max          int            `json:"max"`
 	Avg          float64        `json:"avg"`
+	TargetIndex  int            `json:"target_index"`
 	// next         Filter
 }
 
-func NewFTNGroup(gc int, combinations [][]int, arr FTNArray) *FTNGroup {
+func NewGroup(gc int, combinations [][]int, arr FTNArray) *FTNGroup {
 	if gc == 0 || len(combinations) == 0 {
 		return nil
 	}
@@ -66,10 +67,6 @@ func (fg *FTNGroup) Presentation() string {
 	msg = msg + fmt.Sprintf("Zero Count : %d\n", fg.ZeroCount)
 	msg = msg + fmt.Sprintf("Zero Percent : %.2f\n", float64(fg.ZeroCount)/float64(len(fg.Statics)))
 	return msg
-}
-
-func (fg *FTNGroup) filter(bt *FTNBT) {
-
 }
 
 // func (fg *FTNGroup) setNext(next Filter) {

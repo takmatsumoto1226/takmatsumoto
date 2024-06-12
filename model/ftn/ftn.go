@@ -79,17 +79,30 @@ func (fa BallsCount) Swap(i, j int) {
 
 func (bsi BallsCount) Presentation(dshift bool) string {
 	rowmsg := "\n  "
-	if dshift {
+	if !dshift {
 		rowmsg = "          "
 	}
 
 	for _, bi := range bsi {
-		rowmsg = rowmsg + fmt.Sprintf("%3d|", bi.Ball.Digit)
+		if dshift {
+			rowmsg = rowmsg + fmt.Sprintf("%3d|", bi.Ball.Digit)
+		} else {
+			rowmsg = rowmsg + fmt.Sprintf("%2d|", bi.Ball.Digit)
+		}
+
 	}
 	rowmsg = rowmsg + "\n  "
+	if !dshift {
+		rowmsg = rowmsg + "        "
+	}
 
 	for _, bi := range bsi {
-		rowmsg = rowmsg + fmt.Sprintf("%3d|", bi.Count)
+		if dshift {
+			rowmsg = rowmsg + fmt.Sprintf("%3d|", bi.Count)
+		} else {
+			rowmsg = rowmsg + fmt.Sprintf("%2d|", bi.Count)
+		}
+
 	}
 	return rowmsg
 }
@@ -201,6 +214,31 @@ func (f *FTN) IncludeNumbers(n FTN) []int {
 	return arr
 }
 
+func (f *FTN) haveNeighber(tf *FTN, c int) bool {
+	count := 0
+	for _, b1 := range f.IBalls {
+		for _, b2 := range tf.IBalls {
+			// fmt.Printf("%02d:%02d\n", b1, b2)
+			if absDiffInt(b1, b2) == 1 {
+				count++
+				// fmt.Println(count)
+			}
+			if count == c {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
+func absDiffInt(x, y int) int {
+	if x < y {
+		return y - x
+	}
+	return x - y
+}
+
 func (fa *FTN) Similar(n FTN, b byte) bool {
 	return true
 }
@@ -228,7 +266,6 @@ func (fa *FTN) formRow() string {
 		for i := 1; i <= ballsCountFTN; i++ {
 			rowmsg = rowmsg + "==="
 		}
-		fmt.Println(rowmsg)
 		return rowmsg
 	} else {
 		rowmsg := fmt.Sprintf("%s|", fa.Year)
