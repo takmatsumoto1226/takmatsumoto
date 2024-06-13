@@ -54,7 +54,7 @@ func (fa PowerList) FilterPickBySpecConfition() PowerList {
 	fmt.Println("FilterPickBySpecConfition")
 	result := PowerList{}
 	for _, pw := range fa {
-		if pw.Feature.IsContinue2() || pw.Feature.NoContinue() {
+		if pw.Feature.IsContinue4() {
 			result = append(result, pw)
 		}
 	}
@@ -152,17 +152,17 @@ func (fa PowerList) FilterExcludeNode(tops PowerList) PowerList {
 func (fa PowerList) FilterFeatureExcludes(tops PowerList) PowerList {
 	result := PowerList{}
 
-	for _, ftn := range fa {
+	for _, pw := range fa {
 		add := true
 		for _, top := range tops {
-			if ftn.MatchFeature(&top) {
+			if pw.MatchFeature(&top) {
 				add = false
 				break
 			}
 		}
 
 		if add {
-			result = append(result, ftn)
+			result = append(result, pw)
 		}
 	}
 	return result

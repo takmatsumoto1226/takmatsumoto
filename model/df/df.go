@@ -394,7 +394,8 @@ func (fa *Feature) IsContinue2() bool {
 	i3 := fa.IBalls[2]
 	i4 := fa.IBalls[3]
 	i5 := fa.IBalls[4]
-	return (i2-i1 == 1 || i3-i2 == 1 || i4-i3 == 1 || i5-i4 == 1) && !fa.IsContinue3() && !fa.IsContinue4() && !fa.IsContinue5() && !fa.IsContinue22()
+	i6 := fa.IBalls[5]
+	return (i2-i1 == 1 || i3-i2 == 1 || i4-i3 == 1 || i5-i4 == 1 || i6-i5 == 1) && !fa.IsContinue3() && !fa.IsContinue4() && !fa.IsContinue5() && !fa.IsContinue22()
 }
 func (fa *Feature) IsContinue3() bool {
 	i1 := fa.IBalls[0]
@@ -402,7 +403,8 @@ func (fa *Feature) IsContinue3() bool {
 	i3 := fa.IBalls[2]
 	i4 := fa.IBalls[3]
 	i5 := fa.IBalls[4]
-	return ((i2-i1 == 1 && i3-i2 == 1) || (i3-i2 == 1 && i4-i3 == 1) || (i4-i3 == 1 && i5-i4 == 1)) && !fa.IsContinue4() && !fa.IsContinue5()
+	i6 := fa.IBalls[5]
+	return ((i2-i1 == 1 && i3-i2 == 1) || (i3-i2 == 1 && i4-i3 == 1) || (i4-i3 == 1 && i5-i4 == 1) || (i6-i5 == 1 && i5-i4 == 1)) && !fa.IsContinue4() && !fa.IsContinue5()
 }
 
 func (fa *Feature) IsContinue4() bool {
@@ -411,7 +413,8 @@ func (fa *Feature) IsContinue4() bool {
 	i3 := fa.IBalls[2]
 	i4 := fa.IBalls[3]
 	i5 := fa.IBalls[4]
-	return ((i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1) || (i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1)) && !fa.IsContinue5()
+	i6 := fa.IBalls[5]
+	return ((i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1) || (i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1) || (i6-i5 == 1 && i4-i3 == 1 && i5-i4 == 1)) && !fa.IsContinue5()
 }
 
 func (fa *Feature) IsContinue5() bool {
@@ -420,7 +423,8 @@ func (fa *Feature) IsContinue5() bool {
 	i3 := fa.IBalls[2]
 	i4 := fa.IBalls[3]
 	i5 := fa.IBalls[4]
-	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1)
+	i6 := fa.IBalls[5]
+	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1 || (i6-i5 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1))
 }
 
 func (fa *Feature) IsContinue22() bool {
@@ -429,6 +433,7 @@ func (fa *Feature) IsContinue22() bool {
 	i3 := fa.IBalls[2]
 	i4 := fa.IBalls[3]
 	i5 := fa.IBalls[4]
+	i6 := fa.IBalls[5]
 
 	count := 0
 	if i2-i1 == 1 {
@@ -444,6 +449,10 @@ func (fa *Feature) IsContinue22() bool {
 	}
 
 	if i5-i4 == 1 {
+		count++
+	}
+
+	if i6-i5 == 1 {
 		count++
 	}
 

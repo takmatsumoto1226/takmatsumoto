@@ -3,6 +3,7 @@ package pw
 import (
 	"errors"
 	"fmt"
+	"lottery/model/interf"
 
 	"github.com/sirupsen/logrus"
 )
@@ -51,4 +52,70 @@ func (ar PowerList) IntervalBallsCountStatic(p PickParam) Balls {
 	}
 
 	return arr
+}
+
+func (ar PowerList) StaticContinue2Percent(i interf.Interval) float64 {
+
+	sr := ar
+	if i.Length > 0 && i.Index+i.Length < len(ar) {
+		sr = ar[i.Index : i.Index+i.Length]
+	}
+	count := 0
+	for _, f := range sr {
+		if f.Feature.IsContinue2() {
+			f.ShowRow()
+			count++
+		}
+	}
+	return (float64(count) / float64(len(sr))) * 100
+}
+
+func (ar PowerList) StaticContinue3Percent(i interf.Interval) float64 {
+
+	sr := ar
+	if i.Length > 0 && i.Index+i.Length < len(ar) {
+		sr = ar[i.Index : i.Index+i.Length]
+	}
+	count := 0
+	for _, f := range sr {
+		if f.Feature.IsContinue3() {
+			f.ShowRow()
+			count++
+		}
+	}
+	return (float64(count) / float64(len(sr))) * 100
+}
+
+func (ar PowerList) StaticContinue22Percent(i interf.Interval) float64 {
+
+	sr := ar
+	if i.Length > 0 && i.Index+i.Length < len(ar) {
+		sr = ar[i.Index : i.Index+i.Length]
+	}
+	count := 0
+	for _, f := range sr {
+		if f.Feature.IsContinue22() {
+			f.ShowRow()
+			count++
+		}
+	}
+	return (float64(count) / float64(len(sr))) * 100
+}
+
+func (ar PowerList) StaticContinue4Percent(i interf.Interval) float64 {
+
+	sr := ar
+	if i.Length > 0 && i.Index+i.Length < len(ar) {
+		sr = ar[i.Index : i.Index+i.Length]
+	}
+	count := 0
+	for i, f := range sr {
+		if f.Feature.IsContinue4() {
+			sr[i+1].ShowRow()
+			f.ShowRow()
+			fmt.Println("")
+			count++
+		}
+	}
+	return (float64(count) / float64(len(sr))) * 100
 }

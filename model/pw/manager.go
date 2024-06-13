@@ -213,7 +213,7 @@ func GodPick(arr PowerList, c int) {
 		a := arr[common.RandomNuber()%uint64(len(arr))]
 		picks = append(picks, a)
 	}
-	fmt.Println(picks.Presentation())
+	fmt.Println(picks.Distinct().Presentation())
 }
 
 func (ar *PowerManager) SaveBTs() {

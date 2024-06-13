@@ -45,11 +45,11 @@ func Test_random(t *testing.T) {
 	var pwm = PowerManager{}
 	pwm.Prepare()
 	// lens := len(combarr)
-	df.DisableFilters([]int{df.FilterOddCount, df.FilterTenGroup, df.FilterTailDigit})
+	df.DisableFilters([]int{df.FilterOddCount, df.FilterTenGroup})
 	start := 0
 	th := interf.Threshold{
 		Round:      1,
-		Value:      2,
+		Value:      3,
 		SampleTime: 1,
 		Sample:     len(pwm.Combinations),
 		Interval: interf.Interval{
@@ -108,10 +108,10 @@ func Test_PickupNumber(t *testing.T) {
 	GroupCount := 500
 	pwg := NewPWGroup(GroupCount, pwm.Combinations, pwm.List)
 
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 200}
-	filter1 := pwm.List.FragmentRange([]int{0})
-	filter2 := pwm.List.WithRange(1, 1)
-	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(filter2, []int{1, 38}).FilterExcludes(filter1, []int{15}).FilterExcludeNode(pwm.List).findNumbers([]string{"16"}, df.None).Distinct()
+	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 200}
+	filter1 := pwm.List.FragmentRange([]int{})
+	filter2 := pwm.List.WithRange(1, 0)
+	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(filter2, []int{}).FilterExcludes(filter1, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
@@ -124,7 +124,8 @@ func Test_PickupNumber(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	GodPick(filterPick, 10)
+	GodPick(filterPick, 1)
+	// fmt.Println(pwm.List.WithRange(0, 20).Presentation())
 }
 
 func Test_backtestReport(t *testing.T) {
@@ -146,12 +147,57 @@ func Test_NewPowerGroupTest(t *testing.T) {
 }
 
 func Test_CompareLatestAndHistoryFeature(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "CompareLatestAndHistoryFeature")
+	defer common.TimeTaken(time.Now(), "Test_CompareLatestAndHistoryFeature")
 	config.LoadConfig("../../config.yaml")
 	var ar = PowerManager{}
 	ar.Prepare()
-	df.DisableFilters([]int{df.FilterTailDigit, df.FilterEvenCount, df.FilterOddCount})
+	df.DisableFilters([]int{df.FilterEvenCount, df.FilterOddCount})
 	ar.CompareLatestAndHistoryFeature()
+}
+
+func Test_Continue2TypeStatic(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_Continue2TypeStatic")
+	config.LoadConfig("../../config.yaml")
+	var pwm = PowerManager{}
+	pwm.Prepare()
+	fmt.Printf("%.2f%%\n", pwm.List.StaticContinue2Percent(interf.Interval{Index: 0, Length: len(pwm.List)}))
+}
+
+func Test_Continue22TypeStatic(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_Continue22TypeStatic")
+	config.LoadConfig("../../config.yaml")
+	var pwm = PowerManager{}
+	pwm.Prepare()
+	fmt.Printf("%.2f%%\n", pwm.List.StaticContinue22Percent(interf.Interval{Index: 0, Length: len(pwm.List)}))
+}
+
+func Test_Continue3TypeStatic(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_Continue22TypeStatic")
+	config.LoadConfig("../../config.yaml")
+	var pwm = PowerManager{}
+	pwm.Prepare()
+	fmt.Printf("%.2f%%\n", pwm.List.StaticContinue3Percent(interf.Interval{Index: 0, Length: len(pwm.List)}))
+}
+
+func Test_Continue4TypeStatic(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_Continue22TypeStatic")
+	config.LoadConfig("../../config.yaml")
+	var pwm = PowerManager{}
+	pwm.Prepare()
+	fmt.Printf("%.2f%%\n", pwm.List.StaticContinue4Percent(interf.Interval{Index: 0, Length: len(pwm.List)}))
+}
+
+func Test_Continue4InAllCombinations(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_Continue4InAllCombinations")
+	config.LoadConfig("../../config.yaml")
+	var pwm = PowerManager{}
+	pwm.Prepare()
+	list := PowerList{}
+	for _, v := range pwm.Combinations {
+		balls := NewPowerWithInts(v)
+		list = append(list, *balls)
+	}
+	fmt.Println(len(list.FilterPickBySpecConfition().Distinct()))
 }
 
 // func FileNames() []string {
