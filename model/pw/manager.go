@@ -147,6 +147,7 @@ func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 }
 
 func (mgr *PowerManager) Predictions() {
+	fmt.Println("Predictions")
 	interval := interf.Interval{Index: 0, Length: 20}
 	tops := mgr.List.WithRange(interval.Index, interval.Length)
 	for _, bt := range mgr.BackTests {
@@ -158,7 +159,8 @@ func (mgr *PowerManager) Predictions() {
 }
 
 func (mgr *PowerManager) ReadJSON(filenames []string) {
-	for _, filename := range filenames {
+	for i, filename := range filenames {
+		fmt.Println(fmt.Sprintf("%03d : ", i+1) + "reading....." + filename)
 		if !strings.Contains(filename, ".json") {
 			filename = filename + ".json"
 		}

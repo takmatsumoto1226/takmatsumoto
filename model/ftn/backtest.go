@@ -128,6 +128,7 @@ func (bt *FTNBT) Summery() string {
 func (bt *FTNBT) DoBacktesting(top FTN) {
 	bt.ThresholdNumbers.DoBT(top)
 	bt.PickNumbers.DoBT(top)
+	bt.ExcludeTops.DoBT(top)
 	bt.Save()
 }
 

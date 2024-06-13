@@ -18,7 +18,11 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = PowerManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	fmt.Println(as.List.WithRange(0, 20).Reverse().Presentation())
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 200}
+	list := as.List.WithRange(0, int(p.Interval)).Reverse()
+	fmt.Println(list.Presentation())
+	ballsCount := list.IntervalBallsCountStatic(p)
+	fmt.Println(ballsCount.Presentation(false))
 }
 
 func Test_findnumber(t *testing.T) {
@@ -44,9 +48,9 @@ func Test_random(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterTenGroup, df.FilterTailDigit})
 	start := 0
 	th := interf.Threshold{
-		Round:      5,
-		Value:      7,
-		SampleTime: 4,
+		Round:      1,
+		Value:      2,
+		SampleTime: 1,
 		Sample:     len(pwm.Combinations),
 		Interval: interf.Interval{
 			Index:  start,
@@ -65,20 +69,12 @@ func Test_random(t *testing.T) {
 }
 
 func Test_Predictions(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Back Test")
+	defer common.TimeTaken(time.Now(), "Test_Predictions")
 	config.LoadConfig("../../config.yaml")
 	var ar = PowerManager{}
 	ar.Prepare()
 	ar.ReadJSON(FileNames())
 	ar.Predictions()
-}
-
-func Test_listPredictionTops(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "listPredictionTops")
-	config.LoadConfig("../../config.yaml")
-	var ar = PowerManager{}
-	ar.Prepare()
-	ar.ReadJSON(FileNames())
 
 	for _, bt := range ar.BackTests {
 		if len(bt.PickNumbers.PredictionTops) > 0 {
@@ -103,7 +99,7 @@ func Test_listPredictionTops(t *testing.T) {
 }
 
 func Test_PickupNumber(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "listPredictionTops")
+	defer common.TimeTaken(time.Now(), "Test_PickupNumber")
 	config.LoadConfig("../../config.yaml")
 	var pwm = PowerManager{}
 	pwm.Prepare()
@@ -112,16 +108,15 @@ func Test_PickupNumber(t *testing.T) {
 	GroupCount := 500
 	pwg := NewPWGroup(GroupCount, pwm.Combinations, pwm.List)
 
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 666}
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 200}
 	filter1 := pwm.List.FragmentRange([]int{0})
 	filter2 := pwm.List.WithRange(1, 1)
-	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(filter2, []int{}).FilterExcludes(filter1, []int{1}).FilterExcludeNode(pwm.List).findNumbers([]string{"16", "26"}, df.None).Distinct()
+	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(filter2, []int{1, 38}).FilterExcludes(filter1, []int{15}).FilterExcludeNode(pwm.List).findNumbers([]string{"16"}, df.None).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
 	fmt.Println("got top")
 	top := pwm.List.GetNode(0)
-
 	for _, f := range filterPick {
 		if f.IsSame(&top) {
 			fmt.Println(f.formRow())
@@ -129,7 +124,7 @@ func Test_PickupNumber(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	GodPick(filterPick, 1)
+	GodPick(filterPick, 10)
 }
 
 func Test_backtestReport(t *testing.T) {
@@ -161,9 +156,7 @@ func Test_CompareLatestAndHistoryFeature(t *testing.T) {
 
 // func FileNames() []string {
 // 	return []string{
-// 		filepath.Join(RootDir, SubDir, "powercontent20240513154337"),
-// 		filepath.Join(RootDir, SubDir, "powercontent20240513155407"),
-// 		filepath.Join(RootDir, SubDir, "powercontent20240513160317"),
+// 		filepath.Join(RootDir, SubDir, "content_07_4.0_20240613132929.json"),
 // 	}
 // }
 

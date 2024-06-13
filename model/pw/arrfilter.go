@@ -2,6 +2,7 @@ package pw
 
 import (
 	"fmt"
+	"lottery/model/common"
 	"lottery/model/df"
 )
 
@@ -63,7 +64,7 @@ func (fa PowerList) FilterPickBySpecConfition() PowerList {
 func (fa PowerList) FilterIncludes(tops PowerList, sb []int) PowerList {
 	fmt.Println("FilterIncludes")
 	result := PowerList{}
-	search := map[int]bool{}
+	search := common.LIMap{}
 	for _, t := range tops {
 		for _, i := range t.Feature.IBalls {
 			search[i] = true
@@ -75,6 +76,7 @@ func (fa PowerList) FilterIncludes(tops PowerList, sb []int) PowerList {
 			search[i] = true
 		}
 	}
+	fmt.Println(search.Presentation())
 
 	for _, ftn := range fa {
 		for _, n := range ftn.Feature.IBalls {
@@ -90,7 +92,7 @@ func (fa PowerList) FilterIncludes(tops PowerList, sb []int) PowerList {
 func (fa PowerList) FilterExcludes(tops PowerList, sb []int) PowerList {
 	fmt.Println("FilterExcludes")
 	result := PowerList{}
-	search := map[int]bool{}
+	search := common.LIMap{}
 	for _, t := range tops {
 		for _, i := range t.Feature.IBalls {
 			search[i] = true
@@ -101,6 +103,8 @@ func (fa PowerList) FilterExcludes(tops PowerList, sb []int) PowerList {
 			search[b] = true
 		}
 	}
+
+	fmt.Println(search.Presentation())
 
 	for _, ftn := range fa {
 		add := true

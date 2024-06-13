@@ -175,13 +175,13 @@ const PriceFourth = 50
 func (fa *FTN) matchCount(n FTN) int {
 	set := make(map[string]bool)
 
-	for _, num := range n.toStringArray() {
+	for _, num := range n.ToStringArr() {
 		set[num] = true // setting the initial value to true
 	}
 
 	// Check elements in the second array against the set
 	count := 0
-	for _, num := range fa.toStringArray() {
+	for _, num := range fa.ToStringArr() {
 		if set[num] {
 			count++
 		}
@@ -223,13 +223,10 @@ func (f *FTN) haveNeighber(tf *FTN, c int) bool {
 				count++
 				// fmt.Println(count)
 			}
-			if count == c {
-				return true
-			}
 		}
 	}
 
-	return false
+	return count == c
 }
 
 func absDiffInt(x, y int) int {
@@ -251,11 +248,11 @@ func Ball39() []string {
 	return arr
 }
 
-func (fa *FTN) toStringArray() []string {
+func (fa *FTN) ToStringArr() []string {
 	return []string{fa.B1.Number, fa.B2.Number, fa.B3.Number, fa.B4.Number, fa.B5.Number}
 }
 
-func (fa *FTN) ArrInt() []int {
+func (fa *FTN) ToIntArr() []int {
 	return []int{fa.B1.Digit, fa.B2.Digit, fa.B3.Digit, fa.B4.Digit, fa.B5.Digit}
 }
 
@@ -476,7 +473,7 @@ func (fa *FTN) AdariPrice(fb *FTN) int {
 func (fa *FTN) MatchCombinations() FTNArray {
 	ftnarr := FTNArray{}
 	for i := 5; i > 1; i-- {
-		combinations := algorithm.Combinations(fa.toStringArray(), i)
+		combinations := algorithm.Combinations(fa.ToStringArr(), i)
 		ftnarr = append(ftnarr, (*NewFTNArray(combinations))...)
 	}
 	return ftnarr

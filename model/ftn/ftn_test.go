@@ -85,7 +85,7 @@ func Test_findnumbers(t *testing.T) {
 	fmt.Println(list.Presentation())
 	fmt.Println(list.BallsCountStatic().Presentation(false))
 
-	result := algorithm.Combinations(as.List[0].toStringArray(), 3)
+	result := algorithm.Combinations(as.List[0].ToStringArr(), 3)
 	for _, v := range result {
 		fmt.Println("")
 		fmt.Println("")
@@ -227,13 +227,13 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	// df.DisableFilters([]int{df.FilterTailDigit})
 	th := interf.Threshold{
-		Round:      20,
+		Round:      40,
 		Value:      7,
 		SampleTime: 4,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
 			Index:  start,
-			Length: len(ar.List)/5 + start,
+			Length: len(ar.List)/3 + start,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -278,35 +278,6 @@ func Test_DoPrediction(t *testing.T) {
 	}
 }
 
-// func Test_listPredictionTops(t *testing.T) {
-// 	defer common.TimeTaken(time.Now(), "listPredictionTops")
-// 	config.LoadConfig("../../config.yaml")
-// 	var ar = FTNsManager{}
-// 	ar.Prepare()
-// 	ar.ReadJSON(FileNames())
-
-// 	for _, bt := range ar.BackTests {
-// 		if len(bt.PickNumbers.PredictionTops) > 0 {
-// 			fmt.Printf("\n\n\n%s", bt.Summery())
-// 			fmt.Printf("PickNumbers.PredictionTops : %d\n", len(bt.PickNumbers.PredictionTops))
-// 			bt.PickNumbers.PredictionTops.ShowAll()
-// 		} else {
-// 			if len(bt.ThresholdNumbers.PredictionTops) > 0 {
-// 				fmt.Printf("\n\n\n%s", bt.Summery())
-// 				fmt.Printf("ThresholdNumbers.PredictionTops : %d\n", len(bt.ThresholdNumbers.PredictionTops))
-// 				bt.ThresholdNumbers.PredictionTops.ShowAll()
-// 			}
-// 		}
-
-// 		if len(bt.ExcludeTops.PredictionTops) > 0 {
-// 			fmt.Printf("\n\n\nExcludeTops:")
-// 			fmt.Printf("ExcludeTops.PredictionTops : %d\n", len(bt.ExcludeTops.PredictionTops))
-// 			bt.ExcludeTops.PredictionTops.ShowAll()
-// 		}
-
-// 	}
-// }
-
 func Test_DoBackTesting(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Back Test")
 	config.LoadConfig("../../config.yaml")
@@ -340,30 +311,6 @@ func Test_DoBackTesting(t *testing.T) {
 
 }
 
-// func Test_FindTop(t *testing.T) {
-// 	defer common.TimeTaken(time.Now(), "FindTop")
-// 	config.LoadConfig("../../config.yaml")
-// 	var ar = FTNsManager{}
-// 	ar.Prepare()
-// 	ar.ReadJSON(FileNames())
-
-// 	fmt.Printf("PickNumbers:\n")
-// 	for _, bt := range ar.BackTests {
-// 		if len(bt.PickNumbers.TopMatch) > 0 {
-// 			fmt.Println(bt.Summery())
-// 			bt.PickNumbers.TopMatch.ShowAll()
-// 		}
-// 	}
-
-// 	fmt.Printf("\n\n\n\nThresholdNumbers:\n")
-// 	for _, bt := range ar.BackTests {
-// 		if len(bt.ThresholdNumbers.TopMatch) > 0 {
-// 			fmt.Println(bt.Summery())
-// 			bt.ThresholdNumbers.TopMatch.ShowAll()
-// 		}
-// 	}
-// }
-
 func Test_backtestreport(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
@@ -395,7 +342,7 @@ func Test_repick(t *testing.T) {
 
 	tops := ar.List.WithRange(0, 1)
 	for _, top := range tops {
-		featuresFTNs.findNumbers(top.toStringArray(), df.None).ShowAll()
+		featuresFTNs.findNumbers(top.ToStringArr(), df.None).ShowAll()
 	}
 }
 
@@ -424,10 +371,9 @@ func Test_groupNumbers(t *testing.T) {
 	top := ar.List.GetNode(0)
 	group := NewGroup(100, ar.Combinations, ar.List)
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 666}
-	infl1 := ar.List.FragmentRange([]int{1})
-	exfl2 := ar.List.FragmentRange([]int{0, 2})
-	filterPick := ar.FilterByGroupIndex(group, 0).FilterHighFreqNumber(ar.List, p).FilterPickBySpecConfition().FilterIncludes(infl1, []int{}).FilterExcludes(exfl2, []int{}).FilterExcludeNode(ar.List).FilterNeighberNumber(&top, 2).FilterByTebGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup4}, []int{2, 1}).findNumbers([]string{}, df.None).Distinct()
-	// filterPick := ar.FilterByGroupIndex(group, 1).FilterPickBySpecConfition().findNumbers([]string{"01", "04", "34", "35"}, df.None).Distinct()
+	infl1 := ar.List.FragmentRange([]int{0})
+	exfl2 := ar.List.FragmentRange([]int{4})
+	filterPick := ar.FilterByGroupIndex(group, []int{0}).FilterHighFreqNumber(ar.List, p).FilterPickBySpecConfition().FilterIncludes(infl1, []int{}).FilterExcludes(exfl2, []int{}).FilterExcludeNode(ar.List).FilterNeighberNumber(&top, 2).FilterByTebGroup([]int{df.FeatureTenGroup4}, []int{1}).findNumbers([]string{"32"}, df.None).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
@@ -452,7 +398,13 @@ func Test_FTNGroup(t *testing.T) {
 	ar.Prepare()
 	GroupCount := 100
 	gftn := NewGroup(GroupCount, ar.Combinations, ar.List)
-	fmt.Println(gftn)
+	fmt.Println(gftn.Presentation())
+	ar.ReadJSON(FileNames())
+	filterPick := ar.FilterByGroupIndex(gftn, []int{0})
+	filterPick.ShowAll()
+	fmt.Println(len(filterPick))
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 666}
+	fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
 }
 
 func Test_FindGroupIndex(t *testing.T) {
@@ -537,42 +489,52 @@ func Test_compareTest(t *testing.T) {
 
 }
 
-var targetsub = "20240612"
+var targetsub = "20240613"
 
 func FileNames() []string {
 
 	fmt.Println("date : " + targetsub)
 	return []string{
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612085440.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612085612.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612085742.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612085915.json"), // h1e1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612090046.json"), // h1
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612090214.json"),
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612090344.json"),
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612090513.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612090643.json"),
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612090815.json"),
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612101651.json"),
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612101823.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612101955.json"), // h1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612102130.json"), // h1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612102300.json"), // p2
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612102432.json"), // h2e1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612102609.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612102742.json"),
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612102911.json"), // h2e1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612103041.json"), // h1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612103212.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612103341.json"),
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612103511.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612103643.json"),
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612103816.json"), // p2
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612103947.json"),
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612104111.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_07_4.0_20240612104235.json"), // h2
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612104358.json"),
-		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240612104523.json"),
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613091650.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613092054.json"),
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613092256.json"), // p1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613092446.json"), // h1e1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613092637.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613092829.json"), // h1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613093021.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613093212.json"), // h1e1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613093401.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613093555.json"), // h1e1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613093746.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613093943.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613094143.json"), // p1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613094338.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613094534.json"), // h1e1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613094721.json"), // p1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613094909.json"),
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613095056.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613095248.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613095440.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613095629.json"), // p1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613095820.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613100013.json"), // h2e2
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613100209.json"), // p2
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613100408.json"), // p1e1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613100605.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613100754.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613100944.json"), // h1e1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613101137.json"), // h1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613101332.json"), // p1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613101528.json"), // h1
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613101729.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613101920.json"),
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613102116.json"), // h1e1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613102306.json"), // p2
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613102457.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613102645.json"), // p1
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613102834.json"), // p2
+		// filepath.Join(RootDir, targetsub, "content_07_4.0_20240613103023.json"),
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240613103213.json"), // p2
 	}
 
 	// files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
@@ -664,4 +626,64 @@ func Test_StaticTenGroup(t *testing.T) {
 		fmt.Print("\n\n")
 	}
 
+}
+
+func Test_FeatureStatic(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FeatureStatic")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	mapping := map[string]int{}
+	for _, f := range ar.List {
+		if v, ok := mapping[f.Feature.Key]; ok {
+			mapping[f.Feature.Key] = v + 1
+		} else {
+			mapping[f.Feature.Key] = 1
+		}
+	}
+
+	for k, m := range mapping {
+		fmt.Printf("%s:%d\n", k, m)
+	}
+}
+
+func Test_allcombinationFeatureGroup(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_allcombination")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	top := ar.List.GetNode(0)
+	fmt.Println(top)
+	mapping := map[string]int{}
+	arr := FTNArray{}
+
+	for _, c := range ar.Combinations {
+		arr = append(arr, *NewFTNWithInts(c))
+	}
+
+	for _, f := range arr {
+		if v, ok := mapping[f.Feature.Key]; ok {
+			mapping[f.Feature.Key] = v + 1
+		} else {
+			mapping[f.Feature.Key] = 1
+		}
+	}
+
+	// arrc := map[int]int{}
+	for k, m := range mapping {
+		fmt.Printf("%s:%d\n", k, m)
+		// if v, ok := arrc[m]; ok {
+		// 	arrc[m] = v + 1
+		// } else {
+		// 	arrc[m] = 1
+		// }
+	}
+	// fmt.Println(len(mapping))
+	// for idx, c := range arrc {
+	// 	fmt.Printf("%5d個的有 %d\n", idx, c)
+	// }
+}
+
+func Test_calculation(t *testing.T) {
+	fmt.Println(10 / 10)
 }

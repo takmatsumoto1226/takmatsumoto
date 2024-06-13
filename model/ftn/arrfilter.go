@@ -2,15 +2,19 @@ package ftn
 
 import (
 	"fmt"
+	"lottery/model/common"
 	"lottery/model/df"
 )
 
-func (fa FTNArray) FilterByGroupIndex(group *FTNGroup, c int) FTNArray {
+func (fa FTNArray) FilterByGroupIndex(group *FTNGroup, cs []int) FTNArray {
 	fmt.Println("FilterByGroupIndex")
 	arr := FTNArray{}
 	for _, ftn := range fa {
-		if _, gcount := group.FindGroupIndex(ftn); gcount == c {
-			arr = append(arr, ftn)
+		for _, c := range cs {
+			if _, gcount := group.FindGroupIndex(ftn); gcount == c {
+				arr = append(arr, ftn)
+			}
+			break
 		}
 	}
 	return arr.Distinct()
@@ -38,7 +42,7 @@ func (fa FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]Ball
 func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 	fmt.Println("FilterExcludes")
 	result := FTNArray{}
-	search := map[int]bool{}
+	search := common.LIMap{}
 	for _, t := range tops {
 		for _, i := range t.Feature.IBalls {
 			search[i] = true
@@ -49,6 +53,8 @@ func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 			search[b] = true
 		}
 	}
+
+	fmt.Println(search.Presentation())
 
 	for _, ftn := range fa {
 		add := true
@@ -69,7 +75,7 @@ func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
 	fmt.Println("FilterIncludes")
 	result := FTNArray{}
-	search := map[int]bool{}
+	search := common.LIMap{}
 	for _, t := range tops {
 		for _, i := range t.Feature.IBalls {
 			search[i] = true
@@ -81,6 +87,7 @@ func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
 			search[i] = true
 		}
 	}
+	fmt.Println(search.Presentation())
 
 	for _, ftn := range fa {
 		for _, n := range ftn.Feature.IBalls {
@@ -97,6 +104,11 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 	result := FTNArray{}
 	ballsCount := highFreqs.IntervalBallsCountStatic(p)
 	fmt.Println(ballsCount.AppearBalls.Presentation(false))
+
+	total := uint(0)
+	for _, bc := range ballsCount.AppearBalls {
+		total = total + bc.Count
+	}
 
 	numbers := []string{}
 	for _, b := range ballsCount.AppearBalls {

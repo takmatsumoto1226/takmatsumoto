@@ -88,3 +88,13 @@ func MIN(x, y int) int {
 	}
 	return x
 }
+
+type LIMap map[int]bool
+
+func (lm LIMap) Presentation() string {
+	msg := ""
+	for k, _ := range lm {
+		msg = msg + fmt.Sprintf("%02d|", k)
+	}
+	return msg
+}

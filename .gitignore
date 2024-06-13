@@ -6,3 +6,4 @@ debug/
 nohup.out
 *.json
 *.txt
+*.zip

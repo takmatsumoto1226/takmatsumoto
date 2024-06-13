@@ -11,7 +11,7 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240607"
+const SubDir = "20240613"
 const FileNameTemplate = "content_%02d_%02.1f_%s.json"
 
 type SessionData struct {
@@ -52,15 +52,16 @@ func (sd *SessionData) DoBT(top Power) {
 	}
 }
 
-func (sd *SessionData) DoPrediction(ftns PowerList) int {
+func (sd *SessionData) DoPrediction(tops PowerList) int {
 	sd.PredictionTops = PowerList{}
 	total := 0
-	for _, ftn := range ftns {
-		for _, pn := range sd.Balls {
-			price := ftn.AdariPrice(&pn)
+
+	for _, pn := range sd.Balls {
+		for _, t := range tops {
+			price := pn.AdariPrice(&t)
 			total = total + price
 			if price >= PriceTop {
-				sd.appendPTop(pn)
+				sd.appendPTop(t)
 			}
 		}
 	}

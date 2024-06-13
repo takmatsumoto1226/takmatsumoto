@@ -117,6 +117,19 @@ func (fa PowerList) ShowWithRange(r int) {
 	fmt.Println(fa[:r].Presentation())
 }
 
+func (fa PowerList) PresentationWithRange(r int) string {
+	msg := ""
+	tmp := fa
+	if r > 0 {
+		tmp = fa[:r]
+	}
+	for _, ftn := range tmp {
+		msg = msg + ftn.formRow() + "\n"
+
+	}
+	return msg
+}
+
 func (fa PowerList) ShowAll() {
 	fa.ShowWithRange(0)
 }

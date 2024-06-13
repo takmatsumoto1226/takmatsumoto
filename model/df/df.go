@@ -134,17 +134,48 @@ type GROUP int
 const UndefinedFeature = -1
 
 type Feature struct {
+	Key                     string  `json:"key"`
 	IBalls                  []int   `json:"iballs"`
 	TenGroupCount           [5]int  `json:"tengroupcount"`
 	OddNumberCount          int     `json:"oddnumbercount"`
+	EvenNumberCount         int     `json:"evennumbercount"`
 	TenGroupOddNumberCount  [5]int  `json:"tengroupoddnumbercount"`
 	TenGroupEvenNumberCount [5]int  `json:"tengroupevennumbercount"`
-	EvenNumberCount         int     `json:"evennumbercount"`
 	TailDigit               [10]int `json:"taildigit"`
 	PrimeCount              int     `json:"primecount"`
 	MultiplesOfs            [19]int `json:"multiplesofs"`
 	ContinueRowType         int     `json:"continuerowtype"`
 	Point                   float32 `json:"point"`
+}
+
+func (f *Feature) setKey() {
+	msg := ""
+	for _, v := range f.TenGroupCount {
+		msg = msg + fmt.Sprintf("%d", v)
+	}
+	msg = msg + fmt.Sprintf("%d%d", f.OddNumberCount, f.EvenNumberCount)
+
+	for _, v := range f.TenGroupOddNumberCount {
+		msg = msg + fmt.Sprintf("%d", v)
+	}
+
+	for _, v := range f.TenGroupEvenNumberCount {
+		msg = msg + fmt.Sprintf("%d", v)
+	}
+
+	// for _, v := range f.TailDigit {
+	// 	msg = msg + fmt.Sprintf("%d", v)
+	// }
+
+	msg = msg + fmt.Sprintf("%d", f.PrimeCount)
+
+	for _, v := range f.MultiplesOfs {
+		msg = msg + fmt.Sprintf("%d", v)
+	}
+
+	msg = msg + fmt.Sprintf("%d", f.ContinueRowType)
+
+	f.Key = msg
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {
@@ -158,15 +189,15 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 	for _, n := range numbers {
 		if n%2 == 1 {
 			oc++
-			tgonc[n/10]++
+			tgonc[(n-1)/10]++
 		}
 		if n%2 == 0 {
 			ec++
-			tgenc[n/10]++
+			tgenc[(n-1)/10]++
 		}
 
-		gt[n/10]++
-		td[n%10]++
+		gt[(n-1)/10]++
+		td[(n-1)%10]++
 		if bytes.IndexByte(Primes, byte(n)) >= 0 {
 			primec++
 		}
@@ -182,6 +213,7 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 		PrimeCount:              primec,
 	}
 	f.setContinueRowType()
+	f.setKey()
 	return f
 }
 

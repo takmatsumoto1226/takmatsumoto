@@ -161,7 +161,7 @@ func (fa FTNArray) Distinct() FTNArray {
 func (fa FTNArray) SmartWithTh(th interf.Threshold) FTNArray {
 	features := fa.WithRange(th.Interval.Index, th.Interval.Length)
 	for _, bs := range features {
-		result := algorithm.Combinations(bs.toStringArray(), 3)
+		result := algorithm.Combinations(bs.ToStringArr(), 3)
 		for _, v := range result {
 			features = append(features, fa.findNumbers(v, df.NextOnly)...)
 		}
@@ -206,7 +206,7 @@ func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
 
 		// Check elements in the second array against the set
 		count := 0
-		for _, num := range ns.toStringArray() {
+		for _, num := range ns.ToStringArr() {
 			if set[num] {
 				count++
 			}

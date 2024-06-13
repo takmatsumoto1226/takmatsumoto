@@ -169,7 +169,7 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 			if v > th.Value {
 				thNumb := NewFTNWithStrings(strings.Split(k, "_"))
 				threadholdNumbers = append(threadholdNumbers, *thNumb)
-				ftnarr := ar.List.findNumbers(thNumb.toStringArray(), df.None)
+				ftnarr := ar.List.findNumbers(thNumb.ToStringArr(), df.None)
 				if len(ftnarr) > 0 {
 					thNumbTops = append(thNumbTops, ftnarr...)
 				}
@@ -320,10 +320,10 @@ func (ar *FTNsManager) SaveBTs() {
 	}
 }
 
-func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, c int) FTNArray {
+func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, cs []int) FTNArray {
 	arr := FTNArray{}
 	for _, bt := range ar.BackTests {
-		arr = append(arr, bt.ExcludeTops.Balls.FilterByGroupIndex(group, c)...)
+		arr = append(arr, bt.PickNumbers.Balls.FilterByGroupIndex(group, cs)...)
 	}
 	return arr.Distinct()
 }

@@ -22,12 +22,14 @@ func (ar PowerList) IntervalBallsCountStatic(p PickParam) Balls {
 		FTNIntervalCount[numberToIndex[t.B3.Number]]++
 		FTNIntervalCount[numberToIndex[t.B4.Number]]++
 		FTNIntervalCount[numberToIndex[t.B5.Number]]++
+		FTNIntervalCount[numberToIndex[t.B6.Number]]++
 		for i := 0; i < ballsCountPower; i++ {
 			if i != numberToIndex[t.B1.Number] ||
 				i != numberToIndex[t.B2.Number] ||
 				i != numberToIndex[t.B3.Number] ||
 				i != numberToIndex[t.B4.Number] ||
-				i != numberToIndex[t.B5.Number] {
+				i != numberToIndex[t.B5.Number] ||
+				i != numberToIndex[t.B6.Number] {
 				disappearCount[i]++
 			} else {
 				disappearCount[i] = 0
