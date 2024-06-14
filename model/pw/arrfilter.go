@@ -54,7 +54,7 @@ func (fa PowerList) FilterPickBySpecConfition() PowerList {
 	fmt.Println("FilterPickBySpecConfition")
 	result := PowerList{}
 	for _, pw := range fa {
-		if pw.Feature.IsContinue4() {
+		if pw.Feature.IsContinue2() {
 			result = append(result, pw)
 		}
 	}

@@ -494,10 +494,6 @@ func (fa *FTN) MatchFeature(t *FTN) bool {
 	return fa.Feature.Compare(&t.Feature)
 }
 
-func (fa *FTN) RMatchFeature(t *FTN) bool {
-	return fa.Feature.RCompare(&t.Feature)
-}
-
 func (fa *FTN) IsFullSame(t *FTN) bool {
 	return fa.Year == t.Year && fa.MonthDay == t.MonthDay && fa.B1.Digit == t.B1.Digit && fa.B2.Digit == t.B2.Digit && fa.B3.Digit == t.B3.Digit && fa.B4.Digit == t.B4.Digit && fa.B5.Digit == t.B5.Digit
 }

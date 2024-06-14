@@ -105,13 +105,13 @@ func Test_PickupNumber(t *testing.T) {
 	pwm.Prepare()
 	pwm.ReadJSON(FileNames())
 
-	GroupCount := 500
+	GroupCount := 100
 	pwg := NewPWGroup(GroupCount, pwm.Combinations, pwm.List)
 
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 200}
-	filter1 := pwm.List.FragmentRange([]int{})
-	filter2 := pwm.List.WithRange(1, 0)
-	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(filter2, []int{}).FilterExcludes(filter1, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).Distinct()
+	BInclude := pwm.List.FragmentRange([]int{})
+	BExclude := pwm.List.FragmentRange([]int{})
+	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
@@ -141,9 +141,12 @@ func Test_NewPowerGroupTest(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = PowerManager{}
 	ar.Prepare()
-	GroupCount := 500
-	gpw := NewPWGroup(GroupCount, ar.Combinations, ar.List)
-	fmt.Println(gpw.Presentation())
+	GroupCount := 100
+	for i := 1; i <= 5; i++ {
+		gpw := NewPWGroup(GroupCount*i, ar.Combinations, ar.List)
+		fmt.Printf("%s\n\n", gpw.Presentation())
+	}
+
 }
 
 func Test_CompareLatestAndHistoryFeature(t *testing.T) {

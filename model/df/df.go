@@ -321,100 +321,37 @@ func (f *Feature) Compare(t *Feature) bool {
 	return true
 }
 
-func (f *Feature) RCompare(t *Feature) bool {
-
-	if filters[FilterOddCount] {
-		if f.OddNumberCount == t.OddNumberCount {
-			return true
-		}
-	}
-
-	if filters[FilterEvenCount] {
-		if f.EvenNumberCount == t.EvenNumberCount {
-			return true
-		}
-	}
-
-	if filters[FilterTenGroup] {
-		for idx, i := range f.TenGroupCount {
-			if i == t.TenGroupCount[idx] {
-				return true
-			}
-		}
-	}
-
-	if filters[FilterTailDigit] {
-		for idx, i := range f.TailDigit {
-			if i == t.TailDigit[idx] {
-				return true
-			}
-		}
-	}
-
-	if filters[FilterTenGroupOddCount] {
-		for idx, i := range f.TenGroupOddNumberCount {
-			if i == t.TenGroupOddNumberCount[idx] {
-				return true
-			}
-		}
-	}
-
-	if filters[FilterTenGroupEvenCount] {
-		for idx, i := range f.TenGroupEvenNumberCount {
-			if i == t.TenGroupEvenNumberCount[idx] {
-				return true
-			}
-		}
-	}
-
-	if filters[FilterPrime] {
-		if f.PrimeCount > 0 && t.PrimeCount > 0 {
-			return true
-		}
-	}
-
-	if filters[FilterPrimeCount] {
-		if f.PrimeCount == t.PrimeCount {
-			return true
-		}
-	}
-
-	if filters[FilterContinueRowType] {
-		if f.ContinueRowType != t.ContinueRowType {
-			return true
-		}
-	}
-
-	return false
-}
-
 func (fa *Feature) IsContinue2() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	i6 := fa.IBalls[5]
-	return (i2-i1 == 1 || i3-i2 == 1 || i4-i3 == 1 || i5-i4 == 1 || i6-i5 == 1) && !fa.IsContinue3() && !fa.IsContinue4() && !fa.IsContinue5() && !fa.IsContinue22()
+
+	continues := false
+	for i := 0; i < len(fa.IBalls)-1; i++ {
+		if fa.IBalls[i+1]-fa.IBalls[i] == 1 {
+			continues = true
+			break
+		}
+	}
+	return continues && !fa.IsContinue3() && !fa.IsContinue4() && !fa.IsContinue5() && !fa.IsContinue22()
 }
 func (fa *Feature) IsContinue3() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	i6 := fa.IBalls[5]
-	return ((i2-i1 == 1 && i3-i2 == 1) || (i3-i2 == 1 && i4-i3 == 1) || (i4-i3 == 1 && i5-i4 == 1) || (i6-i5 == 1 && i5-i4 == 1)) && !fa.IsContinue4() && !fa.IsContinue5()
+	continues := false
+	for i := 0; i < len(fa.IBalls)-2; i++ {
+		if fa.IBalls[i+1]-fa.IBalls[i] == 1 && fa.IBalls[i+2]-fa.IBalls[i+1] == 1 {
+			continues = true
+			break
+		}
+	}
+	return (continues) && !fa.IsContinue4() && !fa.IsContinue5()
 }
 
 func (fa *Feature) IsContinue4() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	i6 := fa.IBalls[5]
-	return ((i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1) || (i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1) || (i6-i5 == 1 && i4-i3 == 1 && i5-i4 == 1)) && !fa.IsContinue5()
+	continues := false
+	for i := 0; i < len(fa.IBalls)-4; i++ {
+		if fa.IBalls[i+1]-fa.IBalls[i] == 1 && fa.IBalls[i+2]-fa.IBalls[i+1] == 1 && fa.IBalls[i+3]-fa.IBalls[i+2] == 1 {
+			continues = true
+			break
+		}
+	}
+	return (continues) && !fa.IsContinue5()
 }
 
 func (fa *Feature) IsContinue5() bool {
@@ -423,8 +360,7 @@ func (fa *Feature) IsContinue5() bool {
 	i3 := fa.IBalls[2]
 	i4 := fa.IBalls[3]
 	i5 := fa.IBalls[4]
-	i6 := fa.IBalls[5]
-	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1 || (i6-i5 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1))
+	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1)
 }
 
 func (fa *Feature) IsContinue22() bool {
@@ -433,7 +369,6 @@ func (fa *Feature) IsContinue22() bool {
 	i3 := fa.IBalls[2]
 	i4 := fa.IBalls[3]
 	i5 := fa.IBalls[4]
-	i6 := fa.IBalls[5]
 
 	count := 0
 	if i2-i1 == 1 {
@@ -449,10 +384,6 @@ func (fa *Feature) IsContinue22() bool {
 	}
 
 	if i5-i4 == 1 {
-		count++
-	}
-
-	if i6-i5 == 1 {
 		count++
 	}
 

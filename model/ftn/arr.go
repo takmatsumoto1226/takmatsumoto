@@ -82,6 +82,39 @@ func (fa FTNArray) ShowAll() {
 	fa.ShowWithRange(0)
 }
 
+func (fa FTNArray) FindDate(date string, t int) FTNArray {
+	intersection := FTNArray{}
+
+	for i, ns := range fa {
+
+		// Check elements in the second array against the set
+
+		if ns.MonthDay == date {
+
+			if (t == df.BeforeOnly || t == df.Before || t == df.Both) && i > 0 {
+				intersection = append(intersection, fa[i-1])
+			}
+
+			if t != df.NextOnly && t != df.BeforeOnly {
+				intersection = append(intersection, ns)
+			}
+
+			if t == df.NextOnly || t == df.Next || t == df.Both {
+				if i+1 < len(fa) {
+					intersection = append(intersection, fa[i+1])
+				}
+			}
+			if t != df.None && t != df.NextOnly && t != df.BeforeOnly {
+				intersection = append(intersection, *Empty())
+			}
+		}
+
+	}
+	// Create a set from the first array
+
+	return intersection
+}
+
 func (fa FTNArray) WithRange(i, r int) FTNArray {
 
 	if r > 0 {

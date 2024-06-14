@@ -7,7 +7,7 @@ import (
 )
 
 func (fa FTNArray) FilterByGroupIndex(group *FTNGroup, cs []int) FTNArray {
-	fmt.Println("FilterByGroupIndex")
+	fmt.Printf("FilterByGroupIndex : %d\n", len(fa))
 	arr := FTNArray{}
 	for _, ftn := range fa {
 		for _, c := range cs {
@@ -40,7 +40,7 @@ func (fa FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]Ball
 }
 
 func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
-	fmt.Println("FilterExcludes")
+	fmt.Printf("FilterExcludes : %d\n", len(fa))
 	result := FTNArray{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -52,6 +52,10 @@ func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 		for _, b := range sb {
 			search[b] = true
 		}
+	}
+
+	if len(search) == 0 {
+		return fa
 	}
 
 	fmt.Println(search.Presentation())
@@ -73,7 +77,7 @@ func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 }
 
 func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
-	fmt.Println("FilterIncludes")
+	fmt.Printf("FilterIncludes : %d\n", len(fa))
 	result := FTNArray{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -86,6 +90,10 @@ func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
 		for _, i := range sb {
 			search[i] = true
 		}
+	}
+
+	if len(search) == 0 {
+		return fa
 	}
 	fmt.Println(search.Presentation())
 
@@ -101,6 +109,7 @@ func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
 }
 
 func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArray {
+	fmt.Printf("FilterHighFreqNumber : %d\n", len(fa))
 	result := FTNArray{}
 	ballsCount := highFreqs.IntervalBallsCountStatic(p)
 	fmt.Println(ballsCount.AppearBalls.Presentation(false))
@@ -124,7 +133,7 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 }
 
 func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
-	fmt.Println("FilterPickBySpecConfition")
+	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
 		if ftn.Feature.NoContinue() {
@@ -135,6 +144,7 @@ func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 }
 
 func (fa FTNArray) FilterFeatureExcludes(tops FTNArray) FTNArray {
+	fmt.Printf("FilterFeatureExcludes : %d\n", len(fa))
 	result := FTNArray{}
 
 	for _, ftn := range fa {
@@ -154,7 +164,7 @@ func (fa FTNArray) FilterFeatureExcludes(tops FTNArray) FTNArray {
 }
 
 func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
-	fmt.Println("FilterExcludeNode")
+	fmt.Printf("FilterExcludeNode : %d\n", len(fa))
 	result := FTNArray{}
 	sames := FTNArray{}
 	for _, f := range fa {
@@ -181,7 +191,7 @@ func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
 }
 
 func (fa FTNArray) FilterNeighberNumber(top *FTN, c int) FTNArray {
-	fmt.Println("FilterNeighberNumber")
+	fmt.Printf("FilterNeighberNumber : %d\n", len(fa))
 	result := FTNArray{}
 	for _, f := range fa {
 		if f.haveNeighber(top, c) {
@@ -192,7 +202,7 @@ func (fa FTNArray) FilterNeighberNumber(top *FTN, c int) FTNArray {
 }
 
 func (fa FTNArray) FilterByTebGroup(tt []int, hh []int) FTNArray {
-	fmt.Println("FilterTebGroup")
+	fmt.Printf("FilterTebGroup : %d\n", len(fa))
 	result := FTNArray{}
 
 	for _, f := range fa {
