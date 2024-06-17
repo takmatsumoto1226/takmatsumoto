@@ -228,13 +228,13 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	// df.DisableFilters([]int{df.FilterTailDigit})
 	th := interf.Threshold{
-		Round:      40,
+		Round:      20,
 		Value:      9,
 		SampleTime: 5,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
 			Index:  start,
-			Length: len(ar.List),
+			Length: len(ar.List) / 3,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -496,102 +496,23 @@ func Test_compareTest(t *testing.T) {
 
 }
 
-var targetsub = "20240614"
+var targetsub = "20240617"
 
 func FileNames() []string {
 
 	fmt.Println("date : " + targetsub)
-	return []string{
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614090605.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614090734.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614090901.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614091027.json"), // p1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614091153.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614091319.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614091445.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614091610.json"), // p2
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614091736.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614091901.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614092028.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614092155.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614092329.json"), // h1e1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614092458.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614092626.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614092753.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614092919.json"), // p1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614093045.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614093210.json"), // p2
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614093344.json"), // p1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614093522.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614093655.json"), // p1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614093822.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614093948.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614094113.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614094247.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614094413.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614094539.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614094705.json"), // p1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614094830.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614094955.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614095124.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614095301.json"), // p2
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614095433.json"), // p1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614095609.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614095742.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614095915.json"), // h1e1
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614100050.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614100218.json"),
-		// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614100345.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614152405.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614152539.json"), // p1e1
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614152711.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614152844.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614153014.json"), // p2
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614153144.json"), // p2
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614153314.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614153447.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614153618.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614153747.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614153918.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614154059.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614154230.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614154400.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614154538.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614154712.json"), // h1e1
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614154846.json"), // p2
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614155016.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614155154.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614155331.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614155500.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614155633.json"), // p2
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614155804.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614155936.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614160109.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614160247.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614160420.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614160550.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614160721.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614160853.json"), // p2
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614161030.json"), // p2e1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614161207.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614161340.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614161513.json"), // h1e1
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614161646.json"), // p3
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614161822.json"),
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614161952.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614162125.json"), // p1
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240614162257.json"), // p1
-		// filepath.Join(RootDir, targetsub, "content_09_5.0_20240614162432.json"),
-	}
-
-	// files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
-	// filenames := []string{}
-	// for _, f := range files {
-	// 	if strings.Contains(f.Name(), ".json") {
-	// 		filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
-	// 	}
+	// return []string{
+	// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614162432.json"),
 	// }
-	// return filenames
+
+	files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
+	filenames := []string{}
+	for _, f := range files {
+		if strings.Contains(f.Name(), ".json") {
+			filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
+		}
+	}
+	return filenames
 }
 
 func Test_CompareLatestAndHistoryFeature(t *testing.T) {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"lottery/config"
+	"lottery/model/common"
 	"testing"
 
 	"github.com/sirupsen/logrus"
@@ -16,8 +17,8 @@ func Test_getAll(t *testing.T) {
 	a := assert.New(t)
 
 	config.LoadConfig("./config.yaml")
-	getAll()
-	if err := getAllFromURL(); err != nil {
+	common.GetAll()
+	if err := common.GetAllFromURL(); err != nil {
 		a.NoError(err)
 	}
 }
