@@ -11,7 +11,7 @@ import (
 )
 
 const RootDir = "./gendata"
-const SubDir = "20240613"
+const SubDir = "20240617"
 const FileNameTemplate = "content_%02d_%02.1f_%s.json"
 
 type SessionData struct {

@@ -61,20 +61,24 @@ func (fa PowerList) FeatureRange(th interf.Threshold) PowerList {
 	return lottos.Distinct()
 }
 
-func (fa PowerList) WithAI() PowerList {
+func (pl PowerList) WithAI() PowerList {
 	features := PowerList{}
-	result := algorithm.Combinations(fa[0].toStringArray(), 3)
+	result := algorithm.Combinations(pl[0].toStringArray(), 3)
 	for _, v := range result {
-		features = append(features, fa.findNumbers(v, df.NextOnly)...)
+		features = append(features, pl.findNumbers(v, df.NextOnly)...)
 	}
 	return features
 }
 
-func (ar PowerList) findNumbers(numbers []string, t int) PowerList {
+func (pl PowerList) findNumbers(numbers []string, t int) PowerList {
 	intersection := PowerList{}
 	set := make(map[string]bool)
 
-	for i, ns := range ar {
+	if len(numbers) == 0 {
+		return pl
+	}
+
+	for i, ns := range pl {
 		for _, num := range numbers {
 			set[num] = true // setting the initial value to true
 		}
@@ -90,7 +94,7 @@ func (ar PowerList) findNumbers(numbers []string, t int) PowerList {
 		if len(set) == count {
 
 			if (t == df.BeforeOnly || t == df.Before || t == df.Both) && i > 0 {
-				intersection = append(intersection, ar[i-1])
+				intersection = append(intersection, pl[i-1])
 			}
 
 			if t != df.NextOnly && t != df.BeforeOnly {
@@ -98,8 +102,8 @@ func (ar PowerList) findNumbers(numbers []string, t int) PowerList {
 			}
 
 			if t == df.NextOnly || t == df.Next || t == df.Both {
-				if i+1 < len(ar) {
-					intersection = append(intersection, ar[i+1])
+				if i+1 < len(pl) {
+					intersection = append(intersection, pl[i+1])
 				}
 			}
 			if t != df.None && t != df.NextOnly && t != df.BeforeOnly {

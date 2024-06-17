@@ -7,9 +7,7 @@ import (
 	"lottery/model/common"
 	"lottery/model/df"
 	"lottery/model/interf"
-	"os"
 	"path/filepath"
-	"strings"
 	"testing"
 	"time"
 )
@@ -48,7 +46,7 @@ func Test_random(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterTenGroup})
 	start := 0
 	th := interf.Threshold{
-		Round:      1,
+		Round:      5,
 		Value:      3,
 		SampleTime: 1,
 		Sample:     len(pwm.Combinations),
@@ -108,10 +106,10 @@ func Test_PickupNumber(t *testing.T) {
 	GroupCount := 100
 	pwg := NewPWGroup(GroupCount, pwm.Combinations, pwm.List)
 
-	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 200}
-	BInclude := pwm.List.FragmentRange([]int{})
-	BExclude := pwm.List.FragmentRange([]int{})
-	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).Distinct()
+	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 243}
+	BInclude := pwm.List.FragmentRange([]int{0})
+	BExclude := pwm.List.FragmentRange([]int{3})
+	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).FilterFeatureExcludes(pwm.List).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
@@ -142,7 +140,7 @@ func Test_NewPowerGroupTest(t *testing.T) {
 	var ar = PowerManager{}
 	ar.Prepare()
 	GroupCount := 100
-	for i := 1; i <= 5; i++ {
+	for i := 1; i <= 1; i++ {
 		gpw := NewPWGroup(GroupCount*i, ar.Combinations, ar.List)
 		fmt.Printf("%s\n\n", gpw.Presentation())
 	}
@@ -203,19 +201,23 @@ func Test_Continue4InAllCombinations(t *testing.T) {
 	fmt.Println(len(list.FilterPickBySpecConfition().Distinct()))
 }
 
-// func FileNames() []string {
-// 	return []string{
-// 		filepath.Join(RootDir, SubDir, "content_07_4.0_20240613132929.json"),
-// 	}
-// }
-
 func FileNames() []string {
-	files, _ := os.ReadDir(filepath.Join(RootDir, SubDir))
-	filenames := []string{}
-	for _, f := range files {
-		if strings.Contains(f.Name(), ".json") {
-			filenames = append(filenames, filepath.Join(RootDir, SubDir, f.Name()))
-		}
+	return []string{
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617142957.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143221.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143435.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143645.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143908.json"),
 	}
-	return filenames
 }
+
+// func FileNames() []string {
+// 	files, _ := os.ReadDir(filepath.Join(RootDir, SubDir))
+// 	filenames := []string{}
+// 	for _, f := range files {
+// 		if strings.Contains(f.Name(), ".json") {
+// 			filenames = append(filenames, filepath.Join(RootDir, SubDir, f.Name()))
+// 		}
+// 	}
+// 	return filenames
+// }

@@ -7,7 +7,7 @@ import (
 )
 
 func (fa PowerList) FilterByGroupIndex(group *PWGroup, c int) PowerList {
-	fmt.Println("FilterByGroupIndex")
+	fmt.Printf("FilterByGroupIndex : %d\n", len(fa))
 	arr := PowerList{}
 	for _, ftn := range fa {
 		if _, gcount := group.FindGroupIndex(ftn); gcount == c {
@@ -18,6 +18,7 @@ func (fa PowerList) FilterByGroupIndex(group *PWGroup, c int) PowerList {
 }
 
 func (fa PowerList) FilterHighFreqNumber(highFreqs PowerList, p PickParam) PowerList {
+	fmt.Printf("FilterHighFreqNumber : %d\n", len(fa))
 	result := PowerList{}
 	ballsCount := highFreqs.IntervalBallsCountStatic(p)
 	fmt.Println(ballsCount.Presentation(false))
@@ -36,6 +37,7 @@ func (fa PowerList) FilterHighFreqNumber(highFreqs PowerList, p PickParam) Power
 }
 
 func (fa PowerList) Distinct() PowerList {
+	fmt.Printf("Distinct : %d\n", len(fa))
 	results := PowerList{}
 	tmp := map[string]Power{}
 	for _, f := range fa {
@@ -51,10 +53,10 @@ func (fa PowerList) Distinct() PowerList {
 }
 
 func (fa PowerList) FilterPickBySpecConfition() PowerList {
-	fmt.Println("FilterPickBySpecConfition")
+	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := PowerList{}
 	for _, pw := range fa {
-		if pw.Feature.IsContinue2() {
+		if pw.Feature.IsContinue4() {
 			result = append(result, pw)
 		}
 	}
@@ -62,7 +64,7 @@ func (fa PowerList) FilterPickBySpecConfition() PowerList {
 }
 
 func (fa PowerList) FilterIncludes(tops PowerList, sb []int) PowerList {
-	fmt.Println("FilterIncludes")
+	fmt.Printf("FilterIncludes : %d\n", len(fa))
 	result := PowerList{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -77,6 +79,9 @@ func (fa PowerList) FilterIncludes(tops PowerList, sb []int) PowerList {
 		}
 	}
 	fmt.Println(search.Presentation())
+	if len(search) == 0 {
+		return fa
+	}
 
 	for _, ftn := range fa {
 		for _, n := range ftn.Feature.IBalls {
@@ -90,7 +95,7 @@ func (fa PowerList) FilterIncludes(tops PowerList, sb []int) PowerList {
 }
 
 func (fa PowerList) FilterExcludes(tops PowerList, sb []int) PowerList {
-	fmt.Println("FilterExcludes")
+	fmt.Printf("FilterExcludes : %d\n", len(fa))
 	result := PowerList{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -105,6 +110,9 @@ func (fa PowerList) FilterExcludes(tops PowerList, sb []int) PowerList {
 	}
 
 	fmt.Println(search.Presentation())
+	if len(search) == 0 {
+		return fa
+	}
 
 	for _, ftn := range fa {
 		add := true
@@ -123,7 +131,7 @@ func (fa PowerList) FilterExcludes(tops PowerList, sb []int) PowerList {
 }
 
 func (fa PowerList) FilterExcludeNode(tops PowerList) PowerList {
-	fmt.Println("FilterExcludeNode")
+	fmt.Printf("FilterExcludeNode : %d\n", len(fa))
 	result := PowerList{}
 	sames := PowerList{}
 	for _, f := range fa {
@@ -150,6 +158,7 @@ func (fa PowerList) FilterExcludeNode(tops PowerList) PowerList {
 }
 
 func (fa PowerList) FilterFeatureExcludes(tops PowerList) PowerList {
+	fmt.Printf("FilterFeatureExcludes : %d\n", len(fa))
 	result := PowerList{}
 
 	for _, pw := range fa {

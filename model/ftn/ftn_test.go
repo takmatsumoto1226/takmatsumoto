@@ -380,7 +380,7 @@ func Test_groupNumbers(t *testing.T) {
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 700}
 	infl1 := ar.List.FragmentRange([]int{1})
 	exfl2 := ar.List.FragmentRange([]int{0})
-	filterPick := ar.FilterByGroupIndex(group, []int{1}).FilterHighFreqNumber(ar.List, p).FilterPickBySpecConfition().FilterIncludes(infl1, []int{}).FilterExcludes(exfl2, []int{}).FilterExcludeNode(ar.List).FilterNeighberNumber(&top, 2).FilterByTebGroup([]int{df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 2, 0}).FilterFeatureExcludes(ar.List.FindDate("0614", df.None)).findNumbers([]string{}, df.None).Distinct()
+	filterPick := ar.FilterByGroupIndex(group, []int{1}).FilterHighFreqNumber(ar.List, p).FilterPickBySpecConfition().FilterIncludes(infl1, []int{}).FilterExcludes(exfl2, []int{}).FilterExcludeNode(ar.List).FilterNeighberNumber(&top, 2).FilterByTebGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 1, 1, 1}).FilterFeatureExcludes(ar.List).findNumbers([]string{}, df.None).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
@@ -393,7 +393,7 @@ func Test_groupNumbers(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	ar.GodPick(filterPick, 20)
+	ar.GodPick(filterPick, 1)
 
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
 }
@@ -403,7 +403,7 @@ func Test_FTNGroup(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	GroupCount := 500
+	GroupCount := 100
 	gftn := NewGroup(GroupCount, ar.Combinations, ar.List)
 	fmt.Println(gftn.Presentation())
 	// ar.ReadJSON(FileNames())
@@ -501,18 +501,57 @@ var targetsub = "20240617"
 func FileNames() []string {
 
 	fmt.Println("date : " + targetsub)
-	// return []string{
-	// // filepath.Join(RootDir, targetsub, "content_09_5.0_20240614162432.json"),
-	// }
-
-	files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
-	filenames := []string{}
-	for _, f := range files {
-		if strings.Contains(f.Name(), ".json") {
-			filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
-		}
+	return []string{
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093329.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093502.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093629.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093757.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093921.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094052.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094222.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094355.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094521.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094652.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094827.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095004.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095131.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095302.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095444.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095620.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095755.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095930.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617100057.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617100227.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617114941.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115115.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115245.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115419.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115551.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115720.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115849.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120020.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120150.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120319.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120447.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120617.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120746.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120916.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121057.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121232.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121408.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121537.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121708.json"),
+		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121842.json"),
 	}
-	return filenames
+
+	// files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
+	// filenames := []string{}
+	// for _, f := range files {
+	// 	if strings.Contains(f.Name(), ".json") {
+	// 		filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
+	// 	}
+	// }
+	// return filenames
 }
 
 func Test_CompareLatestAndHistoryFeature(t *testing.T) {
@@ -520,7 +559,7 @@ func Test_CompareLatestAndHistoryFeature(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	df.DisableFilters([]int{df.FilterEvenCount, df.FilterOddCount})
+	df.DisableFilters([]int{df.FilterEvenCount, df.FilterOddCount, df.FilterTailDigit})
 	ar.CompareLatestAndHistoryFeature()
 }
 

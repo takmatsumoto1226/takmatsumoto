@@ -140,70 +140,73 @@ func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 	common.SetRandomGenerator(th.Randomer)
 	bts := []FTNBT{}
 	for r := 0; r < th.Round; r++ {
-		bt := NewBackTest(time.Now(), th)
-		result := map[string]int{}
-
-		for _, v := range ar.Combinations {
-			balls := NewFTNWithInts(v)
-			result[balls.Key()] = 0
-		}
-		total := int(float32(th.Sample) * th.SampleTime)
-
-		for i := 0; i < total; i++ {
-			index := common.RandomNuber() % uint64(th.Sample)
-			balls := NewFTNWithInts(ar.Combinations[index])
-			if v, ok := result[balls.Key()]; ok {
-				result[balls.Key()] = v + 1
-			}
-		}
-
-		features := ar.List.FeatureRange(th)
-		bt.Features.Title = "features row"
-		bt.Features.Balls = features
-
-		count := 0
-		thNumbTops := FTNArray{}
-		threadholdNumbers := FTNArray{}
-		featuresFTNs := FTNArray{}
-		for k, v := range result {
-			if v > th.Value {
-				thNumb := NewFTNWithStrings(strings.Split(k, "_"))
-				threadholdNumbers = append(threadholdNumbers, *thNumb)
-				ftnarr := ar.List.findNumbers(thNumb.ToStringArr(), df.None)
-				if len(ftnarr) > 0 {
-					thNumbTops = append(thNumbTops, ftnarr...)
-				}
-
-				for _, l := range features {
-					if l.MatchFeature(thNumb) {
-						featuresFTNs = append(featuresFTNs, *thNumb)
-						break
-					}
-				}
-				count++
-			}
-		}
-		bt.ThresholdNumbers.Title = "Thread Hold Numbers"
-		bt.ThresholdNumbers.Balls = threadholdNumbers
-		bt.ThreadHoldCount = len(threadholdNumbers)
-
-		bt.HistoryTopCount = len(thNumbTops)
-
-		bt.PickNumbers.Title = "Feature Close"
-		bt.PickNumbers.Balls = featuresFTNs
-		bt.PickupCount = len(featuresFTNs)
-		bt.NumbersHistoryTopsPercent = float32(len(thNumbTops)) / float32(count) * 100.0
-
-		// exclude tops
-		pures := threadholdNumbers.FilterFeatureExcludes(ar.List)
-
-		bt.ExcludeTops.Title = "Pures"
-		bt.ExcludeTops.Balls = pures
-
-		bts = append(bts, *bt)
+		go ar.DoGenJSON(th)
 	}
 
 	ar.BackTests = bts
+}
+
+func (ar *FTNsManager) DoGenJSON(th interf.Threshold) {
+	bt := NewBackTest(time.Now(), th)
+	result := map[string]int{}
+
+	for _, v := range ar.Combinations {
+		balls := NewFTNWithInts(v)
+		result[balls.Key()] = 0
+	}
+	total := int(float32(th.Sample) * th.SampleTime)
+
+	for i := 0; i < total; i++ {
+		index := common.RandomNuber() % uint64(th.Sample)
+		balls := NewFTNWithInts(ar.Combinations[index])
+		if v, ok := result[balls.Key()]; ok {
+			result[balls.Key()] = v + 1
+		}
+	}
+
+	features := ar.List.FeatureRange(th)
+	bt.Features.Title = "features row"
+	bt.Features.Balls = features
+
+	count := 0
+	thNumbTops := FTNArray{}
+	threadholdNumbers := FTNArray{}
+	featuresFTNs := FTNArray{}
+	for k, v := range result {
+		if v > th.Value {
+			thNumb := NewFTNWithStrings(strings.Split(k, "_"))
+			threadholdNumbers = append(threadholdNumbers, *thNumb)
+			ftnarr := ar.List.findNumbers(thNumb.ToStringArr(), df.None)
+			if len(ftnarr) > 0 {
+				thNumbTops = append(thNumbTops, ftnarr...)
+			}
+
+			for _, l := range features {
+				if l.MatchFeature(thNumb) {
+					featuresFTNs = append(featuresFTNs, *thNumb)
+					break
+				}
+			}
+			count++
+		}
+	}
+	bt.ThresholdNumbers.Title = "Thread Hold Numbers"
+	bt.ThresholdNumbers.Balls = threadholdNumbers
+	bt.ThreadHoldCount = len(threadholdNumbers)
+
+	bt.HistoryTopCount = len(thNumbTops)
+
+	bt.PickNumbers.Title = "Feature Close"
+	bt.PickNumbers.Balls = featuresFTNs
+	bt.PickupCount = len(featuresFTNs)
+	bt.NumbersHistoryTopsPercent = float32(len(thNumbTops)) / float32(count) * 100.0
+
+	// exclude tops
+	pures := threadholdNumbers.FilterFeatureExcludes(ar.List)
+
+	bt.ExcludeTops.Title = "Pures"
+	bt.ExcludeTops.Balls = pures
+	ar.BackTests = append(ar.BackTests, *bt)
 }
 
 func B2i(b bool) int8 {

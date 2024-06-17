@@ -29,8 +29,8 @@ func NewPWGroup(gc int, combinations [][]int, arr PowerList) *PWGroup {
 	length := len(combinations)/gc + 1
 	statics := make([]int, length)
 
-	for _, ftn := range arr {
-		idx := groupMapping[ftn.Key()]
+	for _, pw := range arr {
+		idx := groupMapping[pw.Key()]
 		statics[idx]++
 	}
 
@@ -60,12 +60,13 @@ func (pg *PWGroup) Presentation() string {
 	}
 	pg.Avg = sum / float64(len(pg.Statics))
 
+	total := (len(pg.GroupMapping) / pg.GroupCount) + 1
 	msg = msg + "\n"
 	msg = msg + fmt.Sprintf("Max : %d\n", pg.Max)
 	msg = msg + fmt.Sprintf("Avg : %f\n", pg.Avg)
-	msg = msg + fmt.Sprintf("Total : %d\n", len(pg.GroupMapping))
+	msg = msg + fmt.Sprintf("Total : %d\n", total)
 	msg = msg + fmt.Sprintf("Zero Count : %d\n", pg.ZeroCount)
-	msg = msg + fmt.Sprintf("Zero Percent : %.2f\n", float64(pg.ZeroCount)/float64(len(pg.Statics)))
+	msg = msg + fmt.Sprintf("Zero Percent : %.2f\n", float64(pg.ZeroCount)/float64(total))
 	return msg
 }
 
