@@ -42,6 +42,10 @@ func (fa PowerList) WithRange(i, r int) PowerList {
 	return fa
 }
 
+func (fa PowerList) WithInterval(i interf.Interval) PowerList {
+	return fa.WithRange(i.Index, i.Length)
+}
+
 func (fa PowerList) Reverse() PowerList {
 	sort.Sort(sort.Reverse(fa))
 	return fa

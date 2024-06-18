@@ -181,6 +181,7 @@ func (fa FTNArray) FeatureRange(th interf.Threshold) FTNArray {
 }
 
 func (fa FTNArray) Distinct() FTNArray {
+
 	results := FTNArray{}
 	tmp := map[string]FTN{}
 	for _, f := range fa {

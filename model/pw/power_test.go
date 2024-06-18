@@ -109,7 +109,7 @@ func Test_PickupNumber(t *testing.T) {
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 243}
 	BInclude := pwm.List.FragmentRange([]int{1})
 	BExclude := pwm.List.FragmentRange([]int{})
-	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{"28", "29"}, df.None).FilterFeatureExcludes(pwm.List).Distinct()
+	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).FilterFeatureExcludes(pwm.List).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
@@ -178,6 +178,14 @@ func Test_Continue3TypeStatic(t *testing.T) {
 	var pwm = PowerManager{}
 	pwm.Prepare()
 	fmt.Printf("%.2f%%\n", pwm.List.StaticContinue3Percent(interf.Interval{Index: 0, Length: len(pwm.List)}))
+}
+
+func Test_Continue32TypeStatic(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_Continue32TypeStatic")
+	config.LoadConfig("../../config.yaml")
+	var pwm = PowerManager{}
+	pwm.Prepare()
+	fmt.Printf("%.2f%%\n", pwm.List.WithInterval(interf.Interval{Index: 0, Length: len(pwm.List)}).StaticContinue32Percent())
 }
 
 func Test_Continue4TypeStatic(t *testing.T) {

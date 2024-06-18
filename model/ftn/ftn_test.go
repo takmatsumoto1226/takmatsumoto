@@ -402,8 +402,9 @@ func Test_FTNGroup(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	GroupCount := 100
+	GroupCount := 50
 	gftn := NewGroup(GroupCount, ar.Combinations, ar.List)
+	gftn.StaticCounts()
 	fmt.Println(gftn.Presentation())
 	// ar.ReadJSON(FileNames())
 	// filterPick := ar.FilterByGroupIndex(gftn, []int{0})
@@ -587,19 +588,19 @@ func Test_allcombinationFeatureGroup(t *testing.T) {
 		}
 	}
 
-	// arrc := map[int]int{}
+	arrc := map[int]int{}
 	for k, m := range mapping {
 		fmt.Printf("%s:%d\n", k, m)
-		// if v, ok := arrc[m]; ok {
-		// 	arrc[m] = v + 1
-		// } else {
-		// 	arrc[m] = 1
-		// }
+		if v, ok := arrc[m]; ok {
+			arrc[m] = v + 1
+		} else {
+			arrc[m] = 1
+		}
 	}
-	// fmt.Println(len(mapping))
-	// for idx, c := range arrc {
-	// 	fmt.Printf("%5d個的有 %d\n", idx, c)
-	// }
+	fmt.Println(len(mapping))
+	for idx, c := range arrc {
+		fmt.Printf("%5d個的有 %d\n", idx, c)
+	}
 }
 
 func Test_StaticColPercent(t *testing.T) {
@@ -647,6 +648,27 @@ func Test_Neighbers(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	ar.List.Neighbers(1).ShowAll()
+}
+
+func Test_FoundGroups(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Group Index")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	GroupCount := 50
+	group := NewGroup(GroupCount, ar.Combinations, ar.List)
+	gftns := group.FindGroupNotes(6)
+	gftns.ShowAll()
+	result := FTNArray{}
+	for _, top := range ar.List {
+		for _, gftn := range gftns {
+			if gftn.IsSame(&top) {
+				result = append(result, top)
+				break
+			}
+		}
+	}
+	result.ShowAll()
 }
 
 // 2017-2019
