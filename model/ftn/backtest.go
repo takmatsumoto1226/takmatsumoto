@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const RootDir = "./gendata"
@@ -157,7 +159,10 @@ func (bt *FTNBT) Save() string {
 		bt.FullPath = filepath.Join(RootDir, bt.Date.Format("0102"), bt.FileName)
 	}
 	jsonString, _ := json.Marshal(bt)
-	os.WriteFile(bt.FullPath, jsonString, os.ModePerm)
+	fmt.Println("Full Path : " + bt.FullPath)
+	if err := os.WriteFile(bt.FullPath, jsonString, os.ModePerm); err != nil {
+		logrus.Error(err)
+	}
 	return bt.FileName
 }
 

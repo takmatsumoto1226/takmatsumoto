@@ -138,12 +138,9 @@ func (ar *FTNsManager) Picknumber(params PickParams) map[string]BallsInfo {
 
 func (ar *FTNsManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 	common.SetRandomGenerator(th.Randomer)
-	bts := []FTNBT{}
 	for r := 0; r < th.Round; r++ {
-		go ar.DoGenJSON(th)
+		ar.DoGenJSON(th)
 	}
-
-	ar.BackTests = bts
 }
 
 func (ar *FTNsManager) DoGenJSON(th interf.Threshold) {
@@ -154,7 +151,7 @@ func (ar *FTNsManager) DoGenJSON(th interf.Threshold) {
 		balls := NewFTNWithInts(v)
 		result[balls.Key()] = 0
 	}
-	total := int(float32(th.Sample) * th.SampleTime)
+	total := int(float64(th.Sample) * th.SampleTime)
 
 	for i := 0; i < total; i++ {
 		index := common.RandomNuber() % uint64(th.Sample)

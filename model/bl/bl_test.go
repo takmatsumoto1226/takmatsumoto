@@ -142,7 +142,7 @@ func Test_random2(t *testing.T) {
 			result[balls.Key()] = 0
 		}
 
-		total := int(float32(len(combarr)) * th.SampleTime)
+		total := int(float64(len(combarr)) * th.SampleTime)
 		fmt.Println(total)
 
 		for i := 0; i < total; i++ {

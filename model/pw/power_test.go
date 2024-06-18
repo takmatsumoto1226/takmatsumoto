@@ -107,9 +107,9 @@ func Test_PickupNumber(t *testing.T) {
 	pwg := NewPWGroup(GroupCount, pwm.Combinations, pwm.List)
 
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 243}
-	BInclude := pwm.List.FragmentRange([]int{0})
-	BExclude := pwm.List.FragmentRange([]int{3})
-	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).FilterFeatureExcludes(pwm.List).Distinct()
+	BInclude := pwm.List.FragmentRange([]int{1})
+	BExclude := pwm.List.FragmentRange([]int{})
+	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{"28", "29"}, df.None).FilterFeatureExcludes(pwm.List).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
@@ -122,7 +122,7 @@ func Test_PickupNumber(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	GodPick(filterPick, 1)
+	GodPick(filterPick, 10)
 	// fmt.Println(pwm.List.WithRange(0, 20).Presentation())
 }
 

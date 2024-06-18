@@ -229,6 +229,19 @@ func (f *FTN) haveNeighber(tf *FTN, c int) bool {
 	return count == c
 }
 
+func (f *FTN) haveCol(tf *FTN, c int) bool {
+	count := 0
+	for _, b1 := range f.IBalls {
+		for _, b2 := range tf.IBalls {
+			if b1 == b2 {
+				count++
+			}
+		}
+	}
+
+	return count == c
+}
+
 func absDiffInt(x, y int) int {
 	if x < y {
 		return y - x

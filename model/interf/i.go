@@ -60,7 +60,7 @@ func (s *Smart) typeName() string {
 type Threshold struct {
 	Randomer   int      `json:"randomer"`
 	Round      int      `json:"round"`
-	SampleTime float32  `json:"sampletime"`
+	SampleTime float64  `json:"sampletime"`
 	Sample     int      `json:"sample"`
 	Value      int      `json:"value"`
 	RealSale   int32    `json:"realsale"`

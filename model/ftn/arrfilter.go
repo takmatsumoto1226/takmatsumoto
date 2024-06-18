@@ -121,7 +121,7 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 
 	numbers := []string{}
 	for _, b := range ballsCount.AppearBalls {
-		if b.Count > uint(p.Freq) {
+		if b.Count < uint(p.Freq) {
 			numbers = append(numbers, b.Ball.Number)
 		}
 	}
@@ -136,7 +136,7 @@ func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.NoContinue() {
+		if ftn.Feature.NoContinue() || ftn.Feature.IsContinue2() {
 			result = append(result, ftn)
 		}
 	}
@@ -190,7 +190,7 @@ func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterNeighberNumber(top *FTN, c int) FTNArray {
+func (fa FTNArray) FilterNeighber(top *FTN, c int) FTNArray {
 	fmt.Printf("FilterNeighberNumber : %d\n", len(fa))
 	result := FTNArray{}
 	for _, f := range fa {
@@ -201,10 +201,24 @@ func (fa FTNArray) FilterNeighberNumber(top *FTN, c int) FTNArray {
 	return result
 }
 
+func (fa FTNArray) FilterCol(top *FTN, c int) FTNArray {
+	fmt.Printf("FilterCol : %d\n", len(fa))
+	result := FTNArray{}
+	for _, f := range fa {
+		if f.haveCol(top, c) {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
 func (fa FTNArray) FilterByTebGroup(tt []int, hh []int) FTNArray {
 	fmt.Printf("FilterTebGroup : %d\n", len(fa))
-	result := FTNArray{}
+	if len(tt) == 0 {
+		return fa
+	}
 
+	result := FTNArray{}
 	for _, f := range fa {
 		count := 0
 		for ti, t := range tt {

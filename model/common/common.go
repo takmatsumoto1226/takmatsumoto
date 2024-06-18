@@ -6,8 +6,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"math"
 	"math/rand"
 	"os"
+	"testing"
 	"time"
 
 	"github.com/goark/mt/v2"
@@ -97,4 +99,54 @@ func (lm LIMap) Presentation() string {
 		msg = msg + fmt.Sprintf("%02d|", k)
 	}
 	return msg
+}
+
+func Test_montecarlo(t *testing.T) {
+	samplesExponent := 10
+
+	var r1 float64
+	var r2 float64
+	var heads float64
+	samples := math.Pow(10, float64(samplesExponent))
+	heads = 0
+	for range make([]struct{}, int(samples)) {
+		r1 = rand.Float64()
+		r2 = rand.Float64()
+		toss := math.Pow(r1-0.5, 2) + math.Pow(r2-0.5, 2)
+		if toss < 0.25 {
+			heads++
+		}
+	}
+
+	area := samples * 0.25
+
+	pi := heads / area
+
+	fmt.Printf("pi estimation - %f\n", pi)
+}
+
+func MultiPI(samples int, threads int) float64 {
+	threadSamples := samples / threads
+	results := make(chan float64, threads)
+
+	for j := 0; j < threads; j++ {
+		go func() {
+			var inside int
+			for i := 0; i < threadSamples; i++ {
+				x, y := rand.Float64(), rand.Float64()
+
+				if x*x+y*y <= 1 {
+					inside++
+				}
+			}
+			results <- float64(inside) / float64(threadSamples) * 4
+		}()
+	}
+
+	var total float64
+	for i := 0; i < threads; i++ {
+		total += <-results
+	}
+
+	return total / float64(threads)
 }

@@ -9,7 +9,6 @@ import (
 	"lottery/model/df"
 	"lottery/model/interf"
 	"math"
-	"math/rand"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -228,13 +227,13 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	// df.DisableFilters([]int{df.FilterTailDigit})
 	th := interf.Threshold{
-		Round:      20,
-		Value:      9,
-		SampleTime: 5,
+		Round:      9,
+		Value:      7,
+		SampleTime: 4,
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
 			Index:  start,
-			Length: len(ar.List) / 3,
+			Length: len(ar.List) / 4,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -377,10 +376,10 @@ func Test_groupNumbers(t *testing.T) {
 	ar.ReadJSON(FileNames())
 	top := ar.List.GetNode(0)
 	group := NewGroup(100, ar.Combinations, ar.List)
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 700}
-	infl1 := ar.List.FragmentRange([]int{1})
-	exfl2 := ar.List.FragmentRange([]int{0})
-	filterPick := ar.FilterByGroupIndex(group, []int{1}).FilterHighFreqNumber(ar.List, p).FilterPickBySpecConfition().FilterIncludes(infl1, []int{}).FilterExcludes(exfl2, []int{}).FilterExcludeNode(ar.List).FilterNeighberNumber(&top, 2).FilterByTebGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 1, 1, 1}).FilterFeatureExcludes(ar.List).findNumbers([]string{}, df.None).Distinct()
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 686}
+	infl1 := ar.List.FragmentRange([]int{})
+	exfl2 := ar.List.FragmentRange([]int{2})
+	filterPick := ar.FilterByGroupIndex(group, []int{0}).FilterHighFreqNumber(ar.List, p).FilterPickBySpecConfition().FilterIncludes(infl1, []int{}).FilterExcludes(exfl2, []int{}).FilterExcludeNode(ar.List).FilterCol(&top, 0).FilterNeighber(&top, 0).FilterByTebGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup4}, []int{2, 2, 1}).FilterFeatureExcludes(ar.List).findNumbers([]string{}, df.None).Distinct()
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
@@ -393,7 +392,7 @@ func Test_groupNumbers(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	ar.GodPick(filterPick, 1)
+	ar.GodPick(filterPick, 20)
 
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
 }
@@ -442,106 +441,17 @@ func Find(slice interface{}, f func(value interface{}) bool) int {
 	return -1
 }
 
-func Test_montecarlo(t *testing.T) {
-	samplesExponent := 10
-
-	var r1 float64
-	var r2 float64
-	var heads float64
-	samples := math.Pow(10, float64(samplesExponent))
-	heads = 0
-	for range make([]struct{}, int(samples)) {
-		r1 = rand.Float64()
-		r2 = rand.Float64()
-		toss := math.Pow(r1-0.5, 2) + math.Pow(r2-0.5, 2)
-		if toss < 0.25 {
-			heads++
-		}
-	}
-
-	area := samples * 0.25
-
-	pi := heads / area
-
-	fmt.Printf("pi estimation - %f\n", pi)
-}
-
-func MultiPI(samples int, threads int) float64 {
-	threadSamples := samples / threads
-	results := make(chan float64, threads)
-
-	for j := 0; j < threads; j++ {
-		go func() {
-			var inside int
-			for i := 0; i < threadSamples; i++ {
-				x, y := rand.Float64(), rand.Float64()
-
-				if x*x+y*y <= 1 {
-					inside++
-				}
-			}
-			results <- float64(inside) / float64(threadSamples) * 4
-		}()
-	}
-
-	var total float64
-	for i := 0; i < threads; i++ {
-		total += <-results
-	}
-
-	return total / float64(threads)
-}
-
 func Test_compareTest(t *testing.T) {
 
 }
 
-var targetsub = "20240617"
+var targetsub = "20240618"
 
 func FileNames() []string {
 
 	fmt.Println("date : " + targetsub)
 	return []string{
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093329.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093502.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093629.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093757.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617093921.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094052.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094222.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094355.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094521.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094652.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617094827.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095004.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095131.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095302.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095444.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095620.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095755.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617095930.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617100057.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617100227.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617114941.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115115.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115245.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115419.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115551.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115720.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617115849.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120020.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120150.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120319.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120447.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120617.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120746.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617120916.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121057.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121232.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121408.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121537.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121708.json"),
-		filepath.Join(RootDir, targetsub, "content_09_5.0_20240617121842.json"),
+		filepath.Join(RootDir, targetsub, "content_07_4.0_20240618111423.json"),
 	}
 
 	// files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
@@ -590,7 +500,7 @@ func Test_ShowContinue2(t *testing.T) {
 	ar.Prepare()
 	r := interf.NewIntervalR(30)
 	ar.List.WithInterval(r).ShowAll()
-	fmt.Printf("%.4f%%\n", ar.List.StaticContinue2Percent(r))
+	fmt.Printf("%.4f%%\n", ar.List.StaticContinue2Percent())
 
 }
 
@@ -600,7 +510,8 @@ func Test_ShowContinue3(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	r := interf.NewInterval(0, 0)
-	fmt.Printf("%.4f%%\n", ar.List.StaticContinue3Percent(r))
+	ar.List.WithInterval(r)
+	fmt.Printf("%.4f%%\n", ar.List.StaticContinue3Percent())
 	// ar.List.WithRange(0, r).Reverse().ShowAll()
 }
 
@@ -629,7 +540,7 @@ func Test_StaticTenGroup(t *testing.T) {
 	for _, t := range tt {
 		fmt.Printf("%02d:\n", t)
 		for _, v := range []int{0, 1, 2, 3, 4, 5} {
-			fmt.Printf("%d : %.2f%%\n", v, ar.List.StaticGroupTen(r, t, v))
+			fmt.Printf("%d : %.2f%%\n", v, ar.List.WithInterval(r).StaticGroupTen(t, v))
 		}
 		fmt.Print("\n\n")
 	}
@@ -691,6 +602,53 @@ func Test_allcombinationFeatureGroup(t *testing.T) {
 	// }
 }
 
-func Test_calculation(t *testing.T) {
-	fmt.Println(10 / 10)
+func Test_StaticColPercent(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+
+	for i := 0; i <= 40; i++ {
+		r := interf.NewInterval(i, 20)
+		fmt.Printf("%04d : %.4f%%\n", i, ar.List.WithInterval(r).StaticColPercent(1))
+	}
 }
+
+func Test_StaticColPercentAll(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	fmt.Printf("%.4f%%\n", ar.List.StaticColPercent(1))
+}
+
+func Test_Cols(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.Cols(1).ShowAll()
+}
+
+func Test_StaticHaveNeighberPercent(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticHaveNeighberPercent")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	for i := 0; i <= 2000; i++ {
+		r := interf.NewInterval(i, 20)
+		fmt.Printf("%04d : %.3f%%\n", i, ar.List.WithInterval(r).StaticHaveNeighberPercent(2))
+	}
+}
+
+func Test_Neighbers(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.Neighbers(1).ShowAll()
+}
+
+// 2017-2019
+// 2020-2022
+// 2023-2024

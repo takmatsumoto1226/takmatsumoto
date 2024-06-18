@@ -127,7 +127,9 @@ func (fa FTNArray) WithRange(i, r int) FTNArray {
 }
 
 func (fa FTNArray) WithInterval(i interf.Interval) FTNArray {
-
+	if i.Length == 0 {
+		return fa
+	}
 	return fa.WithRange(i.Index, i.Length)
 }
 
@@ -366,6 +368,34 @@ func (ar FTNArray) featureBackTesting() map[string]FTNArray {
 		}
 		result[ftn.DateKey()] = tmpArr
 
+	}
+	return result
+}
+
+func (ar FTNArray) Cols(n int) FTNArray {
+	result := FTNArray{}
+	for i, f := range ar.Reverse() {
+		if i < len(ar)-1 {
+			if f.haveCol(&ar[i+1], n) {
+				result = append(result, f)
+				result = append(result, ar[i+1])
+				result = append(result, *Empty())
+			}
+		}
+	}
+	return result
+}
+
+func (ar FTNArray) Neighbers(n int) FTNArray {
+	result := FTNArray{}
+	for i, f := range ar.Reverse() {
+		if i < len(ar)-1 {
+			if f.haveNeighber(&ar[i+1], n) {
+				result = append(result, f)
+				result = append(result, ar[i+1])
+				result = append(result, *Empty())
+			}
+		}
 	}
 	return result
 }

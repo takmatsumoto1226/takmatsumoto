@@ -1,7 +1,6 @@
 package ftn
 
 import (
-	"lottery/model/interf"
 	"sort"
 )
 
@@ -62,46 +61,57 @@ func (ar FTNArray) StaticNumberShowTwiceup(r int) float64 {
 	return count / float64(len(ar))
 }
 
-func (ar FTNArray) StaticContinue2Percent(i interf.Interval) float64 {
+func (ar FTNArray) StaticContinue2Percent() float64 {
 
-	sr := ar
-	if i.Length > 0 && i.Index+i.Length < len(ar) {
-		sr = ar[i.Index : i.Index+i.Length]
-	}
 	count := 0
-	for _, f := range sr {
+	for _, f := range ar {
 		if f.Feature.IsContinue2() {
 			count++
 		}
 	}
-	return (float64(count) / float64(len(sr))) * 100
+	return (float64(count) / float64(len(ar))) * 100
 }
 
-func (ar FTNArray) StaticContinue3Percent(i interf.Interval) float64 {
-
-	sr := ar
-	if i.Length > 0 && i.Index+i.Length < len(ar) {
-		sr = ar[i.Index : i.Index+i.Length]
-	}
+func (ar FTNArray) StaticContinue3Percent() float64 {
 	count := 0
-	for _, f := range sr {
+	for _, f := range ar {
 		if f.Feature.IsContinue3() {
 			count++
 		}
 	}
-	return (float64(count) / float64(len(sr))) * 100
+	return (float64(count) / float64(len(ar))) * 100
 }
 
-func (ar FTNArray) StaticGroupTen(i interf.Interval, t int, v int) float64 {
-	sr := ar
-	if i.Length > 0 && i.Index+i.Length < len(ar) {
-		sr = ar[i.Index : i.Index+i.Length]
-	}
+func (ar FTNArray) StaticGroupTen(t int, v int) float64 {
 	count := 0
-	for _, f := range sr {
+	for _, f := range ar {
 		if f.Feature.TenGroupCount[t] == v {
 			count++
 		}
 	}
-	return (float64(count) / float64(len(sr))) * 100
+	return (float64(count) / float64(len(ar))) * 100
+}
+
+func (ar FTNArray) StaticColPercent(n int) float64 {
+	count := 0.
+	for i, f := range ar {
+		if i < len(ar)-1 {
+			if f.haveCol(&ar[i+1], n) {
+				count++
+			}
+		}
+	}
+	return (count / float64(len(ar)-1)) * 100
+}
+
+func (ar FTNArray) StaticHaveNeighberPercent(n int) float64 {
+	count := 0.
+	for i, f := range ar {
+		if i < len(ar)-1 {
+			if f.haveNeighber(&ar[i+1], n) {
+				count++
+			}
+		}
+	}
+	return (count / float64(len(ar)-1)) * 100
 }

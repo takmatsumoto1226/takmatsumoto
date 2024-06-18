@@ -345,7 +345,7 @@ func (fa *Feature) IsContinue3() bool {
 
 func (fa *Feature) IsContinue4() bool {
 	continues := false
-	for i := 0; i < len(fa.IBalls)-4; i++ {
+	for i := 0; i < len(fa.IBalls)-3; i++ {
 		if fa.IBalls[i+1]-fa.IBalls[i] == 1 && fa.IBalls[i+2]-fa.IBalls[i+1] == 1 && fa.IBalls[i+3]-fa.IBalls[i+2] == 1 {
 			continues = true
 			break
@@ -355,12 +355,31 @@ func (fa *Feature) IsContinue4() bool {
 }
 
 func (fa *Feature) IsContinue5() bool {
-	i1 := fa.IBalls[0]
-	i2 := fa.IBalls[1]
-	i3 := fa.IBalls[2]
-	i4 := fa.IBalls[3]
-	i5 := fa.IBalls[4]
-	return (i2-i1 == 1 && i3-i2 == 1 && i4-i3 == 1 && i5-i4 == 1)
+	continues := false
+	for i := 0; i < len(fa.IBalls)-4; i++ {
+		if fa.IBalls[i+1]-fa.IBalls[i] == 1 && fa.IBalls[i+2]-fa.IBalls[i+1] == 1 && fa.IBalls[i+3]-fa.IBalls[i+2] == 1 && fa.IBalls[i+4]-fa.IBalls[i+3] == 1 {
+			continues = true
+			break
+		}
+	}
+	return continues
+}
+
+func (fa *Feature) IsContinueN(n int) bool {
+	continues := false
+	count := 0
+	for i := 0; i < len(fa.IBalls)-(n-1); i++ {
+		for k := 0; k < n; k++ {
+			if fa.IBalls[i+k]-fa.IBalls[i] != 1 {
+				return continues
+			}
+			count++
+		}
+		if count == n {
+			break
+		}
+	}
+	return continues
 }
 
 func (fa *Feature) IsContinue22() bool {
