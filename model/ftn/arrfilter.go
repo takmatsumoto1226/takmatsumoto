@@ -13,8 +13,8 @@ func (fa FTNArray) FilterByGroupIndex(group *FTNGroup, cs []int) FTNArray {
 		for _, c := range cs {
 			if _, gcount := group.FindGroupIndex(ftn); gcount == c {
 				arr = append(arr, ftn)
+				break
 			}
-			break
 		}
 	}
 	return arr.Distinct()
@@ -40,7 +40,7 @@ func (fa FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]Ball
 }
 
 func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
-	fmt.Printf("FilterExcludes : %d\n", len(fa))
+	// fmt.Printf("FilterExcludes : %d\n", len(fa))
 	result := FTNArray{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -58,7 +58,7 @@ func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 		return fa
 	}
 
-	fmt.Println(search.Presentation())
+	// fmt.Println(search.Presentation())
 
 	for _, ftn := range fa {
 		add := true
@@ -121,7 +121,7 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 
 	numbers := []string{}
 	for _, b := range ballsCount.AppearBalls {
-		if b.Count < uint(p.Freq) {
+		if b.Count > uint(p.Freq) {
 			numbers = append(numbers, b.Ball.Number)
 		}
 	}
@@ -136,7 +136,7 @@ func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.NoContinue() || ftn.Feature.IsContinue2() {
+		if ftn.Feature.NoContinue() {
 			result = append(result, ftn)
 		}
 	}
@@ -158,6 +158,21 @@ func (fa FTNArray) FilterFeatureExcludes(tops FTNArray) FTNArray {
 
 		if add {
 			result = append(result, ftn)
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterFeatureIncludes(tops FTNArray) FTNArray {
+	fmt.Printf("FilterFeatureIncludes : %d\n", len(fa))
+	result := FTNArray{}
+
+	for _, ftn := range fa {
+		for _, top := range tops {
+			if ftn.MatchFeature(&top) {
+				result = append(result, ftn)
+				break
+			}
 		}
 	}
 	return result
@@ -219,15 +234,62 @@ func (fa FTNArray) FilterByTebGroup(tt []int, hh []int) FTNArray {
 	}
 
 	result := FTNArray{}
-	for _, f := range fa {
-		count := 0
-		for ti, t := range tt {
-			if f.Feature.TenGroupCount[t] != hh[ti] {
-				break
-			}
-			count++
-			if count == len(tt) {
+	if len(tt) == 0 {
+		for _, f := range fa {
+			if f.Feature.IsFullTenGrouop() {
 				result = append(result, f)
+			}
+		}
+	} else {
+		for _, f := range fa {
+			count := 0
+			for ti, t := range tt {
+				if f.Feature.TenGroupCount[t] != hh[ti] {
+					break
+				}
+				count++
+				if count == len(tt) {
+					result = append(result, f)
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+func (fa FTNArray) FilterByTebGroupC(tt []int, hhh [][]int) FTNArray {
+	fmt.Printf("FilterTebGroup : %d\n", len(fa))
+	if len(tt) == 0 {
+		return fa
+	}
+
+	result := FTNArray{}
+	if len(tt) == 0 {
+		for _, f := range fa {
+			if f.Feature.IsFullTenGrouop() {
+				result = append(result, f)
+			}
+		}
+	} else {
+		for _, f := range fa {
+			add := false
+			for ti, t := range tt {
+				count := 0
+				for _, hh := range hhh {
+					if f.Feature.TenGroupCount[t] != hh[ti] {
+						break
+					}
+					count++
+					if count == len(tt) {
+						result = append(result, f)
+						add = true
+						break
+					}
+				}
+				if add {
+					break
+				}
 			}
 		}
 	}

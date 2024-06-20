@@ -159,7 +159,6 @@ func (bt *FTNBT) Save() string {
 		bt.FullPath = filepath.Join(RootDir, bt.Date.Format("0102"), bt.FileName)
 	}
 	jsonString, _ := json.Marshal(bt)
-	fmt.Println("Full Path : " + bt.FullPath)
 	if err := os.WriteFile(bt.FullPath, jsonString, os.ModePerm); err != nil {
 		logrus.Error(err)
 	}

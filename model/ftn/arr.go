@@ -400,3 +400,23 @@ func (ar FTNArray) Neighbers(n int) FTNArray {
 	}
 	return result
 }
+
+func (ar FTNArray) Continue2s() FTNArray {
+	result := FTNArray{}
+	for _, f := range ar {
+		if f.Feature.IsContinue2() {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (ar FTNArray) Continue3s() FTNArray {
+	result := FTNArray{}
+	for _, f := range ar {
+		if f.Feature.IsContinue3() {
+			result = append(result, f)
+		}
+	}
+	return result
+}

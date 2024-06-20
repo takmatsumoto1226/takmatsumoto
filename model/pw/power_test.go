@@ -44,9 +44,9 @@ func Test_random(t *testing.T) {
 	pwm.Prepare()
 	// lens := len(combarr)
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterTenGroup})
-	start := 0
+	start := 2
 	th := interf.Threshold{
-		Round:      5,
+		Round:      10,
 		Value:      3,
 		SampleTime: 1,
 		Sample:     len(pwm.Combinations),
@@ -106,8 +106,8 @@ func Test_PickupNumber(t *testing.T) {
 	GroupCount := 100
 	pwg := NewPWGroup(GroupCount, pwm.Combinations, pwm.List)
 
-	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 243}
-	BInclude := pwm.List.FragmentRange([]int{1})
+	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 250}
+	BInclude := pwm.List.FragmentRange([]int{0})
 	BExclude := pwm.List.FragmentRange([]int{})
 	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).FilterFeatureExcludes(pwm.List).Distinct()
 	filterPick.ShowAll()
@@ -209,13 +209,34 @@ func Test_Continue4InAllCombinations(t *testing.T) {
 	fmt.Println(len(list.FilterPickBySpecConfition().Distinct()))
 }
 
+func Test_ListContinue4AndNext(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var as = PowerManager{numberToIndex: map[string]int{}}
+	as.Prepare()
+	result := PowerList{}
+	source := as.List.Reverse()
+	for i, pw := range source {
+		if pw.Feature.IsContinue4() && i < len(source)-1 {
+			result = append(result, pw)
+			result = append(result, source[i+1])
+			result = append(result, *Empty())
+		}
+	}
+	fmt.Println(result.Presentation())
+}
+
 func FileNames() []string {
 	return []string{
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617142957.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143221.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143435.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143645.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240617143908.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620112607.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620112815.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113033.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113246.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113502.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113715.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113921.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620114132.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620114344.json"),
+		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620114601.json"),
 	}
 }
 

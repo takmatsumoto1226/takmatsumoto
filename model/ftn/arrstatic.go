@@ -72,10 +72,13 @@ func (ar FTNArray) StaticContinue2Percent() float64 {
 	return (float64(count) / float64(len(ar))) * 100
 }
 
-func (ar FTNArray) StaticContinue3Percent() float64 {
+func (ar FTNArray) StaticContinue3Percent(show bool) float64 {
 	count := 0
 	for _, f := range ar {
 		if f.Feature.IsContinue3() {
+			if show {
+				f.ShowRow()
+			}
 			count++
 		}
 	}
@@ -111,6 +114,16 @@ func (ar FTNArray) StaticHaveNeighberPercent(n int) float64 {
 			if f.haveNeighber(&ar[i+1], n) {
 				count++
 			}
+		}
+	}
+	return (count / float64(len(ar)-1)) * 100
+}
+
+func (ar FTNArray) StaticFullTenGroupPercent() float64 {
+	count := 0.
+	for _, f := range ar {
+		if f.Feature.IsFullTenGrouop() {
+			count++
 		}
 	}
 	return (count / float64(len(ar)-1)) * 100

@@ -166,24 +166,11 @@ func (ar *FTNsManager) DoGenJSON(th interf.Threshold) {
 	bt.Features.Balls = features
 
 	count := 0
-	thNumbTops := FTNArray{}
 	threadholdNumbers := FTNArray{}
-	featuresFTNs := FTNArray{}
 	for k, v := range result {
 		if v > th.Value {
 			thNumb := NewFTNWithStrings(strings.Split(k, "_"))
 			threadholdNumbers = append(threadholdNumbers, *thNumb)
-			ftnarr := ar.List.findNumbers(thNumb.ToStringArr(), df.None)
-			if len(ftnarr) > 0 {
-				thNumbTops = append(thNumbTops, ftnarr...)
-			}
-
-			for _, l := range features {
-				if l.MatchFeature(thNumb) {
-					featuresFTNs = append(featuresFTNs, *thNumb)
-					break
-				}
-			}
 			count++
 		}
 	}
@@ -191,12 +178,10 @@ func (ar *FTNsManager) DoGenJSON(th interf.Threshold) {
 	bt.ThresholdNumbers.Balls = threadholdNumbers
 	bt.ThreadHoldCount = len(threadholdNumbers)
 
-	bt.HistoryTopCount = len(thNumbTops)
-
 	bt.PickNumbers.Title = "Feature Close"
-	bt.PickNumbers.Balls = featuresFTNs
-	bt.PickupCount = len(featuresFTNs)
-	bt.NumbersHistoryTopsPercent = float32(len(thNumbTops)) / float32(count) * 100.0
+	bt.PickNumbers.Balls = bt.ThresholdNumbers.Balls.FilterFeatureIncludes(features)
+	bt.PickupCount = len(bt.PickNumbers.Balls)
+	bt.NumbersHistoryTopsPercent = float32(bt.HistoryTopCount) / float32(count) * 100.0
 
 	// exclude tops
 	pures := threadholdNumbers.FilterFeatureExcludes(ar.List)
@@ -248,11 +233,15 @@ func (ar *FTNsManager) DoBackTesting(filenames []string, d string) {
 	}
 }
 
-func (ar *FTNsManager) Predictions(filenames []string) {
+func (ar *FTNsManager) Predictions(filenames []string, notes FTNArray) {
 	ar.ReadJSON(filenames)
 
-	interval := interf.Interval{Index: 0, Length: 20}
-	tops := ar.List.WithRange(interval.Index, interval.Length)
+	tops := notes
+	if len(notes) == 0 {
+		interval := interf.Interval{Index: 0, Length: 20}
+		tops = ar.List.WithRange(interval.Index, interval.Length)
+	}
+
 	for _, bt := range ar.BackTests {
 		bt.ThresholdNumbers.DoPrediction(tops)
 		bt.PickNumbers.DoPrediction(tops)
