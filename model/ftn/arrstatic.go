@@ -128,3 +128,11 @@ func (ar FTNArray) StaticFullTenGroupPercent() float64 {
 	}
 	return (count / float64(len(ar)-1)) * 100
 }
+
+func (ar FTNArray) StaticExclude(r int, show bool) float64 {
+	result := ar.Exclude(r)
+	if show {
+		result.ShowAll()
+	}
+	return (float64(len(result)) / float64(len(ar)-r)) * 100
+}

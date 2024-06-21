@@ -430,3 +430,15 @@ func (ar FTNArray) Continue4s() FTNArray {
 	}
 	return result
 }
+
+func (ar FTNArray) Exclude(r int) FTNArray {
+	result := FTNArray{}
+	for idx, f := range ar {
+		rf := ar.WithRange(idx+1, r)
+		exludes := FTNArray{f}.FilterExcludes(rf, []int{})
+		if len(exludes) > 0 {
+			result = append(result, exludes...)
+		}
+	}
+	return result
+}
