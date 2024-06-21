@@ -1,6 +1,8 @@
 package cmd
 
 import (
+	"errors"
+	"fmt"
 	"lottery/config"
 	"lottery/model/df"
 	"lottery/model/ftn"
@@ -20,6 +22,7 @@ var ftnCmd = &cobra.Command{
 
 func init() {
 	RootCmd.AddCommand(ftnCmd)
+	ftnCmd.PersistentFlags().StringP("dir", "D", "", "data 路徑")
 	ftnCmd.PersistentFlags().StringP("action", "a", "", "操作")
 	ftnCmd.PersistentFlags().StringP("round", "r", "", "幾回")
 	ftnCmd.PersistentFlags().StringP("valie", "v", "", "閾值")
@@ -30,6 +33,14 @@ func init() {
 func ftnCommand(cmd *cobra.Command, args []string) error {
 
 	act, _ := cmd.Flags().GetString("action")
+	if len(act) == 0 {
+		return errors.New("no action!!! Check Please")
+	}
+
+	dir, err := cmd.Flags().GetString("dir")
+	if dir == "" || err != nil {
+		dir = "/Users/tak 1/Documents/gitlab_project/takmatsumoto/model/ftn/gendata/"
+	}
 
 	r, _ := cmd.Flags().GetString("round")
 	ir, _ := strconv.Atoi(r)
@@ -48,17 +59,15 @@ func ftnCommand(cmd *cobra.Command, args []string) error {
 	if is == 0 {
 		is = 5
 	}
+	config.LoadConfig("./config.yaml")
+
+	var ar = ftn.FTNsManager{}
+	ar.Prepare()
 
 	logrus.Infof("action : %s", act)
 	switch act {
 	case "pre":
-		config.LoadConfig("./config.yaml")
-
-		var ar = ftn.FTNsManager{}
-		ar.Prepare()
-
 		start := 0
-		//
 		df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 		// df.DisableFilters([]int{df.FilterTailDigit})
 		th := interf.Threshold{
@@ -77,9 +86,39 @@ func ftnCommand(cmd *cobra.Command, args []string) error {
 			Randomer: 1,
 			Match:    false,
 		}
+		fmt.Println(th.Presentation())
 
 		ar.JSONGenerateTopPriceNumber(th)
-		ar.SaveBTs()
+		ar.SaveBTsWithDir(dir)
+	case "pick":
+		// files, _ := os.ReadDir(filepath.Join(dir))
+		// filenames := []string{}
+		// for _, f := range files {
+		// 	if strings.Contains(f.Name(), ".json") {
+		// 		filenames = append(filenames, filepath.Join(dir, f.Name()))
+		// 	}
+		// }
+		// top := ar.List.GetNode(0)
+		// group := ftn.NewGroup(100, ar.Combinations, ar.List)
+		// p := ftn.PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 655}
+		// infl1s := ar.List.FragmentRange([]int{})
+		// exfl2s := ar.List.FragmentRange([]int{0})
+		// filterPick := ar.FilterByGroupIndex(group, []int{0, 1}).FilterHighFreqNumber(ar.List, p).FilterPickBySpecConfition().FilterIncludes(infl1s, []int{}).FilterExcludes(exfl2s, []int{}).FilterExcludeNode(ar.List).FilterCol(&top, 0).FilterNeighber(&top, 0).FilterByTebGroup([]int{df.FeatureTenGroup2}, []int{3}).FilterFeatureExcludes(ar.List).findNumbers([]string{}, df.None).Distinct()
+		// filterPick.ShowAll()
+		// fmt.Println(len(filterPick))
+		// fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
+		// fmt.Println("got top")
+
+		// for _, f := range filterPick {
+		// 	if f.IsSame(&top) {
+		// 		fmt.Println("Oooooohhhhh My God!!!  it's " + f.formRow())
+		// 	}
+		// }
+
+		// fmt.Printf("\n\n\nGod Pick....\n")
+		// ar.GodPick(filterPick, 1)
+
+		// ar.List.WithRange(0, 20).Reverse().ShowAll()
 	case "bak":
 	default:
 	}

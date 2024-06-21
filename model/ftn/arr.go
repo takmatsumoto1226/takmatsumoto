@@ -420,3 +420,13 @@ func (ar FTNArray) Continue3s() FTNArray {
 	}
 	return result
 }
+
+func (ar FTNArray) Continue4s() FTNArray {
+	result := FTNArray{}
+	for _, f := range ar {
+		if f.Feature.IsContinue4() {
+			result = append(result, f)
+		}
+	}
+	return result
+}
