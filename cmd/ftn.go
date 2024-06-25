@@ -89,7 +89,7 @@ func ftnCommand(cmd *cobra.Command, args []string) error {
 		fmt.Println(th.Presentation())
 
 		ar.JSONGenerateTopPriceNumber(th)
-		ar.SaveBTsWithDir(dir)
+		// ar.SaveBTsWithDir(dir)
 	case "pick":
 		// files, _ := os.ReadDir(filepath.Join(dir))
 		// filenames := []string{}

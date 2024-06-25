@@ -191,6 +191,15 @@ func (ar *FTNsManager) DoGenJSON(th interf.Threshold) {
 	ar.BackTests = append(ar.BackTests, *bt)
 }
 
+func (ar *FTNsManager) FullCombination() FTNArray {
+	result := FTNArray{}
+	for _, v := range ar.Combinations {
+		balls := NewFTNWithInts(v)
+		result = append(result, *balls)
+	}
+	return result
+}
+
 func B2i(b bool) int8 {
 	if b {
 		return 1
@@ -227,6 +236,7 @@ func (ar *FTNsManager) BackTestingReports(filenames []string) {
 
 func (ar *FTNsManager) DoBackTesting(filenames []string, d string) {
 	top := ar.List.GetNodeWithDate(d)
+	top.ShowRow()
 	ar.ReadJSON(filenames)
 	for _, bt := range ar.BackTests {
 		bt.DoBacktesting(top)

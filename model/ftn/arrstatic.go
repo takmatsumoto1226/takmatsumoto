@@ -1,6 +1,7 @@
 package ftn
 
 import (
+	"lottery/model/df"
 	"sort"
 )
 
@@ -135,4 +136,22 @@ func (ar FTNArray) StaticExclude(r int, show bool) float64 {
 		result.ShowAll()
 	}
 	return (float64(len(result)) / float64(len(ar)-r)) * 100
+}
+
+func (ar FTNArray) StaticTenGroupByTKey() df.LMap {
+	result := df.LMap{}
+	for _, f := range ar {
+		if v, ok := result[f.Feature.TGKey()]; ok {
+			result[f.Feature.TGKey()] = v + 1
+		} else {
+			result[f.Feature.TGKey()] = 1
+		}
+	}
+	return result
+
+}
+
+func (ar FTNArray) StaticHaveNeighberAndColsPercent(n int, c int) float64 {
+	result := ar.NeighberAndCols(n, c)
+	return (float64(len(result)) / float64(len(ar)-1)) * 100
 }

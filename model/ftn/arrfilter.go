@@ -229,9 +229,6 @@ func (fa FTNArray) FilterCol(top *FTN, c int) FTNArray {
 
 func (fa FTNArray) FilterByTebGroup(tt []int, hh []int) FTNArray {
 	fmt.Printf("FilterByTebGroup : %d\n", len(fa))
-	if len(tt) == 0 {
-		return fa
-	}
 
 	result := FTNArray{}
 	if len(tt) == 0 {
@@ -294,5 +291,15 @@ func (fa FTNArray) FilterByTebGroupC(tt []int, hhh [][]int) FTNArray {
 		}
 	}
 
+	return result
+}
+
+func (ar FTNArray) FilterOddEvenList(oc int) FTNArray {
+	result := FTNArray{}
+	for _, f := range ar {
+		if f.Feature.OddNumberCount == oc {
+			result = append(result, f)
+		}
+	}
 	return result
 }

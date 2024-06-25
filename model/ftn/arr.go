@@ -74,6 +74,19 @@ func (fa FTNArray) PresentationWithRange(r int) string {
 	return msg
 }
 
+func (fa FTNArray) PresentationGroupTenWithRange(r int) string {
+	msg := ""
+	tmp := fa
+	if r > 0 {
+		tmp = fa[:r]
+	}
+	for _, ftn := range tmp {
+		msg = msg + ftn.formRow() + " " + ftn.Feature.GroupTenPresentation() + "\n"
+
+	}
+	return msg
+}
+
 func (fa FTNArray) ShowWithRange(r int) {
 	fmt.Println(fa.PresentationWithRange(r))
 }
@@ -438,6 +451,30 @@ func (ar FTNArray) Exclude(r int) FTNArray {
 		exludes := FTNArray{f}.FilterExcludes(rf, []int{})
 		if len(exludes) > 0 {
 			result = append(result, exludes...)
+		}
+	}
+	return result
+}
+
+func (ar FTNArray) FindFeature(notes FTNArray) FTNArray {
+	result := FTNArray{}
+	for _, f := range ar {
+		for _, note := range notes {
+			if f.MatchFeature(&note) {
+				result = append(result, f)
+			}
+		}
+	}
+	return result
+}
+
+func (ar FTNArray) NeighberAndCols(n int, c int) FTNArray {
+	result := FTNArray{}
+	for i, f := range ar {
+		if i < len(ar)-1 {
+			if f.haveNeighber(&ar[i+1], n) && f.haveCol(&ar[i+1], c) {
+				result = append(result, f)
+			}
 		}
 	}
 	return result

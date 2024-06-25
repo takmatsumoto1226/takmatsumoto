@@ -419,6 +419,10 @@ func (f *Feature) Presentation() string {
 		f.PrimeCount)
 }
 
+func (f *Feature) GroupTenPresentation() string {
+	return fmt.Sprintf(" %v ", f.TenGroupCount)
+}
+
 func (f *Feature) NoContinue() bool {
 	return !f.IsContinue2() && !f.IsContinue3() && !f.IsContinue4() && !f.IsContinue5() && !f.IsContinue22()
 }
@@ -437,4 +441,8 @@ func (f *Feature) IsJump4() bool {
 
 func (f *Feature) IsFullTenGrouop() bool {
 	return (f.TenGroupCount[0] > 0 && f.TenGroupCount[1] > 0 && f.TenGroupCount[2] > 0 && f.TenGroupCount[3] > 0)
+}
+
+func (f *Feature) TGKey() string {
+	return fmt.Sprintf("%d_%d_%d_%d_%d", f.TenGroupCount[0], f.TenGroupCount[1], f.TenGroupCount[2], f.TenGroupCount[3], f.TenGroupCount[4])
 }

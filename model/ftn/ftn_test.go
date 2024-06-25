@@ -69,7 +69,7 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
-	arr := as.List.WithRange(0, 10)
+	arr := as.List.WithRange(0, 21).Reverse()
 	arr.ShowAll()
 }
 
@@ -233,7 +233,7 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 		Sample:     len(ar.Combinations),
 		Interval: interf.Interval{
 			Index:  start,
-			Length: len(ar.List) / 5,
+			Length: len(ar.List) / 3,
 		},
 		Smart: interf.Smart{
 			Enable: true,
@@ -291,7 +291,7 @@ func Test_DoBackTesting(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.DoBackTesting(FileNames(), targetsub)
+	ar.DoBackTesting(FileNames(), "20240622")
 
 	fmt.Printf("PickNumbers:\n")
 	for _, bt := range ar.BackTests {
@@ -375,22 +375,27 @@ func Test_groupNumbers(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.ReadJSON(FileNames())
+	// ar.ReadJSON(FileNames())
 	top := ar.List.GetNode(0)
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 655}
+	GroupCount := 100
+	group := NewGroup(GroupCount, ar.Combinations, ar.List)
 
 	filterPick := ar.
-		FilterByGroupIndex(NewGroup(100, ar.Combinations, ar.List), []int{0}).
-		FilterHighFreqNumber(ar.List, p).
+		// FilterByGroupIndex(NewGroup(100, ar.Combinations, ar.List), []int{0}).
+		FullCombination().
+		// FilterHighFreqNumber(ar.List, p).
 		FilterPickBySpecConfition().
-		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterExcludes(ar.List.FragmentRange([]int{0}), []int{}).
+		FilterIncludes(ar.List.FragmentRange([]int{0}), []int{}).
+		FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterExcludeNode(ar.List).
-		FilterCol(&top, 2).
-		FilterNeighber(&top, 1).
-		FilterByTebGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2}, []int{1, 2}).
+		FilterCol(&top, 1).
+		FilterNeighber(&top, 2).
+		FilterByTebGroup([]int{df.FeatureTenGroup3}, []int{2, 2}).
 		FilterFeatureExcludes(ar.List).
 		findNumbers([]string{}, df.None).
+		FilterByGroupIndex(group, []int{0}).
+		FilterOddEvenList(2).
 		Distinct()
 
 	filterPick.ShowAll()
@@ -405,7 +410,7 @@ func Test_groupNumbers(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	ar.GodPick(filterPick, 1)
+	ar.GodPick(filterPick, 10)
 
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
 }
@@ -459,53 +464,32 @@ func Test_compareTest(t *testing.T) {
 
 }
 
-var targetsub = "20240621"
+var targetsub = "20240625"
 
 func FileNames() []string {
 
 	fmt.Println("date : " + targetsub)
-	// return []string{
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621100613.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621100702.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621100751.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621100837.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621100924.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621101011.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621101059.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621101145.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621101232.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621101318.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105235.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105425.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105512.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105557.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105642.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105727.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105815.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105901.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621105948.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621110037.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621110129.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114309.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114356.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114444.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114531.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114618.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114708.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114758.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114845.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621114932.json"),
-	// 	filepath.Join(RootDir, targetsub, "content_08_5.0_20240621115019.json"),
-	// }
-
-	files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
-	filenames := []string{}
-	for _, f := range files {
-		if strings.Contains(f.Name(), ".json") {
-			filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
-		}
+	return []string{
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093523.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093615.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093707.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093754.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093842.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093932.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094020.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094108.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094155.json"),
+		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094243.json"),
 	}
-	return filenames
+
+	// files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
+	// filenames := []string{}
+	// for _, f := range files {
+	// 	if strings.Contains(f.Name(), ".json") {
+	// 		filenames = append(filenames, filepath.Join(RootDir, targetsub, f.Name()))
+	// 	}
+	// }
+	// return filenames
 }
 
 func Test_CompareLatestAndHistoryFeature(t *testing.T) {
@@ -601,7 +585,7 @@ func Test_FilterNeighberNumberTest(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	top := ar.List.GetNode(0)
-	tf := NewFTNWithStrings([]string{"13", "19", "21", "24", "27"})
+	tf := NewFTNWithStrings([]string{})
 	fmt.Println(tf.haveNeighber(&top, 0))
 }
 
@@ -655,6 +639,51 @@ func Test_StaticTenGroupAvg(t *testing.T) {
 	report = report + "\n\n"
 
 	fmt.Println(report)
+}
+
+func Test_ListTenGroup(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticTenGroup")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	r := interf.NewInterval(0, 30)
+
+	report := ""
+	report = report + ar.List.WithInterval(r).Reverse().PresentationGroupTenWithRange(0)
+	fmt.Println(report)
+}
+
+func Test_ListTenGroupByKey(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticTenGroup")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	r := interf.NewInterval(0, 0)
+
+	report := ""
+	report = report + ar.List.WithInterval(r).StaticTenGroupByTKey().Presentation()
+	fmt.Println(report)
+}
+
+func Test_ListSameWithTopTenGroups(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_StaticTenGroup")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	df.DisableFilters([]int{
+		df.FilterOddCount,
+		df.FilterEvenCount,
+		df.FilterTailDigit,
+		df.FilterPrimeCount,
+		df.FilterContinueRowType,
+	})
+	for i := 0; i < 100; i++ {
+		tops := ar.List.WithRange(i, 1)
+		list := ar.List.FindFeature(tops)
+		fmt.Printf("%s%d:%.2f%%\n", tops.Presentation(), len(list), float64(len(list))/float64(len(ar.List))*100)
+		fmt.Printf("\n")
+	}
+
 }
 
 func Test_FeatureStatic(t *testing.T) {
@@ -718,13 +747,13 @@ func Test_StaticColPercent(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-
+	n := 1
 	for i := 0; i <= 100; i++ {
 		r := interf.NewInterval(i, 20)
 		rl := ar.List.WithInterval(r)
-		fmt.Printf("%s : %.4f%%\n", rl[0].Date(), rl.StaticColPercent(2))
+		fmt.Printf("%s : %.4f%%\n", rl[0].Date(), rl.StaticColPercent(n))
 	}
-	ar.List.WithInterval(interf.NewInterval(0, 100)).Cols(2).ShowAll()
+	ar.List.WithInterval(interf.NewInterval(0, 100)).Cols(n).ShowAll()
 }
 
 func Test_StaticColPercentAll(t *testing.T) {
@@ -759,9 +788,9 @@ func Test_Neighbers(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
-	n := 3
+	n := 2
 	ar.Prepare()
-	sl := ar.List.WithRange(0, 100).Neighbers(n)
+	sl := ar.List.WithRange(0, 0).Neighbers(n)
 	sl.ShowAll()
 	fmt.Println(len(sl) / 3)
 	fmt.Printf("%.1f%%\n", sl.StaticHaveNeighberPercent(n))
@@ -830,7 +859,6 @@ func Test_0ShowTest(t *testing.T) {
 		}
 		fmt.Printf("%2d:%.2f\n", length*y, float64(count)/float64(length*y)*100)
 	}
-
 }
 
 func Test_StaticExclude(t *testing.T) {
@@ -838,12 +866,30 @@ func Test_StaticExclude(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	for i := 0; i < 50; i++ {
+	for i := 0; i < 20; i++ {
 		r := interf.NewInterval(i, 21)
 		sl := ar.List.WithInterval(r)
 		fmt.Printf("%s : %.2f%%\n", sl[0].Date(), sl.StaticExclude(1, false))
 	}
+	excludes := ar.List.WithRange(0, 20).Exclude(1)
+	excludes.Reverse().ShowAll()
+	fmt.Println(len(excludes))
+	ar.List.WithRange(0, 20).Reverse().ShowAll()
 
-	ar.List.WithRange(0, 20).Exclude(1).ShowAll()
+}
 
+func Test_StaticHaveNeighberAndColsPercent(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_NeightberStatic")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.WithRange(0, 200).NeighberAndCols(2, 1).Reverse().ShowAll()
+}
+
+func Test_StaticOddList(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_NeightberStatic")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.WithRange(0, 100).FilterOddEvenList(2).Reverse().ShowAll()
 }
