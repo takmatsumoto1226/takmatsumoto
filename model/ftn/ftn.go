@@ -390,6 +390,9 @@ func NewFTN(arr []string) *FTN {
 }
 
 func NewFTNWithStrings(arr []string) *FTN {
+	if len(arr) == 0 {
+		return Empty()
+	}
 	i1, _ := strconv.Atoi(arr[0])
 	i2, _ := strconv.Atoi(arr[1])
 	i3, _ := strconv.Atoi(arr[2])

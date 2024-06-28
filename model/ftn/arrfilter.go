@@ -196,11 +196,11 @@ func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
 		}
 	}
 	if len(sames) > 0 {
-		fmt.Println("same ....")
-		for _, s := range sames {
-			s.ShowRow()
-		}
-		fmt.Println("so much...")
+		// fmt.Println("same ....")
+		// for _, s := range sames {
+		// 	s.ShowRow()
+		// }
+		// fmt.Println("so much...")
 	}
 	return result
 }
@@ -227,7 +227,7 @@ func (fa FTNArray) FilterCol(top *FTN, c int) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterByTebGroup(tt []int, hh []int) FTNArray {
+func (fa FTNArray) FilterByTenGroup(tt []int, hh []int) FTNArray {
 	fmt.Printf("FilterByTebGroup : %d\n", len(fa))
 
 	result := FTNArray{}

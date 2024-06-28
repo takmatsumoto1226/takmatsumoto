@@ -377,7 +377,8 @@ func Test_groupNumbers(t *testing.T) {
 	ar.Prepare()
 	// ar.ReadJSON(FileNames())
 	top := ar.List.GetNode(0)
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 655}
+	newtop := NewFTNWithStrings([]string{})
+	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 685}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
 
@@ -386,31 +387,31 @@ func Test_groupNumbers(t *testing.T) {
 		FullCombination().
 		// FilterHighFreqNumber(ar.List, p).
 		FilterPickBySpecConfition().
-		FilterIncludes(ar.List.FragmentRange([]int{0}), []int{}).
-		FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterExcludeNode(ar.List).
-		FilterCol(&top, 1).
-		FilterNeighber(&top, 2).
-		FilterByTebGroup([]int{df.FeatureTenGroup3}, []int{2, 2}).
+		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
+		FilterExcludes(ar.List.FragmentRange([]int{0, 1}), []int{}).
+		// FilterExcludeNode(ar.List).
+		FilterCol(&top, 0).
+		FilterNeighber(&top, 0).
+		FilterByTenGroup([]int{}, []int{0, 2, 2, 1}).
 		FilterFeatureExcludes(ar.List).
-		findNumbers([]string{}, df.None).
+		// findNumbers([]string{}, df.None).
 		FilterByGroupIndex(group, []int{0}).
-		FilterOddEvenList(2).
+		FilterOddEvenList(3).
 		Distinct()
 
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
-	fmt.Println("got top")
 
 	for _, f := range filterPick {
-		if f.IsSame(&top) {
+		if f.IsSame(newtop) {
+			fmt.Println("got top")
 			fmt.Println("Oooooohhhhh My God!!!  it's " + f.formRow())
 		}
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	ar.GodPick(filterPick, 10)
+	ar.GodPick(filterPick, 1)
 
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
 }
@@ -420,7 +421,7 @@ func Test_FTNGroup(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	GroupCount := 50
+	GroupCount := 100
 	gftn := NewGroup(GroupCount, ar.Combinations, ar.List)
 	gftn.StaticCounts()
 	fmt.Println(gftn.Presentation())

@@ -298,7 +298,7 @@ func (ar *FTNsManager) FinalPick(filenames []string) {
 }
 
 func (ar *FTNsManager) CompareLatestAndHistoryFeature() {
-	index := 0
+	index := 2
 	latest := ar.List[index]
 	i := interf.Interval{Index: index + 1, Length: len(ar.List) - (index + 1)}
 	histories := ar.List.WithRange(i.Index, i.Length)
