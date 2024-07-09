@@ -121,7 +121,7 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 
 	numbers := []string{}
 	for _, b := range ballsCount.AppearBalls {
-		if b.Count > uint(p.Freq) {
+		if b.Count <= uint(p.Freq) {
 			numbers = append(numbers, b.Ball.Number)
 		}
 	}
@@ -129,14 +129,14 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 	for _, b := range numbers {
 		result = append(result, fa.findNumbers([]string{b}, df.None)...)
 	}
-	return result
+	return result.Distinct()
 }
 
 func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.NoContinue() {
+		if ftn.Feature.IsContinue2() {
 			result = append(result, ftn)
 		}
 	}
@@ -195,13 +195,13 @@ func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
 			result = append(result, f)
 		}
 	}
-	if len(sames) > 0 {
-		// fmt.Println("same ....")
-		// for _, s := range sames {
-		// 	s.ShowRow()
-		// }
-		// fmt.Println("so much...")
-	}
+	// if len(sames) > 0 {
+	// fmt.Println("same ....")
+	// for _, s := range sames {
+	// 	s.ShowRow()
+	// }
+	// fmt.Println("so much...")
+	// }
 	return result
 }
 
@@ -294,11 +294,44 @@ func (fa FTNArray) FilterByTebGroupC(tt []int, hhh [][]int) FTNArray {
 	return result
 }
 
-func (ar FTNArray) FilterOddEvenList(oc int) FTNArray {
+func (fa FTNArray) FilterOddEvenList(oc int) FTNArray {
+	fmt.Printf("FilterOddEvenList : %d\n", len(fa))
 	result := FTNArray{}
-	for _, f := range ar {
+	for _, f := range fa {
 		if f.Feature.OddNumberCount == oc {
 			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterPrime(c int) FTNArray {
+	result := FTNArray{}
+	for _, f := range fa {
+		if f.EqualPrime(c) {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterColN(n int) FTNArray {
+	result := FTNArray{}
+	for _, f := range fa {
+		if f.B1.Continue == n || f.B2.Continue == n || f.B3.Continue == n || f.B4.Continue == n || f.B5.Continue == n {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterPeriodN(n, p int) FTNArray {
+	result := FTNArray{}
+	for i, f := range fa {
+		if f.B1.Disappear(n, p) || f.B2.Disappear(n, p) || f.B3.Disappear(n, p) || f.B4.Disappear(n, p) || f.B5.Disappear(n, p) {
+			result = append(result, f)
+			result = append(result, fa[i+1])
+			result = append(result, *Empty())
 		}
 	}
 	return result

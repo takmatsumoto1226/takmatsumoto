@@ -366,20 +366,18 @@ func (fa *Feature) IsContinue5() bool {
 }
 
 func (fa *Feature) IsContinueN(n int) bool {
-	continues := false
 	count := 0
-	for i := 0; i < len(fa.IBalls)-(n-1); i++ {
-		for k := 0; k < n; k++ {
-			if fa.IBalls[i+k]-fa.IBalls[i] != 1 {
-				return continues
+	tl := len(fa.IBalls) - (n - 1)
+	for i := 0; i < tl; i++ {
+		count = 0
+		car := fa.IBalls[i : i+n]
+		for k := 0; k < n-1; k++ {
+			if car[k+1]-car[k] == 1 {
+				count++
 			}
-			count++
-		}
-		if count == n {
-			break
 		}
 	}
-	return continues
+	return count == n-1
 }
 
 func (fa *Feature) IsContinue22() bool {

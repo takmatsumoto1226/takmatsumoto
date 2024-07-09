@@ -101,22 +101,35 @@ func Test_PickupNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var pwm = PowerManager{}
 	pwm.Prepare()
-	pwm.ReadJSON(FileNames())
-
+	latestTop := NewPowerWithString([]string{})
+	top := pwm.List.GetNode(0)
 	GroupCount := 100
 	pwg := NewPWGroup(GroupCount, pwm.Combinations, pwm.List)
 
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 250}
-	BInclude := pwm.List.FragmentRange([]int{0})
-	BExclude := pwm.List.FragmentRange([]int{})
-	filterPick := pwm.ListByGroupIndex(pwg, 0).FilterHighFreqNumber(pwm.List, p).FilterPickBySpecConfition().FilterIncludes(BInclude, []int{}).FilterExcludes(BExclude, []int{}).FilterExcludeNode(pwm.List).findNumbers([]string{}, df.None).FilterFeatureExcludes(pwm.List).Distinct()
+	filterPick := pwm.
+		FullCombination().
+		// FilterHighFreqNumber(pwm.List, p).
+		FilterPickBySpecConfition().
+		FilterIncludes(pwm.List.FragmentRange([]int{}), []int{}).
+		FilterExcludes(pwm.List.FragmentRange([]int{0}), []int{}).
+		FilterExcludeNode(pwm.List).
+		FilterCol(&top, 0).
+		FilterNeighber(&top, 2).
+		FilterByTenGroup([]int{}, []int{2, 2, 1}).
+		FilterFeatureExcludes(pwm.List).
+		// findNumbers([]string{}, df.None).
+		FilterByGroupIndex(pwg, []int{0}).
+		FilterOddEvenList(2).
+		Distinct()
+
 	filterPick.ShowAll()
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
 	fmt.Println("got top")
-	top := pwm.List.GetNode(0)
+
 	for _, f := range filterPick {
-		if f.IsSame(&top) {
+		if latestTop != nil && f.IsSame(latestTop) {
 			fmt.Println(f.formRow())
 		}
 	}

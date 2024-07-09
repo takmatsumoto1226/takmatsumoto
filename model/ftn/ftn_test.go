@@ -10,7 +10,6 @@ import (
 	"lottery/model/interf"
 	"math"
 	"os"
-	"path/filepath"
 	"reflect"
 	"strings"
 	"testing"
@@ -79,18 +78,18 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 50, Whichfront: df.Normal}
 	list := as.List.WithRange(0, int(p.Interval)).Reverse()
 	fmt.Println(list.Presentation())
 	fmt.Println(list.BallsCountStatic().Presentation(false))
 
-	result := algorithm.Combinations(as.List[0].ToStringArr(), 3)
-	for _, v := range result {
-		fmt.Println("")
-		fmt.Println("")
-		fmt.Printf("=================== %s ================\n", v)
-		as.List.findNumbers(v, df.Next).ShowAll()
-	}
+	// result := algorithm.Combinations(as.List[0].ToStringArr(), 3)
+	// for _, v := range result {
+	// 	fmt.Println("")
+	// 	fmt.Println("")
+	// 	fmt.Printf("=================== %s ================\n", v)
+	// 	as.List.findNumbers(v, df.Next).ShowAll()
+	// }
 }
 
 func Test_combination(t *testing.T) {
@@ -378,25 +377,25 @@ func Test_groupNumbers(t *testing.T) {
 	// ar.ReadJSON(FileNames())
 	top := ar.List.GetNode(0)
 	newtop := NewFTNWithStrings([]string{})
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 685}
+	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 685}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
 
 	filterPick := ar.
 		// FilterByGroupIndex(NewGroup(100, ar.Combinations, ar.List), []int{0}).
 		FullCombination().
-		// FilterHighFreqNumber(ar.List, p).
+		FilterHighFreqNumber(ar.List, p).
 		FilterPickBySpecConfition().
 		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterExcludes(ar.List.FragmentRange([]int{0, 1}), []int{}).
-		// FilterExcludeNode(ar.List).
+		FilterExcludes(ar.List.FragmentRange([]int{0}), []int{}).
+		FilterExcludeNode(ar.List).
 		FilterCol(&top, 0).
-		FilterNeighber(&top, 0).
-		FilterByTenGroup([]int{}, []int{0, 2, 2, 1}).
+		FilterNeighber(&top, 1).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup4}, []int{2, 2, 1}).
 		FilterFeatureExcludes(ar.List).
-		// findNumbers([]string{}, df.None).
+		findNumbers([]string{}, df.None).
 		FilterByGroupIndex(group, []int{0}).
-		FilterOddEvenList(3).
+		FilterOddEvenList(2).
 		Distinct()
 
 	filterPick.ShowAll()
@@ -411,7 +410,7 @@ func Test_groupNumbers(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	ar.GodPick(filterPick, 1)
+	ar.GodPick(filterPick, 2)
 
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
 }
@@ -470,18 +469,7 @@ var targetsub = "20240625"
 func FileNames() []string {
 
 	fmt.Println("date : " + targetsub)
-	return []string{
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093523.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093615.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093707.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093754.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093842.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625093932.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094020.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094108.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094155.json"),
-		filepath.Join(RootDir, targetsub, "content_08_5.0_20240625094243.json"),
-	}
+	return []string{}
 
 	// files, _ := os.ReadDir(filepath.Join(RootDir, targetsub))
 	// filenames := []string{}
@@ -585,9 +573,10 @@ func Test_FilterNeighberNumberTest(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	top := ar.List.GetNode(0)
+	// top := ar.List.GetNode(0)
+	top := NewFTNWithStrings([]string{})
 	tf := NewFTNWithStrings([]string{})
-	fmt.Println(tf.haveNeighber(&top, 0))
+	fmt.Println(top.haveNeighber(tf, 2))
 }
 
 func Test_StaticTenGroup(t *testing.T) {
@@ -758,7 +747,7 @@ func Test_StaticColPercent(t *testing.T) {
 }
 
 func Test_StaticColPercentAll(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
+	defer common.TimeTaken(time.Now(), "Test_StaticColPercentAll")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
@@ -766,11 +755,11 @@ func Test_StaticColPercentAll(t *testing.T) {
 }
 
 func Test_Cols(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
+	defer common.TimeTaken(time.Now(), "Test_Cols")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.Cols(1).ShowAll()
+	ar.List.WithRange(0, 0).Cols(3).ShowAll()
 }
 
 func Test_StaticHaveNeighberPercent(t *testing.T) {
@@ -786,7 +775,7 @@ func Test_StaticHaveNeighberPercent(t *testing.T) {
 }
 
 func Test_Neighbers(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_StaticColPercent")
+	defer common.TimeTaken(time.Now(), "Test_Neighbers")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	n := 2
@@ -798,11 +787,11 @@ func Test_Neighbers(t *testing.T) {
 }
 
 func Test_FoundGroups(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Group Index")
+	defer common.TimeTaken(time.Now(), "Test_FoundGroups")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	GroupCount := 50
+	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
 	gftns := group.FindGroupNotes(6)
 	gftns.ShowAll()
@@ -863,7 +852,7 @@ func Test_0ShowTest(t *testing.T) {
 }
 
 func Test_StaticExclude(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_NeightberStatic")
+	defer common.TimeTaken(time.Now(), "Test_StaticExclude")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
@@ -880,7 +869,7 @@ func Test_StaticExclude(t *testing.T) {
 }
 
 func Test_StaticHaveNeighberAndColsPercent(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_NeightberStatic")
+	defer common.TimeTaken(time.Now(), "Test_StaticHaveNeighberAndColsPercent")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
@@ -888,9 +877,43 @@ func Test_StaticHaveNeighberAndColsPercent(t *testing.T) {
 }
 
 func Test_StaticOddList(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_NeightberStatic")
+	defer common.TimeTaken(time.Now(), "Test_StaticOddList")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.WithRange(0, 100).FilterOddEvenList(2).Reverse().ShowAll()
+	rl := ar.List.WithRange(0, 20)
+	l := rl.FilterOddEvenList(3)
+	l.Reverse().ShowAll()
+	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
+}
+
+func Test_FilterByTenGroup(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FilterByTenGroup")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	rl := ar.List.WithRange(0, 0)
+	l := rl.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2}, []int{3, 2})
+	l.Reverse().ShowAll()
+	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
+}
+
+func Test_FilterByColN(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FilterByColN")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	list := ar.List.FilterColN(2).Reverse()
+	list.ShowAll()
+	list.ShowLen()
+}
+
+func Test_FilterPeriodN(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FilterPeriodN")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	list := ar.List.Reverse().FilterPeriodN(6, 40)
+	list.ShowAll()
+	list.ShowLen()
 }

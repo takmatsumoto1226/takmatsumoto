@@ -6,12 +6,15 @@ import (
 	"lottery/model/df"
 )
 
-func (fa PowerList) FilterByGroupIndex(group *PWGroup, c int) PowerList {
+func (fa PowerList) FilterByGroupIndex(group *PWGroup, cs []int) PowerList {
 	fmt.Printf("FilterByGroupIndex : %d\n", len(fa))
 	arr := PowerList{}
 	for _, ftn := range fa {
-		if _, gcount := group.FindGroupIndex(ftn); gcount == c {
-			arr = append(arr, ftn)
+		for _, c := range cs {
+			if _, gcount := group.FindGroupIndex(ftn); gcount == c {
+				arr = append(arr, ftn)
+				break
+			}
 		}
 	}
 	return arr.Distinct()
@@ -172,6 +175,77 @@ func (fa PowerList) FilterFeatureExcludes(tops PowerList) PowerList {
 
 		if add {
 			result = append(result, pw)
+		}
+	}
+	return result
+}
+
+func (fa PowerList) FilterNeighber(top *Power, c int) PowerList {
+	fmt.Printf("FilterNeighberNumber : %d\n", len(fa))
+	result := PowerList{}
+	for _, f := range fa {
+		if f.haveNeighber(top, c) {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa PowerList) FilterCol(top *Power, c int) PowerList {
+	fmt.Printf("FilterCol : %d\n", len(fa))
+	result := PowerList{}
+	for _, f := range fa {
+		if f.haveCol(top, c) {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa PowerList) FilterByTenGroup(tt []int, hh []int) PowerList {
+	fmt.Printf("FilterByTebGroup : %d\n", len(fa))
+
+	result := PowerList{}
+	if len(tt) == 0 {
+		for _, f := range fa {
+			if f.Feature.IsFullTenGrouop() {
+				result = append(result, f)
+			}
+		}
+	} else {
+		for _, f := range fa {
+			count := 0
+			for ti, t := range tt {
+				if f.Feature.TenGroupCount[t] != hh[ti] {
+					break
+				}
+				count++
+				if count == len(tt) {
+					result = append(result, f)
+				}
+			}
+		}
+	}
+
+	return result
+}
+
+func (fa PowerList) FilterOddEvenList(oc int) PowerList {
+	fmt.Printf("FilterOddEvenList : %d\n", len(fa))
+	result := PowerList{}
+	for _, f := range fa {
+		if f.Feature.OddNumberCount == oc {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa PowerList) FilterPrime(c int) PowerList {
+	result := PowerList{}
+	for _, f := range fa {
+		if f.EqualPrime(c) {
+			result = append(result, f)
 		}
 	}
 	return result

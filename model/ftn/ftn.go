@@ -3,6 +3,7 @@ package ftn
 import (
 	"fmt"
 	"lottery/algorithm"
+	"lottery/model/common"
 	"lottery/model/df"
 	"math"
 	"strconv"
@@ -38,6 +39,10 @@ func (b *Ball) Illegal() bool {
 
 func (b *Ball) Same(cb Ball) bool {
 	return b.Digit == cb.Digit
+}
+
+func (b *Ball) Disappear(n, p int) bool {
+	return b.Digit == n && b.Period == p
 }
 
 func NewBallS(n string, pos int) *Ball {
@@ -219,7 +224,7 @@ func (f *FTN) haveNeighber(tf *FTN, c int) bool {
 	for _, b1 := range f.IBalls {
 		for _, b2 := range tf.IBalls {
 			// fmt.Printf("%02d:%02d\n", b1, b2)
-			if absDiffInt(b1, b2) == 1 {
+			if common.ABSDiffInt(b1, b2) == 1 {
 				count++
 				// fmt.Println(count)
 			}
@@ -240,13 +245,6 @@ func (f *FTN) haveCol(tf *FTN, c int) bool {
 	}
 
 	return count == c
-}
-
-func absDiffInt(x, y int) int {
-	if x < y {
-		return y - x
-	}
-	return x - y
 }
 
 func (fa *FTN) Similar(n FTN, b byte) bool {
@@ -527,3 +525,7 @@ func (fa *FTN) DateKey() string {
 }
 
 func (fa *FTN) Date() string { return fa.Year + fa.MonthDay }
+
+func (fa *FTN) EqualPrime(n int) bool {
+	return fa.Feature.PrimeCount == n
+}

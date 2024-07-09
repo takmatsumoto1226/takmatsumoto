@@ -150,3 +150,10 @@ func MultiPI(samples int, threads int) float64 {
 
 	return total / float64(threads)
 }
+
+func ABSDiffInt(x, y int) int {
+	if x < y {
+		return y - x
+	}
+	return x - y
+}

@@ -2,6 +2,7 @@ package pw
 
 import (
 	"fmt"
+	"lottery/model/common"
 	"lottery/model/df"
 
 	"github.com/sirupsen/logrus"
@@ -67,7 +68,7 @@ func NewPowerWithString(arr []string) *Power {
 			*df.NewFeature([]int{B1.Digit, B2.Digit, B3.Digit, B4.Digit, B5.Digit, B6.Digit}, ballsCountPower),
 		}
 	}
-	logrus.Error("POWER 資料格式錯誤")
+	logrus.Errorf("POWER 資料格式錯誤 : %v", arr)
 	return nil
 }
 
@@ -95,7 +96,7 @@ func NewPowerWithInts(arr []int) *Power {
 			*df.NewFeature([]int{i1, i2, i3, i4, i5, i6}, ballsCountPower),
 		}
 	}
-	logrus.Error("POWER 資料格式錯誤")
+	logrus.Errorf("POWER 資料格式錯誤 : %v", arr)
 	return nil
 }
 
@@ -266,4 +267,36 @@ func (fa *Power) IsFullSame(t *Power) bool {
 
 func (fa *Power) IsSame(t *Power) bool {
 	return fa.B1.Digit == t.B1.Digit && fa.B2.Digit == t.B2.Digit && fa.B3.Digit == t.B3.Digit && fa.B4.Digit == t.B4.Digit && fa.B5.Digit == t.B5.Digit && fa.B6.Digit == t.B6.Digit
+}
+
+func (f *Power) haveNeighber(tf *Power, c int) bool {
+	count := 0
+	for _, b1 := range f.IBalls {
+		for _, b2 := range tf.IBalls {
+			// fmt.Printf("%02d:%02d\n", b1, b2)
+			if common.ABSDiffInt(b1, b2) == 1 {
+				count++
+				// fmt.Println(count)
+			}
+		}
+	}
+
+	return count == c
+}
+
+func (f *Power) haveCol(tf *Power, c int) bool {
+	count := 0
+	for _, b1 := range f.IBalls {
+		for _, b2 := range tf.IBalls {
+			if b1 == b2 {
+				count++
+			}
+		}
+	}
+
+	return count == c
+}
+
+func (fa *Power) EqualPrime(n int) bool {
+	return fa.Feature.PrimeCount == n
 }

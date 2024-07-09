@@ -46,6 +46,10 @@ func (fa FTNArray) Len() int {
 	return len(fa)
 }
 
+func (fa FTNArray) ShowLen() {
+	fmt.Println(fa.Len())
+}
+
 // Less ...
 func (fa FTNArray) Less(i, j int) bool {
 	ii, _ := strconv.Atoi(fa[i].TIdx)
@@ -247,6 +251,9 @@ func (fa FTNArray) MatchElements(fb FTNArray) FTNArray {
 func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
 	intersection := FTNArray{}
 	set := make(map[string]bool)
+	if len(numbers) == 0 {
+		return list
+	}
 
 	for i, ns := range list {
 		for _, num := range numbers {

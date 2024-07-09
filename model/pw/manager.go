@@ -82,6 +82,15 @@ func (ar *PowerManager) loadAllData() {
 
 }
 
+func (ar *PowerManager) FullCombination() PowerList {
+	result := PowerList{}
+	for _, v := range ar.Combinations {
+		balls := NewPowerWithInts(v)
+		result = append(result, *balls)
+	}
+	return result
+}
+
 func (mgr *PowerManager) JSONGenerateTopPriceNumber(th interf.Threshold) {
 	common.SetRandomGenerator(th.Randomer)
 	bts := []BackTest{}
@@ -198,7 +207,7 @@ func (mgr *PowerManager) CompareLatestAndHistoryFeature() {
 func (ar *PowerManager) ListByGroupIndex(group *PWGroup, c int) PowerList {
 	arr := PowerList{}
 	for _, bt := range ar.BackTests {
-		arr = append(arr, bt.ExcludeTops.Balls.FilterByGroupIndex(group, c)...)
+		arr = append(arr, bt.ExcludeTops.Balls.FilterByGroupIndex(group, []int{c})...)
 	}
 	return arr.Distinct()
 }

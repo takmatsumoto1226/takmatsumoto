@@ -108,7 +108,7 @@ func GetAllFromURL() error {
 
 		defer file.Close()
 
-		fmt.Printf("Downloaded a file %s with size %d\n", fileName, size)
+		fmt.Printf("Downloaded a file with size %d\n", size)
 		time.Sleep(time.Second * 1)
 	}
 	return nil
