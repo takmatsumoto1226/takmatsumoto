@@ -10,6 +10,8 @@ import (
 	"path/filepath"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 func Test_listLikeExecl(t *testing.T) {
@@ -100,7 +102,10 @@ func Test_PickupNumber(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_PickupNumber")
 	config.LoadConfig("../../config.yaml")
 	var pwm = PowerManager{}
-	pwm.Prepare()
+	if err := pwm.Prepare(); err != nil {
+		logrus.Error("準備 : " + err.Error())
+		return
+	}
 	latestTop := NewPowerWithString([]string{})
 	top := pwm.List.GetNode(0)
 	GroupCount := 100
@@ -109,16 +114,16 @@ func Test_PickupNumber(t *testing.T) {
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 250}
 	filterPick := pwm.
 		FullCombination().
-		// FilterHighFreqNumber(pwm.List, p).
+		FilterHighFreqNumber(pwm.List, p).
 		FilterPickBySpecConfition().
 		FilterIncludes(pwm.List.FragmentRange([]int{}), []int{}).
-		FilterExcludes(pwm.List.FragmentRange([]int{0}), []int{}).
-		FilterExcludeNode(pwm.List).
-		FilterCol(&top, 0).
-		FilterNeighber(&top, 2).
-		FilterByTenGroup([]int{}, []int{2, 2, 1}).
+		FilterExcludes(pwm.List.FragmentRange([]int{}), []int{}).
+		FilterExcludeNote(pwm.List).
+		FilterCol(&top, 1).
+		FilterNeighber(&top, 1).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup4}, []int{3, 1, 2}).
 		FilterFeatureExcludes(pwm.List).
-		// findNumbers([]string{}, df.None).
+		findNumbers([]string{}, df.None).
 		FilterByGroupIndex(pwg, []int{0}).
 		FilterOddEvenList(2).
 		Distinct()

@@ -49,20 +49,20 @@ func (ar *PowerManager) Prepare() error {
 }
 
 // LoadAllData ...
-func (ar *PowerManager) loadAllData() {
+func (ar *PowerManager) loadAllData() error {
 	info := config.Config.HTTP.Infos[df.InfoPOWER]
 	now := time.Now()
 
 	iyear, err := strconv.Atoi(info.BaseYear)
 	if err != nil {
-		logrus.Error(err)
-		return
+		return err
 	}
 	var ftns PowerList
 	for year := iyear; year <= now.Year(); year++ {
 		fpath, err := csv.GetPath(&info, year)
 		if err != nil {
 			logrus.Error(err)
+			continue
 		}
 		yearDatas, err := common.ReadCSV(fpath)
 		if err != nil {
@@ -79,6 +79,7 @@ func (ar *PowerManager) loadAllData() {
 	}
 	sort.Sort(ftns)
 	ar.List = ftns
+	return nil
 
 }
 

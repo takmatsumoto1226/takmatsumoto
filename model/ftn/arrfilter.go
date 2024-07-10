@@ -40,7 +40,7 @@ func (fa FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]Ball
 }
 
 func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
-	// fmt.Printf("FilterExcludes : %d\n", len(fa))
+	fmt.Printf("FilterExcludes : %d\n", len(fa))
 	result := FTNArray{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -78,6 +78,9 @@ func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 
 func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
 	fmt.Printf("FilterIncludes : %d\n", len(fa))
+	// if len(tops) == 0 && len(sb) == 0 {
+	// 	return fa
+	// }
 	result := FTNArray{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -121,7 +124,7 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 
 	numbers := []string{}
 	for _, b := range ballsCount.AppearBalls {
-		if b.Count <= uint(p.Freq) {
+		if b.Count > uint(p.Freq) {
 			numbers = append(numbers, b.Ball.Number)
 		}
 	}
@@ -178,8 +181,8 @@ func (fa FTNArray) FilterFeatureIncludes(tops FTNArray) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterExcludeNode(tops FTNArray) FTNArray {
-	fmt.Printf("FilterExcludeNode : %d\n", len(fa))
+func (fa FTNArray) FilterExcludeNote(tops FTNArray) FTNArray {
+	fmt.Printf("FilterExcludeNote : %d\n", len(fa))
 	result := FTNArray{}
 	sames := FTNArray{}
 	for _, f := range fa {
@@ -332,6 +335,26 @@ func (fa FTNArray) FilterPeriodN(n, p int) FTNArray {
 			result = append(result, f)
 			result = append(result, fa[i+1])
 			result = append(result, *Empty())
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterContinue2() FTNArray {
+	result := FTNArray{}
+	for _, f := range fa {
+		if f.Feature.IsContinue2() {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
+func (fa FTNArray) FilterContinue3() FTNArray {
+	result := FTNArray{}
+	for _, f := range fa {
+		if f.Feature.IsContinue3() {
+			result = append(result, f)
 		}
 	}
 	return result

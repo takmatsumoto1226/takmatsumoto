@@ -250,3 +250,23 @@ func (fa PowerList) FilterPrime(c int) PowerList {
 	}
 	return result
 }
+
+func (fa PowerList) FilterExcludeNote(tops PowerList) PowerList {
+	fmt.Printf("FilterExcludeNote : %d\n", len(fa))
+	result := PowerList{}
+	sames := PowerList{}
+	for _, f := range fa {
+		add := true
+		for _, t := range tops {
+			if f.IsSame(&t) {
+				sames = append(sames, f)
+				add = false
+				break
+			}
+		}
+		if add {
+			result = append(result, f)
+		}
+	}
+	return result
+}
