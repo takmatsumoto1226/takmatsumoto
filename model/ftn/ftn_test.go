@@ -377,7 +377,7 @@ func Test_groupNumbers(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	// ar.List.WithRange(0, 20).Reverse().ShowAll()
 	top := ar.List.GetNode(0)
-	newtop := NewFTNWithStrings([]string{"01", "09", "14", "31", "33"})
+	newtop := NewFTNWithStrings([]string{})
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 0}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)

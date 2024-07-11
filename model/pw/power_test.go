@@ -118,11 +118,12 @@ func Test_PickupNumber(t *testing.T) {
 		FilterIncludes(pwm.List.FragmentRange([]int{}), []int{}).
 		FilterExcludes(pwm.List.FragmentRange([]int{}), []int{}).
 		FilterExcludeNote(pwm.List).
-		FilterCol(&top, 1).
-		FilterNeighber(&top, 1).
-		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup4}, []int{3, 1, 2}).
+		FilterCol(&top, 2).
+		FilterNeighber(&top, 2).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup4}, []int{2, 2}).
 		FilterFeatureExcludes(pwm.List).
-		findNumbers([]string{}, df.None).
+		// FilterFeatureIncludes(ar.List).
+		// findNumbers([]string{}, df.None).
 		FilterByGroupIndex(pwg, []int{0}).
 		FilterOddEvenList(4).
 		Distinct()
@@ -131,15 +132,13 @@ func Test_PickupNumber(t *testing.T) {
 	fmt.Println(len(filterPick))
 	fmt.Println(filterPick.IntervalBallsCountStatic(p).Presentation(false))
 	fmt.Println("got top")
-
 	for _, f := range filterPick {
 		if latestTop != nil && f.IsSame(latestTop) {
 			fmt.Println(f.formRow())
 		}
 	}
 
-	fmt.Printf("\n\n\nGod Pick....\n")
-	GodPick(filterPick, 10)
+	GodPick(filterPick, 1)
 	// fmt.Println(pwm.List.WithRange(0, 20).Presentation())
 }
 

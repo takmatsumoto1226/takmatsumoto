@@ -214,6 +214,7 @@ func (ar *PowerManager) ListByGroupIndex(group *PWGroup, c int) PowerList {
 }
 
 func GodPick(arr PowerList, c int) {
+	fmt.Printf("\n\n\nGod Pick....\n")
 	if len(arr) == 0 {
 		return
 	}
