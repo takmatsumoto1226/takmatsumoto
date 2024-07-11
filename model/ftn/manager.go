@@ -328,15 +328,15 @@ func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, cs []int) FTNArray {
 	return arr.Distinct()
 }
 
-func (ar *FTNsManager) GodPick(arr FTNArray, c int) {
+func (ar *FTNsManager) GodPick(arr FTNArray, c int) FTNArray {
+	result := FTNArray{}
 	if len(arr) == 0 {
-		return
+		return result
 	}
 	common.SetRandomGenerator(1)
 	for i := 0; i < c; i++ {
 		index := common.RandomNuber() % uint64(len(arr))
-		a := arr[index]
-		fmt.Printf("%4d:%s\n", index, a.formRow())
+		result = append(result, arr[index])
 	}
-	fmt.Print("\n\n\n")
+	return result
 }

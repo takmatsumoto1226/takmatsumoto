@@ -375,28 +375,28 @@ func Test_groupNumbers(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
-	ar.List.WithRange(0, 20).Reverse().ShowAll()
+	// ar.List.WithRange(0, 20).Reverse().ShowAll()
 	top := ar.List.GetNode(0)
-	newtop := NewFTNWithStrings([]string{})
-	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 660}
+	newtop := NewFTNWithStrings([]string{"01", "09", "14", "31", "33"})
+	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 0}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
 
 	filterPick := ar.
-		// FilterByGroupIndex(NewGroup(100, ar.Combinations, ar.List), []int{0}).
 		FullCombination().
 		FilterHighFreqNumber(ar.List, p).
 		FilterPickBySpecConfition().
 		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterExcludeNote(ar.List).
-		FilterCol(&top, 1).
+		FilterCol(&top, 2).
 		FilterNeighber(&top, 2).
-		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 1, 2}).
-		FilterFeatureExcludes(ar.List).
-		findNumbers([]string{}, df.None).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup4}, []int{2, 2}).
+		// FilterFeatureExcludes(ar.List).
+		FilterFeatureIncludes(ar.List).
+		// findNumbers([]string{}, df.None).
 		FilterByGroupIndex(group, []int{0}).
-		FilterOddEvenList(2).
+		FilterOddEvenList(4).
 		Distinct()
 
 	filterPick.ShowAll()
@@ -411,7 +411,8 @@ func Test_groupNumbers(t *testing.T) {
 	}
 
 	fmt.Printf("\n\n\nGod Pick....\n")
-	ar.GodPick(filterPick, 2)
+	picks := ar.GodPick(filterPick, 1)
+	picks.ShowAll()
 }
 
 func Test_FTNGroup(t *testing.T) {
@@ -439,8 +440,8 @@ func Test_FindGroupIndex(t *testing.T) {
 	ar.Prepare()
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
-	ftns := ar.List.WithRange(0, 20)
-	// ftns := FTNArray{*NewFTNWithStrings([]string{})}
+	ftns := ar.List.WithRange(0, 200).Reverse()
+	// ftns := FTNArray{*NewFTNWithStrings([]string{"01", "09", "13", "31", "33"})}
 	for _, ftn := range ftns {
 		v, k := group.FindGroupIndex(ftn)
 		fmt.Printf("%4d:%2d => %s\n", v, k, ftn.formRow())
@@ -488,7 +489,7 @@ func Test_CompareLatestAndHistoryFeature(t *testing.T) {
 	ar.Prepare()
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	tops := ar.List.WithRange(0, 1)
-	list := tops.FilterFeatureExcludes(ar.List)
+	list := tops.MatchFeatureHistoryTops(ar.List.WithRange(1, len(ar.List)))
 	list.ShowAll()
 	fmt.Println(len(list))
 }

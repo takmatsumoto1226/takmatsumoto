@@ -7,7 +7,6 @@ import (
 	"lottery/model/common"
 	"lottery/model/df"
 	"lottery/model/interf"
-	"path/filepath"
 	"testing"
 	"time"
 
@@ -18,7 +17,7 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = PowerManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal, Freq: 200}
+	p := PickParam{SortType: df.Descending, Interval: 40, Whichfront: df.Normal, Freq: 200}
 	list := as.List.WithRange(0, int(p.Interval)).Reverse()
 	fmt.Println(list.Presentation())
 	ballsCount := list.IntervalBallsCountStatic(p)
@@ -125,7 +124,7 @@ func Test_PickupNumber(t *testing.T) {
 		FilterFeatureExcludes(pwm.List).
 		findNumbers([]string{}, df.None).
 		FilterByGroupIndex(pwg, []int{0}).
-		FilterOddEvenList(2).
+		FilterOddEvenList(4).
 		Distinct()
 
 	filterPick.ShowAll()
@@ -187,7 +186,7 @@ func Test_Continue22TypeStatic(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var pwm = PowerManager{}
 	pwm.Prepare()
-	fmt.Printf("%.2f%%\n", pwm.List.StaticContinue22Percent(interf.Interval{Index: 0, Length: len(pwm.List)}))
+	fmt.Printf("%.2f%%\n", pwm.List.Reverse().StaticContinue22Percent())
 }
 
 func Test_Continue3TypeStatic(t *testing.T) {
@@ -195,7 +194,7 @@ func Test_Continue3TypeStatic(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var pwm = PowerManager{}
 	pwm.Prepare()
-	fmt.Printf("%.2f%%\n", pwm.List.StaticContinue3Percent(interf.Interval{Index: 0, Length: len(pwm.List)}))
+	fmt.Printf("%.2f%%\n", pwm.List.Reverse().StaticContinue3Percent())
 }
 
 func Test_Continue32TypeStatic(t *testing.T) {
@@ -203,11 +202,11 @@ func Test_Continue32TypeStatic(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var pwm = PowerManager{}
 	pwm.Prepare()
-	fmt.Printf("%.2f%%\n", pwm.List.WithInterval(interf.Interval{Index: 0, Length: len(pwm.List)}).StaticContinue32Percent())
+	fmt.Printf("%.2f%%\n", pwm.List.Reverse().StaticContinue32Percent())
 }
 
 func Test_Continue4TypeStatic(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_Continue22TypeStatic")
+	defer common.TimeTaken(time.Now(), "Test_Continue4TypeStatic")
 	config.LoadConfig("../../config.yaml")
 	var pwm = PowerManager{}
 	pwm.Prepare()
@@ -244,18 +243,7 @@ func Test_ListContinue4AndNext(t *testing.T) {
 }
 
 func FileNames() []string {
-	return []string{
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620112607.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620112815.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113033.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113246.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113502.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113715.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620113921.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620114132.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620114344.json"),
-		filepath.Join(RootDir, SubDir, "content_03_1.0_20240620114601.json"),
-	}
+	return []string{}
 }
 
 // func FileNames() []string {
