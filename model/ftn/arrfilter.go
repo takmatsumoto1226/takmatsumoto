@@ -139,7 +139,7 @@ func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.NoContinue() {
+		if ftn.Feature.IsContinue2() {
 			result = append(result, ftn)
 		}
 	}

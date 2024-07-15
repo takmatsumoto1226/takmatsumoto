@@ -389,14 +389,15 @@ func Test_groupNumbers(t *testing.T) {
 		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterExcludeNote(ar.List).
-		FilterCol(&top, 2).
+		FilterCol(&top, 1).
 		FilterNeighber(&top, 2).
-		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup4}, []int{2, 2}).
-		// FilterFeatureExcludes(ar.List).
-		FilterFeatureIncludes(ar.List).
+		FilterByTenGroup([]int{df.FeatureTenGroup2}, []int{3}).
+		FilterFeatureExcludes(ar.List).
+		// FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
-		FilterByGroupIndex(group, []int{0}).
-		FilterOddEvenList(4).
+		FilterByGroupIndex(group, []int{1}).
+		FilterOddEvenList(2).
+		// FilterPrime(1).
 		Distinct()
 
 	filterPick.ShowAll()
