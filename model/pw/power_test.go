@@ -118,7 +118,7 @@ func Test_PickupNumber(t *testing.T) {
 		FilterIncludes(pwm.List.FragmentRange([]int{}), []int{}).
 		FilterExcludes(pwm.List.FragmentRange([]int{}), []int{}).
 		FilterExcludeNote(pwm.List).
-		FilterCol(&top, 2).
+		FilterCol(&top, 1).
 		FilterNeighber(&top, 2).
 		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup4}, []int{2, 2}).
 		FilterFeatureExcludes(pwm.List).

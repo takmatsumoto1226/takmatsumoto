@@ -340,6 +340,16 @@ func (fa FTNArray) FilterPeriodN(n, p int) FTNArray {
 	return result
 }
 
+func (fa FTNArray) FilterNoContinue() FTNArray {
+	result := FTNArray{}
+	for _, f := range fa {
+		if f.Feature.NoContinue() {
+			result = append(result, f)
+		}
+	}
+	return result
+}
+
 func (fa FTNArray) FilterContinue2() FTNArray {
 	result := FTNArray{}
 	for _, f := range fa {

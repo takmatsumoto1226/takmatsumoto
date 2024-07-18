@@ -23,16 +23,8 @@ func init() {
 }
 
 func Test_initNumberToIndex(t *testing.T) {
-	// initNumberToIndex()
-	// logrus.Info(numberToIndex)
-	// fmt.Println(df.FeatureTenGroup1)
-	// n := 14
-	// fmt.Println(n / 10)
-	// fmt.Println(df.Primes)
-	// fmt.Println(bytes.IndexByte(df.Primes, 31))
-	// fmt.Println(bytes.IndexByte(df.Primes, 30))
-	// fmt.Println(df.FilterContinue3)
-
+	ftn := NewFTNWithInts([]int{})
+	fmt.Println(ftn.Feature.PrimeCount)
 }
 
 func Test_loadFTNs(t *testing.T) {
@@ -387,17 +379,17 @@ func Test_groupNumbers(t *testing.T) {
 		FilterHighFreqNumber(ar.List, p).
 		FilterPickBySpecConfition().
 		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
+		FilterExcludes(ar.List.FragmentRange([]int{0}), []int{}).
 		FilterExcludeNote(ar.List).
-		FilterCol(&top, 1).
-		FilterNeighber(&top, 2).
-		FilterByTenGroup([]int{df.FeatureTenGroup2}, []int{3}).
+		FilterCol(&top, 0).
+		FilterNeighber(&top, 0).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 1, 1}).
 		FilterFeatureExcludes(ar.List).
 		// FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
-		FilterByGroupIndex(group, []int{1}).
-		FilterOddEvenList(2).
-		// FilterPrime(1).
+		FilterByGroupIndex(group, []int{0}).
+		FilterOddEvenList(3).
+		FilterPrime(1).
 		Distinct()
 
 	filterPick.ShowAll()
@@ -513,6 +505,17 @@ func Test_ShowTwiceUP(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	fmt.Printf("%.2f%%\n", ar.List.StaticNumberShowTwiceup(2)*100)
+}
+
+func Test_ShowNoContinue(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_ShowContinue2")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	l := ar.List.FilterNoContinue().Reverse()
+	l.ShowAll()
+	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(ar.List)) * 100))
+
 }
 
 func Test_ShowContinue2(t *testing.T) {
@@ -897,7 +900,7 @@ func Test_FilterByTenGroup(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	rl := ar.List.WithRange(0, 0)
-	l := rl.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2}, []int{3, 2})
+	l := rl.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 1, 1, 1})
 	l.Reverse().ShowAll()
 	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
 }
