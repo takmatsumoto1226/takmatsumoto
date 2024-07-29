@@ -120,12 +120,12 @@ func Test_PickupNumber(t *testing.T) {
 		FilterExcludeNote(pwm.List).
 		FilterCol(&top, 1).
 		FilterNeighber(&top, 2).
-		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup4}, []int{2, 2}).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 1, 2, 1}).
 		FilterFeatureExcludes(pwm.List).
 		// FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
 		FilterByGroupIndex(pwg, []int{0}).
-		FilterOddEvenList(4).
+		FilterOddEvenList(3).
 		Distinct()
 
 	filterPick.ShowAll()

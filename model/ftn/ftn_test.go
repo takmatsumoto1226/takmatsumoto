@@ -39,7 +39,7 @@ func Test_loadFTNs(t *testing.T) {
 	// fmt.Println("")
 	// distinct := aipicks.Distinct()
 	// distinct.ShowAll()
-	normalRange := as.List.WithRange(0, 20).Reverse()
+	normalRange := as.List.WithRange(0, 30).Reverse()
 	normalRange.ShowAll()
 
 }
@@ -70,7 +70,7 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 50, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 40, Whichfront: df.Normal}
 	list := as.List.WithRange(0, int(p.Interval)).Reverse()
 	fmt.Println(list.Presentation())
 	fmt.Println(list.BallsCountStatic().Presentation(false))
@@ -236,7 +236,6 @@ func Test_GenerateTopPriceNumberJSON(t *testing.T) {
 
 	ar.JSONGenerateTopPriceNumber(th)
 	ar.SaveBTs()
-
 }
 
 // prediction
@@ -379,17 +378,17 @@ func Test_groupNumbers(t *testing.T) {
 		FilterHighFreqNumber(ar.List, p).
 		FilterPickBySpecConfition().
 		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterExcludes(ar.List.FragmentRange([]int{0}), []int{}).
+		FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterExcludeNote(ar.List).
 		FilterCol(&top, 0).
-		FilterNeighber(&top, 0).
-		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 1, 1}).
+		FilterNeighber(&top, 1).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup4}, []int{1, 2, 2}).
 		FilterFeatureExcludes(ar.List).
 		// FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
 		FilterByGroupIndex(group, []int{0}).
 		FilterOddEvenList(3).
-		FilterPrime(1).
+		// FilterPrime([]int{1}).
 		Distinct()
 
 	filterPick.ShowAll()
@@ -434,7 +433,7 @@ func Test_FindGroupIndex(t *testing.T) {
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
 	ftns := ar.List.WithRange(0, 200).Reverse()
-	// ftns := FTNArray{*NewFTNWithStrings([]string{"01", "09", "13", "31", "33"})}
+	// ftns := FTNArray{*NewFTNWithStrings([]string{})}
 	for _, ftn := range ftns {
 		v, k := group.FindGroupIndex(ftn)
 		fmt.Printf("%4d:%2d => %s\n", v, k, ftn.formRow())
@@ -481,10 +480,18 @@ func Test_CompareLatestAndHistoryFeature(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
-	tops := ar.List.WithRange(0, 1)
-	list := tops.MatchFeatureHistoryTops(ar.List.WithRange(1, len(ar.List)))
-	list.ShowAll()
-	fmt.Println(len(list))
+	for i := 0; i < 20; i++ {
+		tops := ar.List.WithRange(i, 1)
+		hisTops := ar.List.WithRange(i+1, len(ar.List))
+		list := tops.MatchFeatureHistoryTops(hisTops)
+		if len(list) > 0 {
+			list.ShowAll()
+			tops.ShowAll()
+			fmt.Println("=================================")
+		}
+
+	}
+
 }
 
 func Test_B2i(t *testing.T) {
@@ -766,7 +773,7 @@ func Test_Cols(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.WithRange(0, 0).Cols(3).ShowAll()
+	ar.List.WithRange(0, 0).Cols(0).ShowAll()
 }
 
 func Test_StaticHaveNeighberPercent(t *testing.T) {
@@ -923,4 +930,14 @@ func Test_FilterPeriodN(t *testing.T) {
 	list := ar.List.Reverse().FilterPeriodN(6, 40)
 	list.ShowAll()
 	list.ShowLen()
+}
+
+func Test_FilterPrime(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FilterPeriodN")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	l := ar.List.FilterPrime([]int{2})
+	l.Reverse().ShowAll()
+	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(ar.List)) * 100))
 }

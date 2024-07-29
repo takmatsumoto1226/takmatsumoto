@@ -139,7 +139,7 @@ func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.IsContinue2() {
+		if ftn.Feature.IsContinueNo() {
 			result = append(result, ftn)
 		}
 	}
@@ -308,11 +308,16 @@ func (fa FTNArray) FilterOddEvenList(oc int) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterPrime(c int) FTNArray {
+func (fa FTNArray) FilterPrime(cs []int) FTNArray {
+	if len(cs) == 0 {
+		return fa
+	}
 	result := FTNArray{}
 	for _, f := range fa {
-		if f.EqualPrime(c) {
-			result = append(result, f)
+		for _, c := range cs {
+			if f.EqualPrime(c) {
+				result = append(result, f)
+			}
 		}
 	}
 	return result
@@ -343,7 +348,7 @@ func (fa FTNArray) FilterPeriodN(n, p int) FTNArray {
 func (fa FTNArray) FilterNoContinue() FTNArray {
 	result := FTNArray{}
 	for _, f := range fa {
-		if f.Feature.NoContinue() {
+		if f.Feature.IsContinueNo() {
 			result = append(result, f)
 		}
 	}

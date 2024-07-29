@@ -62,9 +62,9 @@ func (ar *FTNsManager) loadAllData() {
 			ftns = append(ftns, *ftn)
 		}
 	}
-
+	sort.Sort(ftns)
 	ar.List = ftns
-	sort.Sort(ar.List)
+
 }
 
 func (ar *FTNsManager) Prepare() error {

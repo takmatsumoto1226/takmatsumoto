@@ -421,7 +421,7 @@ func (f *Feature) GroupTenPresentation() string {
 	return fmt.Sprintf(" %v ", f.TenGroupCount)
 }
 
-func (f *Feature) NoContinue() bool {
+func (f *Feature) IsContinueNo() bool {
 	return !f.IsContinue2() && !f.IsContinue3() && !f.IsContinue4() && !f.IsContinue5() && !f.IsContinue22()
 }
 

@@ -13,6 +13,7 @@ func ReadCSV(fullpath string) ([][]string, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
+	defer f.Close()
 
 	lines, err := csv.NewReader(f).ReadAll()
 	if err != nil {

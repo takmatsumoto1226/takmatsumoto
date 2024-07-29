@@ -488,7 +488,6 @@ func (ar FTNArray) NeighberAndCols(n int, c int) FTNArray {
 }
 
 func (fa FTNArray) MatchFeatureHistoryTops(tops FTNArray) FTNArray {
-	fmt.Printf("MatchFeatureHistoryTops : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
 		for _, top := range tops {
@@ -498,5 +497,6 @@ func (fa FTNArray) MatchFeatureHistoryTops(tops FTNArray) FTNArray {
 			}
 		}
 	}
+	fmt.Printf("MatchFeatureHistoryTops : %d\n", len(result))
 	return result
 }
