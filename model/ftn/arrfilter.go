@@ -139,7 +139,7 @@ func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
 	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.IsContinueNo() {
+		if ftn.Feature.IsContinue2() {
 			result = append(result, ftn)
 		}
 	}
@@ -208,12 +208,14 @@ func (fa FTNArray) FilterExcludeNote(tops FTNArray) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterNeighber(top *FTN, c int) FTNArray {
+func (fa FTNArray) FilterNeighber(top *FTN, cs []int) FTNArray {
 	fmt.Printf("FilterNeighberNumber : %d\n", len(fa))
 	result := FTNArray{}
 	for _, f := range fa {
-		if f.haveNeighber(top, c) {
-			result = append(result, f)
+		for _, c := range cs {
+			if f.haveNeighber(top, c) {
+				result = append(result, f)
+			}
 		}
 	}
 	return result

@@ -379,16 +379,16 @@ func Test_groupNumbers(t *testing.T) {
 		FilterPickBySpecConfition().
 		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterExcludeNote(ar.List).
 		FilterCol(&top, 0).
-		FilterNeighber(&top, 1).
-		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup4}, []int{1, 2, 2}).
+		FilterNeighber(&top, []int{2}).
+		FilterByTenGroup([]int{df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{3, 2}).
 		FilterFeatureExcludes(ar.List).
 		// FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
 		FilterByGroupIndex(group, []int{0}).
-		FilterOddEvenList(3).
+		FilterOddEvenList(2).
 		// FilterPrime([]int{1}).
+		FilterExcludeNote(ar.List).
 		Distinct()
 
 	filterPick.ShowAll()
@@ -907,7 +907,7 @@ func Test_FilterByTenGroup(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	rl := ar.List.WithRange(0, 0)
-	l := rl.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 1, 1, 1})
+	l := rl.FilterPickBySpecConfition().FilterByTenGroup([]int{df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{4, 1})
 	l.Reverse().ShowAll()
 	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
 }
