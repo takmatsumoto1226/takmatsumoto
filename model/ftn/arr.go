@@ -85,8 +85,7 @@ func (fa FTNArray) PresentationGroupTenWithRange(r int) string {
 		tmp = fa[:r]
 	}
 	for _, ftn := range tmp {
-		msg = msg + ftn.Feature.GroupTenPresentation() + "\n"
-
+		msg = msg + ftn.formRow() + " " + ftn.Feature.GroupTenPresentation() + "\n"
 	}
 	return msg
 }

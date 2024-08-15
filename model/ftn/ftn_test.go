@@ -369,7 +369,7 @@ func Test_groupNumbers(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	// ar.List.WithRange(0, 20).Reverse().ShowAll()
 	top := ar.List.GetNode(0)
-	newtop := NewFTNWithStrings([]string{"06", "09", "24", "30", "34"})
+	newtop := NewFTNWithStrings([]string{})
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 0}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
@@ -377,12 +377,12 @@ func Test_groupNumbers(t *testing.T) {
 	filterPick := ar.
 		FullCombination().
 		FilterHighFreqNumber(ar.List, p).
-		FilterPickBySpecConfition([]int{df.ContinueRowNone}).
+		FilterPickBySpecConfition([]int{df.ContinueRow2}).
 		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterCol(&top, 0).
 		FilterNeighber(&top, []int{2}).
-		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 1, 2, 1}).
+		FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 0, 2, 1}).
 		FilterFeatureExcludes(ar.List).
 		// FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
@@ -804,8 +804,8 @@ func Test_StaticColPercent(t *testing.T) {
 	ar.List.WithInterval(interf.NewInterval(0, 100)).Cols(n).ShowAll()
 }
 
-const N = 0
-const R = 1000
+const N = 1
+const R = 100
 
 func Test_StaticColPercentAll(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_StaticColPercentAll")
