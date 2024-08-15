@@ -329,6 +329,7 @@ func (ar *FTNsManager) FilterByGroupIndex(group *FTNGroup, cs []int) FTNArray {
 }
 
 func (ar *FTNsManager) GodPick(arr FTNArray, c int) FTNArray {
+	fmt.Printf("\n\n\nGod Pick....\n")
 	result := FTNArray{}
 	if len(arr) == 0 {
 		return result

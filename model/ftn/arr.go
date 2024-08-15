@@ -85,7 +85,7 @@ func (fa FTNArray) PresentationGroupTenWithRange(r int) string {
 		tmp = fa[:r]
 	}
 	for _, ftn := range tmp {
-		msg = msg + ftn.formRow() + " " + ftn.Feature.GroupTenPresentation() + "\n"
+		msg = msg + ftn.Feature.GroupTenPresentation() + "\n"
 
 	}
 	return msg
@@ -301,7 +301,7 @@ func (fa FTNArray) AdariPrice(adari *FTN) int {
 		currentPrice := pn.AdariPrice(adari)
 		total = total + currentPrice
 	}
-	return 0
+	return total
 }
 
 func (ar FTNArray) IntervalBallsCountStatic(p PickParam) NormalizeInfo {

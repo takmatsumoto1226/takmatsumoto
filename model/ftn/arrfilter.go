@@ -135,12 +135,22 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 	return result.Distinct()
 }
 
-func (fa FTNArray) FilterPickBySpecConfition() FTNArray {
+func (fa FTNArray) FilterPickBySpecConfition(cts []int) FTNArray {
 	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
 	result := FTNArray{}
 	for _, ftn := range fa {
-		if ftn.Feature.IsContinue2() {
-			result = append(result, ftn)
+		for _, ct := range cts {
+			if ct == df.ContinueRowNone && ftn.Feature.IsContinueNo() {
+				result = append(result, ftn)
+			} else if ct == df.ContinueRow2 && ftn.Feature.IsContinue2() {
+				result = append(result, ftn)
+			} else if ct == df.ContinueRow3 && ftn.Feature.IsContinue3() {
+				result = append(result, ftn)
+			} else if ct == df.ContinueRow4 && ftn.Feature.IsContinue4() {
+				result = append(result, ftn)
+			} else if ct == df.ContinueRow22 && ftn.Feature.IsContinue22() {
+				result = append(result, ftn)
+			}
 		}
 	}
 	return result
@@ -299,18 +309,21 @@ func (fa FTNArray) FilterByTebGroupC(tt []int, hhh [][]int) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterOddEvenList(oc int) FTNArray {
+func (fa FTNArray) FilterOddEvenList(ocs []int) FTNArray {
 	fmt.Printf("FilterOddEvenList : %d\n", len(fa))
 	result := FTNArray{}
 	for _, f := range fa {
-		if f.Feature.OddNumberCount == oc {
-			result = append(result, f)
+		for _, oc := range ocs {
+			if f.Feature.OddNumberCount == oc {
+				result = append(result, f)
+			}
 		}
 	}
 	return result
 }
 
 func (fa FTNArray) FilterPrime(cs []int) FTNArray {
+	fmt.Printf("FilterPrime : %d\n", len(fa))
 	if len(cs) == 0 {
 		return fa
 	}

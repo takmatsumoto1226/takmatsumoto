@@ -44,13 +44,12 @@ const (
 
 const (
 	ContinueRowNone = iota
-	ContinueRow2    // 同一期出現相連號碼(2個) ex: 01 05 06 23 33
-	ContinueRow3    // 同一期出現相連號碼(3個) ex: 01 05 06 07 33
-	ContinueRow4    // 同一期出現相連號碼(4個) ex: 01 05 06 07 08
-	ContinueRow5    // 同一期出現相連號碼(5個) ex: 04 05 06 07 08
-	ContinueRow22   // 同一期出現相連號碼(2個*2)
-	ContinueRow32   // 同一期出現相連號碼(2個, 3個 葫蘆)
-
+	ContinueRow2
+	ContinueRow3
+	ContinueRow4
+	ContinueRow5
+	ContinueRow22
+	ContinueRow32
 )
 
 const (
