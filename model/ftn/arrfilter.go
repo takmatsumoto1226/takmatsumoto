@@ -231,12 +231,14 @@ func (fa FTNArray) FilterNeighber(top *FTN, cs []int) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterCol(top *FTN, c int) FTNArray {
+func (fa FTNArray) FilterCol(top *FTN, cs []int) FTNArray {
 	fmt.Printf("FilterCol : %d\n", len(fa))
 	result := FTNArray{}
 	for _, f := range fa {
-		if f.haveCol(top, c) {
-			result = append(result, f)
+		for _, c := range cs {
+			if f.haveCol(top, c) {
+				result = append(result, f)
+			}
 		}
 	}
 	return result
