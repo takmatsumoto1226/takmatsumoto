@@ -380,7 +380,7 @@ func Test_groupNumbers(t *testing.T) {
 		FilterPickBySpecConfition([]int{df.ContinueRowNone, df.ContinueRow2}).
 		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterCol(&top, []int{0, 1}).
+		FilterCol(&top, []int{2}).
 		FilterNeighber(&top, []int{1, 2}).
 		// FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 1, 0, 2}).
 		FilterByTenGroup([]int{}, []int{}).
