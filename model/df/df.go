@@ -436,7 +436,7 @@ func (f *Feature) IsJump4() bool {
 	return f.IBalls[0]-f.IBalls[1] == 1 && f.IBalls[1]-f.IBalls[2] == 1 && f.IBalls[2]-f.IBalls[3] == 1 && f.IBalls[3]-f.IBalls[4] == 1
 }
 
-func (f *Feature) IsFullTenGrouop() bool {
+func (f *Feature) IsFullTenGroup() bool {
 	return (f.TenGroupCount[0] > 0 && f.TenGroupCount[1] > 0 && f.TenGroupCount[2] > 0 && f.TenGroupCount[3] > 0)
 }
 

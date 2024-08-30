@@ -71,7 +71,7 @@ func Test_findnumbers(t *testing.T) {
 	as.Prepare()
 	fmt.Println("")
 	fmt.Println("")
-	p := PickParam{SortType: df.Descending, Interval: 40, Whichfront: df.Normal}
+	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal}
 	list := as.List.WithRange(0, int(p.Interval)).Reverse()
 	fmt.Println(list.Presentation())
 	fmt.Println(list.BallsCountStatic().Presentation(false))
@@ -377,19 +377,19 @@ func Test_groupNumbers(t *testing.T) {
 	filterPick := ar.
 		FullCombination().
 		FilterHighFreqNumber(ar.List, p).
-		FilterPickBySpecConfition([]int{df.ContinueRowNone, df.ContinueRow2}).
-		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
+		FilterPickBySpecConfition([]int{df.ContinueRowNone}).
+		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterCol(&top, []int{2}).
-		FilterNeighber(&top, []int{1, 2}).
-		// FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 1, 0, 2}).
-		FilterByTenGroup([]int{}, []int{}).
-		FilterFeatureExcludes(ar.List).
-		// FilterFeatureIncludes(ar.List).
+		FilterCol(&top, []int{0}).
+		FilterNeighber(&top, []int{2}).
+		// FilterByTenGroupS([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 0, 3, 1}).
+		FilterByTenGroupS([]int{}, []int{}).
+		// FilterFeatureExcludes(ar.List).
+		FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
-		FilterByGroupIndex(group, []int{0}).
-		FilterOddEvenList([]int{2}).
-		// FilterPrime([]int{0}).
+		FilterByGroupIndex(group, []int{0, 1}).
+		FilterOddEvenList([]int{3}).
+		// FilterPrime([]int{1}).
 		FilterExcludeNote(ar.List).
 		Distinct()
 
@@ -575,18 +575,6 @@ func Test_ShowContinue3Avg(t *testing.T) {
 	list.Continue3s().ShowAll()
 
 }
-
-func Test_FilterNeighberNumberTest(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_FilterNeighberNumberTest")
-	config.LoadConfig("../../config.yaml")
-	var ar = FTNsManager{}
-	ar.Prepare()
-	// top := ar.List.GetNode(0)
-	top := NewFTNWithStrings([]string{})
-	tf := NewFTNWithStrings([]string{})
-	fmt.Println(top.haveNeighber(tf, 2))
-}
-
 func Test_StaticTenGroup(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_StaticTenGroup")
 	config.LoadConfig("../../config.yaml")
@@ -639,27 +627,36 @@ func Test_StaticTenGroupAvg(t *testing.T) {
 	fmt.Println(report)
 }
 
+const n = 5
+const k = 4
+
 func Test_ListTenGroup(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_StaticTenGroup")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	r := interf.NewInterval(0, 56)
-
-	report := ""
-	report = report + ar.List.WithInterval(r).Reverse().PresentationGroupTenWithRange(0)
-	fmt.Println(report)
+	r := interf.NewInterval(0, 0)
+	result := [][]int{}
+	fl := ar.List.WithInterval(r).Reverse()
+	FindSolutions(k, n, []int{}, &result)
+	// l := ar.List.WithInterval(r).Reverse().FilterByTenGroup([]int{}, []int{})
+	for _, s := range result {
+		l := fl.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, s)
+		// report := ""
+		// report = report + l.PresentationGroupTenWithRange(0)
+		// fmt.Println(report)
+		fmt.Printf("%v: %.2f%%\n", s, float64(len(l))/float64(len(fl))*100)
+	}
 }
 
-func Test_ListTenGroupContinue2(t *testing.T) {
+func Test_ListTenGroupWithGroupList(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_StaticTenGroup")
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
 	r := interf.NewInterval(0, 0)
 	list := ar.List.WithInterval(r).Reverse()
-	n := 5
-	k := 4
+
 	result := [][]int{}
 	FindSolutions(k, n, []int{}, &result)
 	for _, r := range result {
@@ -668,9 +665,7 @@ func Test_ListTenGroupContinue2(t *testing.T) {
 		fl := list.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, r)
 		fl.ShowAll()
 		fl.ShowLen()
-
 	}
-
 }
 
 func Test_PickMostTenGroup(t *testing.T) {
@@ -680,8 +675,6 @@ func Test_PickMostTenGroup(t *testing.T) {
 	ar.Prepare()
 	r := interf.NewInterval(0, 0)
 	list := ar.List.WithInterval(r).Reverse()
-	n := 5
-	k := 4
 	result := [][]int{}
 	FindSolutions(k, n, []int{}, &result)
 	mostresult := [][]int{}
@@ -690,7 +683,7 @@ func Test_PickMostTenGroup(t *testing.T) {
 		fl := list.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, r)
 		// fl.ShowAll()
 		fl.ShowLen()
-		if len(fl) > 100 {
+		if len(fl) > 300 {
 			mostresult = append(mostresult, r)
 		}
 
@@ -886,7 +879,7 @@ func Test_StaticFullTenGrouopPercent(t *testing.T) {
 	r := interf.NewInterval(0, length)
 	result := FTNArray{}
 	for _, f := range ar.List.WithInterval(r) {
-		if f.Feature.IsFullTenGrouop() {
+		if f.Feature.IsFullTenGroup() {
 			result = append(result, f)
 		}
 	}
@@ -946,18 +939,7 @@ func Test_StaticOddList(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	rl := ar.List.WithRange(0, 0)
-	l := rl.FilterOddEvenList([]int{4})
-	l.Reverse().ShowAll()
-	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
-}
-
-func Test_FilterByTenGroup(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_FilterByTenGroup")
-	config.LoadConfig("../../config.yaml")
-	var ar = FTNsManager{}
-	ar.Prepare()
-	rl := ar.List.WithRange(0, 0)
-	l := rl.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{5, 0, 0, 0})
+	l := rl.FilterOddEvenList([]int{2, 3})
 	l.Reverse().ShowAll()
 	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
 }
@@ -967,9 +949,28 @@ func Test_FilterByColN(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	list := ar.List.WithRange(0, 40).FilterColN(3).Reverse()
-	list.ShowAll()
-	list.ShowLen()
+	rl := ar.List.WithRange(0, 0).Reverse()
+	l := rl.FilterColN(2)
+	rl.ShowAll()
+	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
+}
+
+func Test_FilterByColRow(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FilterByColN")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	l := FTNArray{}
+	rl := ar.List.WithRange(0, 0).Reverse()
+	for i, f := range rl {
+		if i < len(rl)-1 {
+			if f.haveCol(&rl[i+1], 1) || f.haveCol(&rl[i+1], 2) {
+				l = append(l, f)
+			}
+		}
+	}
+	l.ShowAll()
+	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
 }
 
 func Test_FilterPeriodN(t *testing.T) {
@@ -1027,5 +1028,23 @@ func FindSolutions(k, n int, prefix []int, result *[][]int) {
 
 	for i := 0; i <= n; i++ {
 		FindSolutions(k-1, n-i, append([]int(nil), append(prefix, i)...), result)
+	}
+}
+
+func Test_FilterNeighberNumberTest(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FilterNeighberNumberTest")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	// top := ar.List.GetNode(0)
+	top := NewFTNWithStrings([]string{})
+	tf := NewFTNWithStrings([]string{})
+	fmt.Println(top.haveNeighber(tf, 2))
+}
+
+func Test_Combination(t *testing.T) {
+	results := algorithm.Combinations([]string{}, 2)
+	for _, r := range results {
+		fmt.Println(r)
 	}
 }

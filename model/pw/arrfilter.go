@@ -208,7 +208,7 @@ func (fa PowerList) FilterByTenGroup(tt []int, hh []int) PowerList {
 	result := PowerList{}
 	if len(tt) == 0 {
 		for _, f := range fa {
-			if f.Feature.IsFullTenGrouop() {
+			if f.Feature.IsFullTenGroup() {
 				result = append(result, f)
 			}
 		}

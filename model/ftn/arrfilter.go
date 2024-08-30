@@ -220,6 +220,9 @@ func (fa FTNArray) FilterExcludeNote(tops FTNArray) FTNArray {
 
 func (fa FTNArray) FilterNeighber(top *FTN, cs []int) FTNArray {
 	fmt.Printf("FilterNeighberNumber : %d\n", len(fa))
+	if len(cs) == 0 {
+		return fa
+	}
 	result := FTNArray{}
 	for _, f := range fa {
 		for _, c := range cs {
@@ -244,13 +247,16 @@ func (fa FTNArray) FilterCol(top *FTN, cs []int) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterByTenGroup(tt []int, hh []int) FTNArray {
+func (fa FTNArray) FilterByTenGroupS(tt []int, hh []int) FTNArray {
 	fmt.Printf("FilterByTebGroup : %d\n", len(fa))
+	return fa.FilterByTenGroup(tt, hh)
+}
 
+func (fa FTNArray) FilterByTenGroup(tt []int, hh []int) FTNArray {
 	result := FTNArray{}
 	if len(tt) == 0 {
 		for _, f := range fa {
-			if f.Feature.IsFullTenGrouop() {
+			if f.Feature.IsFullTenGroup() {
 				result = append(result, f)
 			}
 		}
@@ -281,7 +287,7 @@ func (fa FTNArray) FilterByTebGroupC(tt []int, hhh [][]int) FTNArray {
 	result := FTNArray{}
 	if len(tt) == 0 {
 		for _, f := range fa {
-			if f.Feature.IsFullTenGrouop() {
+			if f.Feature.IsFullTenGroup() {
 				result = append(result, f)
 			}
 		}

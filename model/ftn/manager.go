@@ -76,6 +76,7 @@ func (ar *FTNsManager) Prepare() error {
 
 	ar.Combinations = combin.Combinations(ballsCountFTN, BallsOfFTN)
 	ar.BackTests = []FTNBT{}
+
 	return nil
 }
 

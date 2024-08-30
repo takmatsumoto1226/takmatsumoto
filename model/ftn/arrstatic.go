@@ -123,7 +123,7 @@ func (ar FTNArray) StaticHaveNeighberPercent(n int) float64 {
 func (ar FTNArray) StaticFullTenGroupPercent() float64 {
 	count := 0.
 	for _, f := range ar {
-		if f.Feature.IsFullTenGrouop() {
+		if f.Feature.IsFullTenGroup() {
 			count++
 		}
 	}
