@@ -9,7 +9,7 @@ import (
 type FTNGroup struct {
 	GroupCount   int            `json:"group_count"`
 	GroupMapping map[string]int `json:"groupmapping"`
-	CountMapping map[int]int    `json:"groupmapping"`
+	CountMapping map[int]int    `json:"countmapping"`
 	Statics      []int          `json:"statics"`
 	ZeroCount    int            `json:"zero_count"`
 	Max          int            `json:"max"`

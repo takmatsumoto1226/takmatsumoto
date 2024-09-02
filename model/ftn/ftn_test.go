@@ -638,7 +638,7 @@ func Test_ListTenGroup(t *testing.T) {
 	r := interf.NewInterval(0, 0)
 	result := [][]int{}
 	fl := ar.List.WithInterval(r).Reverse()
-	FindSolutions(k, n, []int{}, &result)
+	findSolutions(k, n, []int{}, &result)
 	// l := ar.List.WithInterval(r).Reverse().FilterByTenGroup([]int{}, []int{})
 	for _, s := range result {
 		l := fl.FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, s)
@@ -658,7 +658,7 @@ func Test_ListTenGroupWithGroupList(t *testing.T) {
 	list := ar.List.WithInterval(r).Reverse()
 
 	result := [][]int{}
-	FindSolutions(k, n, []int{}, &result)
+	findSolutions(k, n, []int{}, &result)
 	for _, r := range result {
 		fmt.Printf("=======================%v=======================\n", r)
 		// fl := list.FilterPickBySpecConfition([]int{df.ContinueRowNone}).FilterByTenGroup([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, r)
@@ -676,7 +676,7 @@ func Test_PickMostTenGroup(t *testing.T) {
 	r := interf.NewInterval(0, 0)
 	list := ar.List.WithInterval(r).Reverse()
 	result := [][]int{}
-	FindSolutions(k, n, []int{}, &result)
+	findSolutions(k, n, []int{}, &result)
 	mostresult := [][]int{}
 	for _, r := range result {
 		fmt.Printf("=======================%v=======================\n", r)
@@ -1004,7 +1004,7 @@ func Test_combinationSameNotSame(t *testing.T) {
 
 	// List all solutions
 	fmt.Println("Solutions:")
-	FindSolutions(k, n, []int{}, &result)
+	findSolutions(k, n, []int{}, &result)
 	// fmt.Printf("\n\n\n\n")
 	for _, r := range result {
 		fmt.Println(r)
@@ -1015,20 +1015,6 @@ func CalculateBinomialCoefficient(n, k int64) *big.Int {
 	result := new(big.Int)
 	result.Binomial(n, k)
 	return result
-}
-
-// FindSolutions recursively finds and prints all solutions
-func FindSolutions(k, n int, prefix []int, result *[][]int) {
-	if k == 1 {
-		prefix = append(prefix, n)
-		*result = append(*result, prefix)
-		// fmt.Println(prefix)
-		return
-	}
-
-	for i := 0; i <= n; i++ {
-		FindSolutions(k-1, n-i, append([]int(nil), append(prefix, i)...), result)
-	}
 }
 
 func Test_FilterNeighberNumberTest(t *testing.T) {
@@ -1047,4 +1033,13 @@ func Test_Combination(t *testing.T) {
 	for _, r := range results {
 		fmt.Println(r)
 	}
+}
+
+func Test_TenGroupManager(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	tmgr := NewTenGroupMgr(ar.List)
+	fmt.Println(tmgr.Presentation())
 }
