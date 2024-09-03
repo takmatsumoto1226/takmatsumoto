@@ -378,12 +378,12 @@ func Test_groupNumbers(t *testing.T) {
 		FullCombination().
 		FilterHighFreqNumber(ar.List, p).
 		FilterPickBySpecConfition([]int{df.ContinueRowNone}).
-		FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
+		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterCol(&top, []int{0}).
 		FilterNeighber(&top, []int{2}).
-		// FilterByTenGroupS([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 0, 3, 1}).
-		FilterByTenGroupS([]int{}, []int{}).
+		FilterByTenGroupS([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 1, 1}).
+		// FilterByTenGroupS([]int{}, []int{}).
 		// FilterFeatureExcludes(ar.List).
 		FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
@@ -951,7 +951,7 @@ func Test_FilterByColN(t *testing.T) {
 	ar.Prepare()
 	rl := ar.List.WithRange(0, 0).Reverse()
 	l := rl.FilterColN(2)
-	rl.ShowAll()
+	l.ShowAll()
 	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
 }
 

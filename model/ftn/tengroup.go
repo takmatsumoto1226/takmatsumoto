@@ -69,7 +69,7 @@ func NewTenGroupMgr(fa FTNArray) TenGroupMgr {
 	}
 
 	for _, f := range fa {
-		ID := fmt.Sprintf("%v", f.Feature.TenGroupCount)
+		ID := fmt.Sprintf("%v", f.Feature.TenGroupCount[:4])
 		cf := f
 		tg := tgs[ID]
 		tg.FTNs = append(tg.FTNs, cf)
