@@ -377,13 +377,13 @@ func Test_groupNumbers(t *testing.T) {
 	filterPick := ar.
 		FullCombination().
 		FilterHighFreqNumber(ar.List, p).
-		FilterPickBySpecConfition([]int{df.ContinueRowNone}).
+		FilterPickBySpecConfition([]int{df.ContinueRow2}).
 		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterCol(&top, []int{0}).
-		FilterNeighber(&top, []int{2}).
-		FilterByTenGroupS([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 1, 1}).
-		// FilterByTenGroupS([]int{}, []int{}).
+		FilterNeighber(&top, []int{1}).
+		FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 1, 2, 1}).
+		// FilterByTenGroupLog([]int{}, []int{}).
 		// FilterFeatureExcludes(ar.List).
 		FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{}, df.None).
@@ -635,7 +635,8 @@ func Test_ListTenGroup(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	r := interf.NewInterval(0, 0)
+	length := 30
+	r := interf.NewInterval(0, length)
 	result := [][]int{}
 	fl := ar.List.WithInterval(r).Reverse()
 	findSolutions(k, n, []int{}, &result)
@@ -645,8 +646,24 @@ func Test_ListTenGroup(t *testing.T) {
 		// report := ""
 		// report = report + l.PresentationGroupTenWithRange(0)
 		// fmt.Println(report)
-		fmt.Printf("%v: %.2f%%\n", s, float64(len(l))/float64(len(fl))*100)
+		if length > 2000 {
+			fmt.Printf("%v: %.2f%%\n", s, float64(len(l))/float64(len(fl))*100)
+		} else {
+			fmt.Printf("%v: %d\n", s, len(l))
+		}
+
 	}
+}
+
+func Test_ListTenGroupList(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_ListTenGroupList")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	r := interf.NewInterval(0, 30)
+	l := ar.List.WithInterval(r).Reverse()
+	fmt.Println(l.PresentationGroupTenWithRange())
+
 }
 
 func Test_ListTenGroupWithGroupList(t *testing.T) {
@@ -938,7 +955,7 @@ func Test_StaticOddList(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	rl := ar.List.WithRange(0, 0)
+	rl := ar.List.WithRange(0, 40)
 	l := rl.FilterOddEvenList([]int{2, 3})
 	l.Reverse().ShowAll()
 	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(rl)) * 100))
@@ -988,7 +1005,7 @@ func Test_FilterPrime(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	l := ar.List.FilterPrime([]int{3})
+	l := ar.List.FilterPrime([]int{2})
 	l.Reverse().ShowAll()
 	fmt.Printf("%.2f%%\n", (float64(len(l)) / float64(len(ar.List)) * 100))
 }

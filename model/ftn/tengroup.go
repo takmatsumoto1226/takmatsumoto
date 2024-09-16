@@ -57,6 +57,7 @@ func (tg *TenGroupStatic) Add(f *FTN) {
 }
 
 func NewTenGroupMgr(fa FTNArray) TenGroupMgr {
+	tfa := fa
 	n := 5
 	k := 4
 	result := [][]int{}
@@ -68,7 +69,7 @@ func NewTenGroupMgr(fa FTNArray) TenGroupMgr {
 		tgs[ID] = NewTenGroupStatic(s)
 	}
 
-	for _, f := range fa {
+	for _, f := range tfa {
 		ID := fmt.Sprintf("%v", f.Feature.TenGroupCount[:4])
 		cf := f
 		tg := tgs[ID]
@@ -78,7 +79,7 @@ func NewTenGroupMgr(fa FTNArray) TenGroupMgr {
 
 	arr := TenGroupStatics{}
 	for key, tg := range tgs {
-		tg.Percent = (float64(len(tg.FTNs)) / float64(len(fa)) * 100)
+		tg.Percent = (float64(len(tg.FTNs)) / float64(len(tfa)) * 100)
 		tgs[key] = tg
 		atg := tg
 		arr = append(arr, atg)

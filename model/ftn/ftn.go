@@ -432,6 +432,27 @@ func NewFTNWithInts(arr []int) *FTN {
 	}
 }
 
+func NewFTNWithIntsPrediction(arr []int) *FTN {
+	i1 := arr[0] + 1
+	i2 := arr[1] + 1
+	i3 := arr[2] + 1
+	i4 := arr[3] + 1
+	i5 := arr[4] + 1
+	return &FTN{
+		Year:     "",
+		MonthDay: "",
+		LIdx:     "",
+		B1:       *NewBallI(i1, 0),
+		B2:       *NewBallI(i2, 0),
+		B3:       *NewBallI(i3, 0),
+		B4:       *NewBallI(i4, 0),
+		B5:       *NewBallI(i5, 0),
+		TIdx:     "",
+		IBalls:   []int{i1, i2, i3, i4, i5},
+		Feature:  *df.NewFeature([]int{i1, i2, i3, i4, i5}, ballsCountFTN),
+	}
+}
+
 func Empty() *FTN {
 	return &FTN{
 		"====",

@@ -247,7 +247,7 @@ func (fa FTNArray) FilterCol(top *FTN, cs []int) FTNArray {
 	return result
 }
 
-func (fa FTNArray) FilterByTenGroupS(tt []int, hh []int) FTNArray {
+func (fa FTNArray) FilterByTenGroupLog(tt []int, hh []int) FTNArray {
 	fmt.Printf("FilterByTebGroup : %d\n", len(fa))
 	return fa.FilterByTenGroup(tt, hh)
 }

@@ -31,6 +31,7 @@ type FTNsManager struct {
 	ballsCount   map[uint]NormalizeInfo
 	BackTests    []FTNBT
 	Combinations [][]int
+	tgmgr        TenGroupMgr
 }
 
 // LoadAllData ...
@@ -71,10 +72,13 @@ func (ar *FTNsManager) Prepare() error {
 
 	initNumberToIndex()
 
+	ar.Combinations = combin.Combinations(ballsCountFTN, BallsOfFTN)
+
 	// LoadAllData
 	ar.loadAllData()
 
-	ar.Combinations = combin.Combinations(ballsCountFTN, BallsOfFTN)
+	ar.tgmgr = NewTenGroupMgr(ar.List)
+
 	ar.BackTests = []FTNBT{}
 
 	return nil
