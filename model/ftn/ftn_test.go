@@ -380,9 +380,9 @@ func Test_groupNumbers(t *testing.T) {
 		FilterPickBySpecConfition([]int{df.ContinueRow2}).
 		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterCol(&top, []int{0}).
-		FilterNeighber(&top, []int{1}).
-		FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 1, 2, 1}).
+		FilterCol(&top, []int{1}).
+		FilterNeighber(&top, []int{2}).
+		FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 1, 1}).
 		// FilterByTenGroupLog([]int{}, []int{}).
 		// FilterFeatureExcludes(ar.List).
 		FilterFeatureIncludes(ar.List).
@@ -660,7 +660,7 @@ func Test_ListTenGroupList(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	r := interf.NewInterval(0, 30)
+	r := interf.NewInterval(0, 50)
 	l := ar.List.WithInterval(r).Reverse()
 	fmt.Println(l.PresentationGroupTenWithRange())
 
@@ -671,7 +671,7 @@ func Test_ListTenGroupWithGroupList(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	r := interf.NewInterval(0, 0)
+	r := interf.NewInterval(0, 40)
 	list := ar.List.WithInterval(r).Reverse()
 
 	result := [][]int{}
@@ -1057,6 +1057,17 @@ func Test_TenGroupManager(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	tmgr := NewTenGroupMgr(ar.List)
+	tmgr := NewTenGroupMgr(ar.List.WithRange(0, 0))
+	fmt.Println(tmgr.Presentation())
+}
+
+func Test_TenGroupManagerFull(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	tmgr := NewTenGroupMgr(ar.List.WithRange(0, 0))
+	nmgr := NewTenGroupMgr(ar.FullCombination())
+	tmgr.NormalizeStatic(&nmgr)
 	fmt.Println(tmgr.Presentation())
 }

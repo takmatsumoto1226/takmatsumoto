@@ -13,7 +13,7 @@ func (fa TenGroupStatics) Len() int {
 
 // Less ...
 func (tgs TenGroupStatics) Less(i, j int) bool {
-	return tgs[i].Percent > tgs[j].Percent
+	return tgs[i].NPercent > tgs[j].NPercent
 }
 
 // Swap swaps the elements with indexes i and j.
@@ -28,8 +28,9 @@ type TenGroup struct {
 
 type TenGroupStatic struct {
 	TenGroup
-	FTNs    FTNArray
-	Percent float64
+	FTNs     FTNArray
+	Percent  float64
+	NPercent float64
 }
 
 type TenGroupMgr struct {
@@ -49,11 +50,20 @@ func NewTenGroupStatic(gs []int) TenGroupStatic {
 }
 
 func (tg *TenGroupStatic) Presentation() string {
-	return tg.ID + fmt.Sprintf("  %.2f", tg.Percent)
+	return tg.ID + fmt.Sprintf("  %.5f", tg.NPercent)
 }
 
 func (tg *TenGroupStatic) Add(f *FTN) {
 	tg.FTNs = append(tg.FTNs, *f)
+}
+
+func (tgm *TenGroupMgr) NormalizeStatic(nm *TenGroupMgr) {
+	tgm.Arr = []TenGroupStatic{}
+	for k, v := range tgm.TenGroups {
+		v.NPercent = float64(len(tgm.TenGroups[k].FTNs)) / float64(len(nm.TenGroups[k].FTNs)) * 100
+		tgm.TenGroups[k] = v
+		tgm.Arr = append(tgm.Arr, v)
+	}
 }
 
 func NewTenGroupMgr(fa FTNArray) TenGroupMgr {
