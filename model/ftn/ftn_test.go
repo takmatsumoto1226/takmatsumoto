@@ -377,18 +377,18 @@ func Test_groupNumbers(t *testing.T) {
 	filterPick := ar.
 		FullCombination().
 		FilterHighFreqNumber(ar.List, p).
-		FilterPickBySpecConfition([]int{df.ContinueRow2}).
-		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{}).
+		FilterPickBySpecConfition([]int{df.ContinueRowNone}).
+		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{35}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-		FilterCol(&top, []int{1}).
-		FilterNeighber(&top, []int{2}).
 		FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 1, 1}).
+		FilterCol(&top, []int{0}).
+		FilterNeighber(&top, []int{2}).
 		// FilterByTenGroupLog([]int{}, []int{}).
 		// FilterFeatureExcludes(ar.List).
 		FilterFeatureIncludes(ar.List).
-		// findNumbers([]string{}, df.None).
-		FilterByGroupIndex(group, []int{0, 1}).
-		FilterOddEvenList([]int{3}).
+		// findNumbers([]string{"35"}, df.None).
+		FilterByGroupIndex(group, []int{4}).
+		FilterOddEvenList([]int{5}).
 		// FilterPrime([]int{1}).
 		FilterExcludeNote(ar.List).
 		Distinct()
@@ -660,7 +660,7 @@ func Test_ListTenGroupList(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	r := interf.NewInterval(0, 50)
+	r := interf.NewInterval(0, 60)
 	l := ar.List.WithInterval(r).Reverse()
 	fmt.Println(l.PresentationGroupTenWithRange())
 
