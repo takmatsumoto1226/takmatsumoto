@@ -381,13 +381,13 @@ func Test_groupNumbers(t *testing.T) {
 		// FilterIncludes(ar.List.FragmentRange([]int{}), []int{35}).
 		// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 		FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 1, 1}).
-		FilterCol(&top, []int{0}).
+		FilterCol(&top, []int{1}).
 		FilterNeighber(&top, []int{2}).
 		// FilterByTenGroupLog([]int{}, []int{}).
 		// FilterFeatureExcludes(ar.List).
 		FilterFeatureIncludes(ar.List).
 		// findNumbers([]string{"35"}, df.None).
-		FilterByGroupIndex(group, []int{4}).
+		FilterByGroupIndex(group, []int{0, 1}).
 		FilterOddEvenList([]int{5}).
 		// FilterPrime([]int{1}).
 		FilterExcludeNote(ar.List).
