@@ -41,7 +41,7 @@ func Test_findnumber(t *testing.T) {
 	var as = NewStar4Manager()
 	as.Prepare()
 	// arr := permutations([]int{9, 5, 2, 7})
-	arr := [][]int{{1, 6, 7, 8}}
+	arr := [][]int{{9, 1, 9, 1}}
 	for _, v := range arr {
 		str := fmt.Sprintf("%d%d%d%d", v[0], v[1], v[2], v[3])
 		as.findNumbers(str).Presentation()
