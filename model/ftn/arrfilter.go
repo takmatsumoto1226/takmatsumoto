@@ -4,10 +4,11 @@ import (
 	"fmt"
 	"lottery/model/common"
 	"lottery/model/df"
+	"time"
 )
 
 func (fa FTNArray) FilterByGroupIndex(group *FTNGroup, cs []int) FTNArray {
-	fmt.Printf("FilterByGroupIndex : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterByGroupIndex : %d\n", len(fa)))
 	arr := FTNArray{}
 	for _, ftn := range fa {
 		for _, c := range cs {
@@ -40,7 +41,7 @@ func (fa FTNArray) FilterMatchBall(params []PickParam, staticmap map[string]Ball
 }
 
 func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
-	fmt.Printf("FilterExcludes : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterExcludes : %d\n", len(fa)))
 	result := FTNArray{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -77,7 +78,8 @@ func (fa FTNArray) FilterExcludes(tops FTNArray, sb []int) FTNArray {
 }
 
 func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
-	fmt.Printf("FilterIncludes : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterIncludes : %d\n", len(fa)))
+
 	// if len(tops) == 0 && len(sb) == 0 {
 	// 	return fa
 	// }
@@ -112,7 +114,7 @@ func (fa FTNArray) FilterIncludes(tops FTNArray, sb []int) FTNArray {
 }
 
 func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArray {
-	fmt.Printf("FilterHighFreqNumber : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterHighFreqNumber : %d\n", len(fa)))
 	result := FTNArray{}
 	ballsCount := highFreqs.IntervalBallsCountStatic(p)
 	fmt.Println(ballsCount.AppearBalls.Presentation(false))
@@ -136,7 +138,7 @@ func (fa FTNArray) FilterHighFreqNumber(highFreqs FTNArray, p PickParam) FTNArra
 }
 
 func (fa FTNArray) FilterPickBySpecConfition(cts []int) FTNArray {
-	fmt.Printf("FilterPickBySpecConfition : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterPickBySpecConfition : %d\n", len(fa)))
 	result := FTNArray{}
 	for _, ftn := range fa {
 		for _, ct := range cts {
@@ -157,7 +159,7 @@ func (fa FTNArray) FilterPickBySpecConfition(cts []int) FTNArray {
 }
 
 func (fa FTNArray) FilterFeatureExcludes(tops FTNArray) FTNArray {
-	fmt.Printf("FilterFeatureExcludes : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterFeatureExcludes : %d\n", len(fa)))
 	result := FTNArray{}
 
 	for _, ftn := range fa {
@@ -177,7 +179,7 @@ func (fa FTNArray) FilterFeatureExcludes(tops FTNArray) FTNArray {
 }
 
 func (fa FTNArray) FilterFeatureIncludes(tops FTNArray) FTNArray {
-	fmt.Printf("FilterFeatureIncludes : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterFeatureIncludes : %d\n", len(fa)))
 	result := FTNArray{}
 
 	for _, ftn := range fa {
@@ -192,7 +194,7 @@ func (fa FTNArray) FilterFeatureIncludes(tops FTNArray) FTNArray {
 }
 
 func (fa FTNArray) FilterExcludeNote(tops FTNArray) FTNArray {
-	fmt.Printf("FilterExcludeNote : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterExcludeNote : %d\n", len(fa)))
 	result := FTNArray{}
 	sames := FTNArray{}
 	for _, f := range fa {
@@ -219,7 +221,7 @@ func (fa FTNArray) FilterExcludeNote(tops FTNArray) FTNArray {
 }
 
 func (fa FTNArray) FilterNeighber(top *FTN, cs []int) FTNArray {
-	fmt.Printf("FilterNeighberNumber : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterNeighberNumber : %d\n", len(fa)))
 	if len(cs) == 0 {
 		return fa
 	}
@@ -235,7 +237,7 @@ func (fa FTNArray) FilterNeighber(top *FTN, cs []int) FTNArray {
 }
 
 func (fa FTNArray) FilterCol(top *FTN, cs []int) FTNArray {
-	fmt.Printf("FilterCol : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterCol : %d\n", len(fa)))
 	result := FTNArray{}
 	for _, f := range fa {
 		for _, c := range cs {
@@ -248,7 +250,7 @@ func (fa FTNArray) FilterCol(top *FTN, cs []int) FTNArray {
 }
 
 func (fa FTNArray) FilterByTenGroupLog(tt []int, hh []int) FTNArray {
-	fmt.Printf("FilterByTenGroup : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterByTenGroup : %d\n", len(fa)))
 	return fa.FilterByTenGroup(tt, hh)
 }
 
@@ -279,7 +281,7 @@ func (fa FTNArray) FilterByTenGroup(tt []int, hh []int) FTNArray {
 }
 
 func (fa FTNArray) FilterByTebGroupC(tt []int, hhh [][]int) FTNArray {
-	fmt.Printf("FilterTebGroup : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterTebGroup : %d\n", len(fa)))
 	if len(tt) == 0 {
 		return fa
 	}
@@ -318,7 +320,7 @@ func (fa FTNArray) FilterByTebGroupC(tt []int, hhh [][]int) FTNArray {
 }
 
 func (fa FTNArray) FilterOddEvenList(ocs []int) FTNArray {
-	fmt.Printf("FilterOddEvenList : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterOddEvenList : %d\n", len(fa)))
 	result := FTNArray{}
 	for _, f := range fa {
 		for _, oc := range ocs {
@@ -331,7 +333,7 @@ func (fa FTNArray) FilterOddEvenList(ocs []int) FTNArray {
 }
 
 func (fa FTNArray) FilterPrime(cs []int) FTNArray {
-	fmt.Printf("FilterPrime : %d\n", len(fa))
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterPrime : %d\n", len(fa)))
 	if len(cs) == 0 {
 		return fa
 	}
