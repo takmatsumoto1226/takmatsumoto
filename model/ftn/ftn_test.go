@@ -367,9 +367,9 @@ func Test_groupNumbers(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
-	// ar.List.WithRange(0, 20).Reverse().ShowAll()
+	ar.List.WithRange(0, 20).Reverse().ShowAll()
 	top := ar.List.GetNode(0)
-	// newtop := NewFTNWithStrings([]string{})
+	newtop := NewFTNWithStrings([]string{})
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 0}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
@@ -381,7 +381,7 @@ func Test_groupNumbers(t *testing.T) {
 			FilterPickBySpecConfition([]int{df.ContinueRowNone}).
 			// FilterIncludes(ar.List.FragmentRange([]int{}), []int{35}).
 			// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-			FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 0, 1, 2}).
+			FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 2, 0}).
 			FilterCol(&top, []int{0}).
 			FilterNeighber(&top, []int{2}).
 			// FilterByTenGroupLog([]int{}, []int{}).
@@ -394,10 +394,10 @@ func Test_groupNumbers(t *testing.T) {
 			FilterExcludeNote(ar.List).
 			Distinct()
 
-		// filterPick.ShowAll()
-		// fmt.Println(len(filterPick))
-		// fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
-		// fmt.Println(filterPick.AdariPrice(newtop))
+		filterPick.ShowAll()
+		fmt.Println(len(filterPick))
+		fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
+		fmt.Println(filterPick.AdariPrice(newtop))
 		picks := ar.GodPick(filterPick, 1)
 		picks.ShowAll()
 	}
