@@ -210,13 +210,7 @@ func (fa FTNArray) FilterExcludeNote(tops FTNArray) FTNArray {
 			result = append(result, f)
 		}
 	}
-	// if len(sames) > 0 {
-	// fmt.Println("same ....")
-	// for _, s := range sames {
-	// 	s.ShowRow()
-	// }
-	// fmt.Println("so much...")
-	// }
+
 	return result
 }
 

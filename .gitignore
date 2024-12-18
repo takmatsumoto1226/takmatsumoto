@@ -7,3 +7,5 @@ nohup.out
 *.json
 *.txt
 *.zip
+model/bl/*.csv
+model/ftn/*.csv

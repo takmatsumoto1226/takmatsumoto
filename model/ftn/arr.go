@@ -1,11 +1,13 @@
 package ftn
 
 import (
+	"encoding/csv"
 	"errors"
 	"fmt"
 	"lottery/algorithm"
 	"lottery/model/df"
 	"lottery/model/interf"
+	"os"
 	"sort"
 	"strconv"
 
@@ -494,4 +496,32 @@ func (fa FTNArray) MatchFeatureHistoryTops(tops FTNArray) FTNArray {
 	}
 	fmt.Printf("MatchFeatureHistoryTops : %d\n", len(result))
 	return result
+}
+
+func (fa FTNArray) CSVExport() {
+	// 建立 CSV 檔案
+	file, err := os.Create("data.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// 建立 CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 將資料寫入 CSV
+	for _, f := range fa {
+		if err := writer.Write(f.ToStringArr()); err != nil {
+			panic(err)
+		}
+	}
+
+	// 檢查是否有錯誤
+	if err := writer.Error(); err != nil {
+		panic(err)
+	}
+
+	println("CSV 檔案輸出完成！")
+
 }

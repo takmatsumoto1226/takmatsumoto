@@ -2,6 +2,7 @@ package bl
 
 import (
 	"encoding/binary"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"lottery/algorithm"
@@ -179,5 +180,51 @@ func Test_random2(t *testing.T) {
 		featuresList.Presentation()
 		fmt.Printf("done Round : %02d\n", th.Round)
 	}
+
+}
+
+func Test_ExportAllNumber(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
+	mgr.Prepare()
+	mgr.List.Reverse().CSVExport1()
+
+}
+
+func Test_ExportAllCombination(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_ExportAllCombination")
+	combarr := combin.Combinations(49, 6)
+	// 建立 CSV 檔案
+	file, err := os.Create("data.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// 建立 CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 將資料寫入 CSV
+	for _, f := range combarr {
+		if err := writer.Write([]string{
+			fmt.Sprintf("%02d", f[0]+1),
+			fmt.Sprintf("%02d", f[1]+1),
+			fmt.Sprintf("%02d", f[2]+1),
+			fmt.Sprintf("%02d", f[3]+1),
+			fmt.Sprintf("%02d", f[4]+1),
+			fmt.Sprintf("%02d", f[5]+1),
+		}); err != nil {
+			panic(err)
+		}
+	}
+
+	// 檢查是否有錯誤
+	if err := writer.Error(); err != nil {
+		panic(err)
+	}
+
+	println("CSV 檔案輸出完成！")
 
 }

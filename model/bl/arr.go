@@ -1,6 +1,11 @@
 package bl
 
-import "strconv"
+import (
+	"encoding/csv"
+	"os"
+	"sort"
+	"strconv"
+)
 
 type BigLotteryList []BigLottery
 
@@ -31,5 +36,64 @@ func (fa BigLotteryList) WithRange(r int) BigLotteryList {
 	if r > 0 {
 		return fa[al-r : al]
 	}
+	return fa
+}
+
+func (fa BigLotteryList) CSVExport1() {
+	// 建立 CSV 檔案
+	file, err := os.Create("output.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// 建立 CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 將資料寫入 CSV
+	for _, f := range fa {
+		if err := writer.Write(f.toStringArray()); err != nil {
+			panic(err)
+		}
+	}
+
+	// 檢查是否有錯誤
+	if err := writer.Error(); err != nil {
+		panic(err)
+	}
+
+	println("CSV 檔案輸出完成！")
+}
+
+func (fa BigLotteryList) CSVExport2() {
+	// 建立 CSV 檔案
+	file, err := os.Create("output.csv")
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// 建立 CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 將資料寫入 CSV
+	for _, f := range fa {
+		if err := writer.Write(f.toStringArray2()); err != nil {
+			panic(err)
+		}
+	}
+
+	// 檢查是否有錯誤
+	if err := writer.Error(); err != nil {
+		panic(err)
+	}
+
+	println("CSV 檔案輸出完成！")
+}
+
+func (fa BigLotteryList) Reverse() BigLotteryList {
+	sort.Sort(sort.Reverse(fa))
 	return fa
 }

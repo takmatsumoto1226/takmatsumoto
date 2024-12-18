@@ -369,37 +369,38 @@ func Test_groupNumbers(t *testing.T) {
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
 	top := ar.List.GetNode(0)
-	newtop := NewFTNWithStrings([]string{})
+	// newtop := NewFTNWithStrings([]string{})
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 0}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
 	fullCombo := ar.FullCombination().
 		FilterHighFreqNumber(ar.List, p)
 
-	for i := 0; i < 10; i++ {
+	for i := 0; i < 1; i++ {
 		filterPick := fullCombo.
 			FilterPickBySpecConfition([]int{df.ContinueRowNone}).
 			// FilterIncludes(ar.List.FragmentRange([]int{}), []int{35}).
 			// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-			FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{1, 2, 2, 0}).
-			FilterCol(&top, []int{0}).
-			FilterNeighber(&top, []int{2}).
+			// FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 2, 0, 1}). // 56
+			FilterCol(&top, []int{1}).
+			FilterNeighber(&top, []int{1}).
 			// FilterByTenGroupLog([]int{}, []int{}).
 			// FilterFeatureExcludes(ar.List).
 			FilterFeatureIncludes(ar.List).
 			// findNumbers([]string{"35"}, df.None).
-			FilterByGroupIndex(group, []int{0, 1}).
-			FilterOddEvenList([]int{2}).
+			FilterByGroupIndex(group, []int{0, 1, 2, 3}).
+			FilterOddEvenList([]int{3}).
 			// FilterPrime([]int{1}).
 			FilterExcludeNote(ar.List).
 			Distinct()
 
-		filterPick.ShowAll()
-		fmt.Println(len(filterPick))
-		fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
-		fmt.Println(filterPick.AdariPrice(newtop))
-		picks := ar.GodPick(filterPick, 1)
-		picks.ShowAll()
+		// filterPick.ShowAll()
+		// fmt.Println(len(filterPick))
+		// fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
+		// fmt.Println(filterPick.AdariPrice(newtop))
+		// picks := ar.GodPick(filterPick, 1)
+		// picks.ShowAll()
+		filterPick.CSVExport()
 	}
 
 }
@@ -1064,6 +1065,15 @@ func Test_TenGroupManager(t *testing.T) {
 	fmt.Println(tmgr.Presentation())
 }
 
+func Test_ExportAllNumber(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.Reverse().CSVExport()
+
+}
+
 func Test_TenGroupManagerFull(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
 	config.LoadConfig("../../config.yaml")
@@ -1073,4 +1083,18 @@ func Test_TenGroupManagerFull(t *testing.T) {
 	nmgr := NewTenGroupMgr(ar.FullCombination())
 	tmgr.NormalizeStatic(&nmgr)
 	fmt.Println(tmgr.Presentation())
+}
+
+func Test_FilterExcludeNote(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Group Index")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+
+	filterPick := FTNArray{*NewFTNWithStrings([]string{"08", "11", "23", "32", "38"})}.
+		FilterExcludeNote(ar.List).
+		Distinct()
+	fmt.Println(filterPick)
+	ar.List.CSVExport()
+
 }

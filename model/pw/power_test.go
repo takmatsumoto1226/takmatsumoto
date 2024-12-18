@@ -255,3 +255,12 @@ func FileNames() []string {
 // 	}
 // 	return filenames
 // }
+
+func Test_ExportAllNumber(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = PowerManager{numberToIndex: map[string]int{}}
+	ar.Prepare()
+	ar.List.Reverse().CSVExport()
+
+}

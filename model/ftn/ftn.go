@@ -550,3 +550,7 @@ func (fa *FTN) Date() string { return fa.Year + fa.MonthDay }
 func (fa *FTN) EqualPrime(n int) bool {
 	return fa.Feature.PrimeCount == n
 }
+
+func (fa *FTN) BallsPresentation() string {
+	return fmt.Sprintf("%s,%s,%s,%s,%s\n", fa.B1.Number, fa.B2.Number, fa.B3.Number, fa.B4.Number, fa.B5.Number)
+}
