@@ -134,6 +134,7 @@ const UndefinedFeature = -1
 
 type Feature struct {
 	Key                     string  `json:"key"`
+	BinaryKey               string  `json:"binarykey"`
 	IBalls                  []int   `json:"iballs"`
 	TenGroupCount           [5]int  `json:"tengroupcount"`
 	OddNumberCount          int     `json:"oddnumbercount"`
@@ -162,9 +163,9 @@ func (f *Feature) setKey() {
 		msg = msg + fmt.Sprintf("%d", v)
 	}
 
-	// for _, v := range f.TailDigit {
-	// 	msg = msg + fmt.Sprintf("%d", v)
-	// }
+	for _, v := range f.TailDigit {
+		msg = msg + fmt.Sprintf("%d", v)
+	}
 
 	msg = msg + fmt.Sprintf("%d", f.PrimeCount)
 
@@ -175,6 +176,36 @@ func (f *Feature) setKey() {
 	msg = msg + fmt.Sprintf("%d", f.ContinueRowType)
 
 	f.Key = msg
+}
+
+func (f *Feature) setBinaryKey() {
+	msg := ""
+	for _, v := range f.TenGroupCount {
+		msg = msg + fmt.Sprintf("%b", v)
+	}
+	// msg = msg + fmt.Sprintf("%d%d", f.OddNumberCount, f.EvenNumberCount)
+
+	// for _, v := range f.TenGroupOddNumberCount {
+	// 	msg = msg + fmt.Sprintf("%d", v)
+	// }
+
+	// for _, v := range f.TenGroupEvenNumberCount {
+	// 	msg = msg + fmt.Sprintf("%d", v)
+	// }
+
+	// for _, v := range f.TailDigit {
+	// 	msg = msg + fmt.Sprintf("%d", v)
+	// }
+
+	// msg = msg + fmt.Sprintf("%d", f.PrimeCount)
+
+	// for _, v := range f.MultiplesOfs {
+	// 	msg = msg + fmt.Sprintf("%d", v)
+	// }
+
+	// msg = msg + fmt.Sprintf("%d", f.ContinueRowType)
+
+	f.BinaryKey = msg
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {
@@ -213,6 +244,7 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 	}
 	f.setContinueRowType()
 	f.setKey()
+	f.setBinaryKey()
 	return f
 }
 

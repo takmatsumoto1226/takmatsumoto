@@ -261,6 +261,15 @@ func Test_ExportAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = PowerManager{numberToIndex: map[string]int{}}
 	ar.Prepare()
-	ar.List.Reverse().CSVExport()
+	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultpow.csv")
+
+}
+
+func Test_ExportAllNumber2(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = PowerManager{numberToIndex: map[string]int{}}
+	ar.Prepare()
+	ar.List.Reverse().CSVPresentation("./result.csv")
 
 }

@@ -121,6 +121,35 @@ func (pw *Power) toStringArray() []string {
 	return []string{pw.B1.Number, pw.B2.Number, pw.B3.Number, pw.B4.Number, pw.B5.Number, pw.B6.Number}
 }
 
+func (pw *Power) toPresentation() []string {
+	rowmsg := []string{}
+
+	ballarr := []int{
+		pw.B1.Digit,
+		pw.B2.Digit,
+		pw.B3.Digit,
+		pw.B4.Digit,
+		pw.B5.Digit,
+		pw.B6.Digit,
+		pw.S1.Digit,
+	}
+	bi := 0
+	for i := 1; i <= ballsCountPower; i++ {
+		if ballarr[bi] == i {
+			rowmsg = append(rowmsg, fmt.Sprintf("%02d", ballarr[bi]))
+			if bi < 5 {
+				bi++
+			}
+		} else {
+			rowmsg = append(rowmsg, "0")
+		}
+	}
+
+	rowmsg = append(rowmsg, "0")
+
+	return rowmsg
+}
+
 func (pw *Power) Key() string {
 	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", pw.B1.Number, pw.B2.Number, pw.B3.Number, pw.B4.Number, pw.B5.Number, pw.B6.Number)
 }

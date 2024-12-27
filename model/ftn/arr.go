@@ -498,9 +498,9 @@ func (fa FTNArray) MatchFeatureHistoryTops(tops FTNArray) FTNArray {
 	return result
 }
 
-func (fa FTNArray) CSVExport() {
+func (fa FTNArray) CSVExport(fn string) {
 	// 建立 CSV 檔案
-	file, err := os.Create("data.csv")
+	file, err := os.Create(fn)
 	if err != nil {
 		panic(err)
 	}

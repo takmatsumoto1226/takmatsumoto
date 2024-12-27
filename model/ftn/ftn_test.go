@@ -368,7 +368,7 @@ func Test_groupNumbers(t *testing.T) {
 	ar.Prepare()
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
-	top := ar.List.GetNode(0)
+	// top := ar.List.GetNode(0)
 	// newtop := NewFTNWithStrings([]string{})
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 0}
 	GroupCount := 100
@@ -382,14 +382,14 @@ func Test_groupNumbers(t *testing.T) {
 			// FilterIncludes(ar.List.FragmentRange([]int{}), []int{35}).
 			// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
 			// FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 2, 0, 1}). // 56
-			FilterCol(&top, []int{1}).
-			FilterNeighber(&top, []int{1}).
+			// FilterCol(&top, []int{1}).
+			// FilterNeighber(&top, []int{1}).
 			// FilterByTenGroupLog([]int{}, []int{}).
 			// FilterFeatureExcludes(ar.List).
 			FilterFeatureIncludes(ar.List).
 			// findNumbers([]string{"35"}, df.None).
 			FilterByGroupIndex(group, []int{0, 1, 2, 3}).
-			FilterOddEvenList([]int{3}).
+			// FilterOddEvenList([]int{3}).
 			// FilterPrime([]int{1}).
 			FilterExcludeNote(ar.List).
 			Distinct()
@@ -400,7 +400,7 @@ func Test_groupNumbers(t *testing.T) {
 		// fmt.Println(filterPick.AdariPrice(newtop))
 		// picks := ar.GodPick(filterPick, 1)
 		// picks.ShowAll()
-		filterPick.CSVExport()
+		filterPick.CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/dataftn.csv")
 	}
 
 }
@@ -768,6 +768,28 @@ func Test_FeatureStatic(t *testing.T) {
 	}
 }
 
+func Test_FeatureList(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FeatureList")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	for _, f := range ar.List {
+		fmt.Println(f.Feature.Key)
+	}
+
+}
+
+func Test_FeatureBinaryList(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FeatureBinaryList")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	for _, f := range ar.List {
+		fmt.Println(f.Feature.BinaryKey)
+	}
+
+}
+
 func Test_allcombinationFeatureGroup(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_allcombination")
 	config.LoadConfig("../../config.yaml")
@@ -1065,15 +1087,6 @@ func Test_TenGroupManager(t *testing.T) {
 	fmt.Println(tmgr.Presentation())
 }
 
-func Test_ExportAllNumber(t *testing.T) {
-	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
-	config.LoadConfig("../../config.yaml")
-	var ar = FTNsManager{}
-	ar.Prepare()
-	ar.List.Reverse().CSVExport()
-
-}
-
 func Test_TenGroupManagerFull(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
 	config.LoadConfig("../../config.yaml")
@@ -1091,10 +1104,17 @@ func Test_FilterExcludeNote(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 
-	filterPick := FTNArray{*NewFTNWithStrings([]string{"08", "11", "23", "32", "38"})}.
+	filterPick := FTNArray{*NewFTNWithStrings([]string{})}.
 		FilterExcludeNote(ar.List).
 		Distinct()
 	fmt.Println(filterPick)
-	ar.List.CSVExport()
+}
+
+func Test_ExportAllNumber(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultftn.csv")
 
 }

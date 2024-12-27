@@ -151,9 +151,9 @@ func (fa PowerList) GetNode(i int) Power {
 	return fa[i]
 }
 
-func (fa PowerList) CSVExport() {
+func (fa PowerList) CSVExport(fn string) {
 	// 建立 CSV 檔案
-	file, err := os.Create("output.csv")
+	file, err := os.Create(fn)
 	if err != nil {
 		panic(err)
 	}
@@ -166,6 +166,33 @@ func (fa PowerList) CSVExport() {
 	// 將資料寫入 CSV
 	for _, f := range fa {
 		if err := writer.Write(f.toStringArray()); err != nil {
+			panic(err)
+		}
+	}
+
+	// 檢查是否有錯誤
+	if err := writer.Error(); err != nil {
+		panic(err)
+	}
+
+	println("CSV 檔案輸出完成！")
+}
+
+func (fa PowerList) CSVPresentation(fn string) {
+	// 建立 CSV 檔案
+	file, err := os.Create(fn)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// 建立 CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 將資料寫入 CSV
+	for _, f := range fa {
+		if err := writer.Write(f.toPresentation()); err != nil {
 			panic(err)
 		}
 	}
