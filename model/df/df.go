@@ -181,31 +181,35 @@ func (f *Feature) setKey() {
 func (f *Feature) setBinaryKey() {
 	msg := ""
 	for _, v := range f.TenGroupCount {
-		msg = msg + fmt.Sprintf("%b", v)
+		msg = msg + fmt.Sprintf("%03b", v)
 	}
-	// msg = msg + fmt.Sprintf("%d%d", f.OddNumberCount, f.EvenNumberCount)
+	msg = msg + fmt.Sprintf("%03b%03b", f.OddNumberCount, f.EvenNumberCount)
 
-	// for _, v := range f.TenGroupOddNumberCount {
-	// 	msg = msg + fmt.Sprintf("%d", v)
-	// }
+	for _, v := range f.TenGroupOddNumberCount {
+		msg = msg + fmt.Sprintf("%03b", v)
+	}
 
-	// for _, v := range f.TenGroupEvenNumberCount {
-	// 	msg = msg + fmt.Sprintf("%d", v)
-	// }
+	for _, v := range f.TenGroupEvenNumberCount {
+		msg = msg + fmt.Sprintf("%03b", v)
+	}
 
 	// for _, v := range f.TailDigit {
 	// 	msg = msg + fmt.Sprintf("%d", v)
 	// }
 
-	// msg = msg + fmt.Sprintf("%d", f.PrimeCount)
+	msg = msg + fmt.Sprintf("%03b", f.PrimeCount)
 
-	// for _, v := range f.MultiplesOfs {
-	// 	msg = msg + fmt.Sprintf("%d", v)
-	// }
+	for _, v := range f.MultiplesOfs {
+		msg = msg + fmt.Sprintf("%03b", v)
+	}
 
-	// msg = msg + fmt.Sprintf("%d", f.ContinueRowType)
+	msg = msg + fmt.Sprintf("%03b", f.ContinueRowType)
 
 	f.BinaryKey = msg
+}
+
+func (f *Feature) binaryKeyArray() []string {
+	return nil
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {
@@ -474,4 +478,20 @@ func (f *Feature) IsFullTenGroup() bool {
 
 func (f *Feature) TGKey() string {
 	return fmt.Sprintf("%d_%d_%d_%d_%d", f.TenGroupCount[0], f.TenGroupCount[1], f.TenGroupCount[2], f.TenGroupCount[3], f.TenGroupCount[4])
+}
+
+func (f *Feature) SplitBinaryArray(size int) []string {
+	var chunks []string
+
+	// 遍历字符串，按指定大小分割
+	for i := 0; i < len(f.BinaryKey); i += size {
+		end := i + size
+		if end > len(f.BinaryKey) {
+			end = len(f.BinaryKey)
+		}
+		chunks = append(chunks, f.BinaryKey[i:end])
+	}
+
+	// 使用逗号拼接分割后的子串
+	return chunks
 }

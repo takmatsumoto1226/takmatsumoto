@@ -787,7 +787,16 @@ func Test_FeatureBinaryList(t *testing.T) {
 	for _, f := range ar.List {
 		fmt.Println(f.Feature.BinaryKey)
 	}
+}
 
+func Test_FeatureBinaryListCSVExport(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_FeatureBinaryListCSVExport")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	for _, f := range ar.List {
+		fmt.Println(f.Feature.SplitBinaryArray(1))
+	}
 }
 
 func Test_allcombinationFeatureGroup(t *testing.T) {
@@ -1116,5 +1125,14 @@ func Test_ExportAllNumber(t *testing.T) {
 	var ar = FTNsManager{}
 	ar.Prepare()
 	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultftn.csv")
+
+}
+
+func Test_ExportbinaryAllNumber(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultftnbinary.csv")
 
 }
