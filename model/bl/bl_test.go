@@ -228,3 +228,12 @@ func Test_ExportAllCombination(t *testing.T) {
 	println("CSV 檔案輸出完成！")
 
 }
+
+func Test_ExportbinaryAllNumber(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
+	mgr.Prepare()
+	mgr.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultbl.csv")
+
+}

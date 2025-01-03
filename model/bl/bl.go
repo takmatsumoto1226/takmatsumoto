@@ -113,7 +113,7 @@ const (
 )
 
 func NewBigLottery(arr []string) *BigLottery {
-	if len(arr) == arrBigLCount {
+	if len(arr) == arrBigLCount && arr[arrIdxB1] != "" && arr[arrIdxB1] != "00" {
 		i1, _ := strconv.Atoi(arr[arrIdxB1])
 		i2, _ := strconv.Atoi(arr[arrIdxB2])
 		i3, _ := strconv.Atoi(arr[arrIdxB3])
@@ -211,4 +211,8 @@ func (fa *BigLottery) CompareFeature(t *BigLottery) bool {
 
 func (b *BigLottery) Key() string {
 	return fmt.Sprintf("%s_%s_%s_%s_%s_%s", b.B1, b.B2, b.B3, b.B4, b.B5, b.B6)
+}
+
+func (fa *BigLottery) ToStringArr() []string {
+	return []string{fa.B1, fa.B2, fa.B3, fa.B4, fa.B5, fa.B6, fa.B7}
 }

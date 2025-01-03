@@ -185,13 +185,13 @@ func (f *Feature) setBinaryKey() {
 	}
 	msg = msg + fmt.Sprintf("%03b%03b", f.OddNumberCount, f.EvenNumberCount)
 
-	for _, v := range f.TenGroupOddNumberCount {
-		msg = msg + fmt.Sprintf("%03b", v)
-	}
+	// for _, v := range f.TenGroupOddNumberCount {
+	// 	msg = msg + fmt.Sprintf("%03b", v)
+	// }
 
-	for _, v := range f.TenGroupEvenNumberCount {
-		msg = msg + fmt.Sprintf("%03b", v)
-	}
+	// for _, v := range f.TenGroupEvenNumberCount {
+	// 	msg = msg + fmt.Sprintf("%03b", v)
+	// }
 
 	// for _, v := range f.TailDigit {
 	// 	msg = msg + fmt.Sprintf("%d", v)
@@ -489,7 +489,25 @@ func (f *Feature) SplitBinaryArray(size int) []string {
 		if end > len(f.BinaryKey) {
 			end = len(f.BinaryKey)
 		}
+		fmt.Println(len(f.BinaryKey))
 		chunks = append(chunks, f.BinaryKey[i:end])
+	}
+
+	// 使用逗号拼接分割后的子串
+	return chunks
+}
+
+func (f *Feature) SplitKeyArray(size int) []string {
+	var chunks []string
+
+	fmt.Println(len(f.Key))
+	// 遍历字符串，按指定大小分割
+	for i := 0; i < len(f.Key); i += size {
+		end := i + size
+		if end > len(f.Key) {
+			end = len(f.Key)
+		}
+		chunks = append(chunks, f.Key[i:end])
 	}
 
 	// 使用逗号拼接分割后的子串

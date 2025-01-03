@@ -97,3 +97,31 @@ func (fa BigLotteryList) Reverse() BigLotteryList {
 	sort.Sort(sort.Reverse(fa))
 	return fa
 }
+
+func (fa BigLotteryList) CSVExport(fn string) {
+	// 建立 CSV 檔案
+	file, err := os.Create(fn)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// 建立 CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 將資料寫入 CSV
+	for _, f := range fa {
+		if err := writer.Write(f.ToStringArr()); err != nil {
+			panic(err)
+		}
+	}
+
+	// 檢查是否有錯誤
+	if err := writer.Error(); err != nil {
+		panic(err)
+	}
+
+	println("CSV 檔案輸出完成！")
+
+}

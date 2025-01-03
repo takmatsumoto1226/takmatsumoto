@@ -329,7 +329,7 @@ func (fa *FTN) SameDate(date string) bool {
 
 // NewFTN ...
 func NewFTN(arr []string) *FTN {
-	if len(arr) == arrFTNCount {
+	if len(arr) == arrFTNCount && arr[arrIdxB1] != "" && arr[arrIdxB1] != "00" {
 		B1 := *NewBallS(arr[arrIdxB1], 0)
 		B2 := *NewBallS(arr[arrIdxB2], 0)
 		B3 := *NewBallS(arr[arrIdxB3], 0)
@@ -383,7 +383,7 @@ func NewFTN(arr []string) *FTN {
 			Feature:  *df.NewFeature(arrInt, arrFTNCount),
 		}
 	}
-	logrus.Error("FTN 資料格式錯誤")
+	logrus.Errorf("FTN 資料格式錯誤:%v\n", arr)
 	return Empty()
 }
 

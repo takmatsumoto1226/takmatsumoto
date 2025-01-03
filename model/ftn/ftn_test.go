@@ -1136,3 +1136,12 @@ func Test_ExportbinaryAllNumber(t *testing.T) {
 	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultftnbinary.csv")
 
 }
+
+func Test_ExportFeatureAllNumber(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultfeatureftn.csv")
+
+}
