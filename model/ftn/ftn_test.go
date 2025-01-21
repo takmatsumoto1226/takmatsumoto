@@ -1,6 +1,7 @@
 package ftn
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"lottery/algorithm"
@@ -12,6 +13,7 @@ import (
 	"math/big"
 	"os"
 	"reflect"
+	"sort"
 	"strings"
 	"testing"
 	"time"
@@ -368,8 +370,8 @@ func Test_groupNumbers(t *testing.T) {
 	ar.Prepare()
 	df.DisableFilters([]int{df.FilterOddCount, df.FilterEvenCount, df.FilterTailDigit})
 	ar.List.WithRange(0, 20).Reverse().ShowAll()
-	// top := ar.List.GetNode(0)
-	// newtop := NewFTNWithStrings([]string{})
+	top := ar.List.GetNode(0)
+	newtop := NewFTNWithStrings([]string{})
 	p := PickParam{SortType: df.Descending, Interval: 30, Whichfront: df.Normal, Freq: 0}
 	GroupCount := 100
 	group := NewGroup(GroupCount, ar.Combinations, ar.List)
@@ -381,26 +383,26 @@ func Test_groupNumbers(t *testing.T) {
 			FilterPickBySpecConfition([]int{df.ContinueRowNone}).
 			// FilterIncludes(ar.List.FragmentRange([]int{}), []int{35}).
 			// FilterExcludes(ar.List.FragmentRange([]int{}), []int{}).
-			// FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 2, 0, 1}). // 56
-			// FilterCol(&top, []int{1}).
-			// FilterNeighber(&top, []int{1}).
+			FilterByTenGroupLog([]int{df.FeatureTenGroup1, df.FeatureTenGroup2, df.FeatureTenGroup3, df.FeatureTenGroup4}, []int{2, 1, 1, 1}). // 56
+			FilterCol(&top, []int{0}).
+			FilterNeighber(&top, []int{1}).
 			// FilterByTenGroupLog([]int{}, []int{}).
 			// FilterFeatureExcludes(ar.List).
 			FilterFeatureIncludes(ar.List).
 			// findNumbers([]string{"35"}, df.None).
-			FilterByGroupIndex(group, []int{0, 1, 2, 3}).
-			// FilterOddEvenList([]int{3}).
+			FilterByGroupIndex(group, []int{0, 1}).
+			FilterOddEvenList([]int{2}).
 			// FilterPrime([]int{1}).
 			FilterExcludeNote(ar.List).
 			Distinct()
 
-		// filterPick.ShowAll()
-		// fmt.Println(len(filterPick))
-		// fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
-		// fmt.Println(filterPick.AdariPrice(newtop))
-		// picks := ar.GodPick(filterPick, 1)
-		// picks.ShowAll()
-		filterPick.CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/dataftn.csv")
+		filterPick.ShowAll()
+		fmt.Println(len(filterPick))
+		fmt.Println(filterPick.IntervalBallsCountStatic(p).AppearBalls.Presentation(true))
+		fmt.Println(filterPick.AdariPrice(newtop))
+		picks := ar.GodPick(filterPick, 1)
+		picks.ShowAll()
+
 	}
 
 }
@@ -773,7 +775,7 @@ func Test_FeatureList(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	for _, f := range ar.List {
+	for _, f := range ar.List.Reverse() {
 		fmt.Println(f.Feature.Key)
 	}
 
@@ -1124,7 +1126,7 @@ func Test_ExportAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultftn.csv")
+	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/NumAi/resultftn.csv")
 
 }
 
@@ -1133,7 +1135,7 @@ func Test_ExportbinaryAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultftnbinary.csv")
+	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/NumAi/resultftnbinary.csv")
 
 }
 
@@ -1142,6 +1144,102 @@ func Test_ExportFeatureAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultfeatureftn.csv")
+	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/NumAi/resultfeatureftn.csv")
 
+}
+
+func Test_staticNumber(t *testing.T) {
+	fileName := "/Users/tak 1/Desktop/exampleftn.csv"
+
+	// 打開 CSV 檔案
+	file, err := os.Open(fileName)
+	if err != nil {
+
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	// 讀取 CSV 檔案內容
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		fmt.Printf("Error reading CSV file: %v\n", err)
+		return
+	}
+
+	// 檢查是否有資料
+	if len(records) < 1 {
+		fmt.Println("No data in CSV file")
+		return
+	}
+
+	// 初始化統計資料的結構 (不分欄位，統計所有值的出現次數)
+	valueCounts := make(map[string]int)
+
+	// 統計所有值的出現次數
+	for _, row := range records {
+		for _, value := range row {
+			valueCounts[value]++
+		}
+	}
+
+	// 將結果排序
+	type kv struct {
+		Key   string
+		Value int
+	}
+	var sortedCounts []kv
+	for key, value := range valueCounts {
+		sortedCounts = append(sortedCounts, kv{Key: key, Value: value})
+	}
+
+	// 按照出現次數從多到少排序
+	sort.Slice(sortedCounts, func(i, j int) bool {
+		return sortedCounts[i].Value > sortedCounts[j].Value
+	})
+
+	// 輸出排序後的統計結果
+	fmt.Println("Counts for all values (sorted by frequency):")
+	for _, kv := range sortedCounts {
+		fmt.Printf("  %s: %d\n", kv.Key, kv.Value)
+	}
+	fmt.Println(len(sortedCounts))
+}
+
+func Test_NewWithStrings(t *testing.T) {
+	fileName := "/Users/tak 1/Desktop/exampleftn.csv"
+
+	// 打開 CSV 檔案
+	file, err := os.Open(fileName)
+	if err != nil {
+
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	// 讀取 CSV 檔案內容
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		fmt.Printf("Error reading CSV file: %v\n", err)
+		return
+	}
+
+	// 檢查是否有資料
+	if len(records) < 1 {
+		fmt.Println("No data in CSV file")
+		return
+	}
+	fmt.Println(len(records))
+
+	arr := FTNArray{}
+	for _, record := range records {
+		ftn := NewFTNWithStrings(record)
+		arr = append(arr, *ftn)
+	}
+	fmt.Println(arr.Presentation())
+	newtop := NewFTNWithStrings([]string{"4", "7", "8", "24", "26"})
+	fmt.Println(arr.AdariPrice(newtop))
 }
