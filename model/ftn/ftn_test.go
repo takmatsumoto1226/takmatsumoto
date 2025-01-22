@@ -1240,6 +1240,64 @@ func Test_NewWithStrings(t *testing.T) {
 		arr = append(arr, *ftn)
 	}
 	fmt.Println(arr.Presentation())
-	newtop := NewFTNWithStrings([]string{"4", "7", "8", "24", "26"})
+	newtop := NewFTNWithStrings([]string{})
 	fmt.Println(arr.AdariPrice(newtop))
+}
+
+func Test_AntiChoice(t *testing.T) {
+	fileName := "/Users/tak 1/Desktop/exampleftn.csv"
+
+	// 打開 CSV 檔案
+	file, err := os.Open(fileName)
+	if err != nil {
+
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	// 讀取 CSV 檔案內容
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		fmt.Printf("Error reading CSV file: %v\n", err)
+		return
+	}
+
+	// 檢查是否有資料
+	if len(records) < 1 {
+		fmt.Println("No data in CSV file")
+		return
+	}
+
+	valueCounts := make(map[string]int)
+
+	// 統計所有值的出現次數
+	for _, row := range records {
+		for _, value := range row {
+			valueCounts[value]++
+		}
+	}
+
+	type kv struct {
+		Key   string
+		Value int
+	}
+	var sortedCounts []kv
+	for key, value := range valueCounts {
+		sortedCounts = append(sortedCounts, kv{Key: key, Value: value})
+	}
+
+	for i := 1; i <= 39; i++ {
+		key := fmt.Sprintf("%d", i)
+		if _, ok := valueCounts[key]; !ok {
+			fmt.Println(key)
+		}
+	}
+
+	for _, k := range []string{"1", "14", "18", "19", "22"} {
+		if v, ok := valueCounts[k]; ok {
+			fmt.Printf("  %s: %d\n", k, v)
+		}
+	}
 }
