@@ -261,7 +261,7 @@ func Test_ExportAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = PowerManager{numberToIndex: map[string]int{}}
 	ar.Prepare()
-	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/NumAi/resultpow.csv")
+	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultpow.csv")
 
 }
 

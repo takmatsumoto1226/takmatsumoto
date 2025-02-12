@@ -78,7 +78,7 @@ func GetAllFromURL() error {
 		}
 		path := fileURL.Path
 		segments := strings.Split(path, "/")
-		fileName := segments[len(segments)-1]
+		fileName := url.QueryEscape(segments[len(segments)-1])
 
 		if err := os.MkdirAll(dp.LocaPath, 0755); err != nil {
 			return err

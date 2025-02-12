@@ -195,7 +195,7 @@ func Test_findDate(t *testing.T) {
 	fmt.Println("")
 	fmt.Println("")
 	p := PickParam{SortType: df.Descending, Interval: 20, Whichfront: df.Normal}
-	as.List.ShowWithRange(int(p.Interval))
+	as.List.Reverse().ShowWithRange(int(p.Interval))
 	params := PickParams{
 		p,
 	}
@@ -203,9 +203,9 @@ func Test_findDate(t *testing.T) {
 	as.Picknumber(params)[p.GetKey()].ShowAll()
 	fmt.Println("")
 	fmt.Println("")
-	date := "0614"
+	date := "0201"
 	fmt.Printf("=================== %s ================\n", date)
-	as.List.FindDate(date, df.None).ShowAll()
+	as.List.FindDate(date, df.None).Reverse().ShowAll()
 }
 
 func Test_GenerateTopPriceNumberJSON(t *testing.T) {
@@ -1126,7 +1126,7 @@ func Test_ExportAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/NumAi/resultftn.csv")
+	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultftn.csv")
 
 }
 
@@ -1135,7 +1135,7 @@ func Test_ExportbinaryAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/NumAi/resultftnbinary.csv")
+	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultftnbinary.csv")
 
 }
 
@@ -1144,7 +1144,7 @@ func Test_ExportFeatureAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
-	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/NumAi/resultfeatureftn.csv")
+	ar.List.Reverse().FeatureBinaryCSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultfeatureftn.csv")
 
 }
 
@@ -1209,6 +1209,9 @@ func Test_staticNumber(t *testing.T) {
 
 func Test_NewWithStrings(t *testing.T) {
 	fileName := "/Users/tak 1/Desktop/exampleftn.csv"
+	config.LoadConfig("../../config.yaml")
+	var as = FTNsManager{}
+	as.Prepare()
 
 	// 打開 CSV 檔案
 	file, err := os.Open(fileName)
@@ -1240,8 +1243,8 @@ func Test_NewWithStrings(t *testing.T) {
 		arr = append(arr, *ftn)
 	}
 	fmt.Println(arr.Presentation())
-	newtop := NewFTNWithStrings([]string{})
-	fmt.Println(arr.AdariPrice(newtop))
+	newtop := as.List[0]
+	fmt.Println(arr.AdariPrice(&newtop))
 }
 
 func Test_AntiChoice(t *testing.T) {
@@ -1279,25 +1282,13 @@ func Test_AntiChoice(t *testing.T) {
 		}
 	}
 
-	type kv struct {
-		Key   string
-		Value int
-	}
-	var sortedCounts []kv
-	for key, value := range valueCounts {
-		sortedCounts = append(sortedCounts, kv{Key: key, Value: value})
-	}
-
+	len := 0
 	for i := 1; i <= 39; i++ {
 		key := fmt.Sprintf("%d", i)
 		if _, ok := valueCounts[key]; !ok {
 			fmt.Println(key)
+			len++
 		}
 	}
-
-	for _, k := range []string{"1", "14", "18", "19", "22"} {
-		if v, ok := valueCounts[k]; ok {
-			fmt.Printf("  %s: %d\n", k, v)
-		}
-	}
+	fmt.Printf("Number:%d\n", len)
 }
