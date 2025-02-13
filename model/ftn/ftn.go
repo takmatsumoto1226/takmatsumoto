@@ -302,8 +302,7 @@ func (fa *FTN) simpleFormRow() string {
 		fmt.Println(rowmsg)
 		return rowmsg
 	} else {
-		rowmsg := fmt.Sprintf("%s|", fa.Year)
-		rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
+		rowmsg := "  "
 		bi := 0
 		for i := 1; i <= ballsCountFTN; i++ {
 			if fa.IBalls[bi] == i {

@@ -1244,6 +1244,7 @@ func Test_NewWithStrings(t *testing.T) {
 	}
 	fmt.Println(arr.Presentation())
 	newtop := as.List[0]
+	fmt.Printf("Top:\n%s\n", newtop.simpleFormRow())
 	fmt.Println(arr.AdariPrice(&newtop))
 }
 
