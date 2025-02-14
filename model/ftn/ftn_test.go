@@ -1149,7 +1149,10 @@ func Test_ExportFeatureAllNumber(t *testing.T) {
 }
 
 func Test_staticNumber(t *testing.T) {
-	fileName := "/Users/tak 1/Desktop/exampleftn.csv"
+	fileName := "exampleftn.csv"
+	config.LoadConfig("../../config.yaml")
+	var as = FTNsManager{}
+	as.Prepare()
 
 	// 打開 CSV 檔案
 	file, err := os.Open(fileName)
@@ -1205,10 +1208,16 @@ func Test_staticNumber(t *testing.T) {
 		fmt.Printf("  %s: %d\n", kv.Key, kv.Value)
 	}
 	fmt.Println(len(sortedCounts))
+
+	newtop := as.List[0]
+	for _, f := range newtop.ToIntArr() {
+		k := fmt.Sprintf("%d", f)
+		fmt.Printf("%s:%d\n", k, valueCounts[k])
+	}
 }
 
 func Test_NewWithStrings(t *testing.T) {
-	fileName := "/Users/tak 1/Desktop/exampleftn.csv"
+	fileName := "exampleftn.csv"
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
@@ -1250,7 +1259,7 @@ func Test_NewWithStrings(t *testing.T) {
 }
 
 func Test_AntiChoice(t *testing.T) {
-	fileName := "/Users/tak 1/Desktop/exampleftn.csv"
+	fileName := "exampleftn.csv"
 
 	// 打開 CSV 檔案
 	file, err := os.Open(fileName)

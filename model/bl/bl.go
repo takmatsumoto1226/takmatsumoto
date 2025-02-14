@@ -88,7 +88,7 @@ func (fa *BL) toStringArray2() []string {
 	}
 }
 
-func (fa BL) formRow() string {
+func (fa BL) formRow(b_optional ...bool) string {
 	rowmsg := fmt.Sprintf("%s|", fa.Year)
 	rowmsg = rowmsg + fmt.Sprintf("%s|", fa.MonthDay)
 
@@ -113,7 +113,13 @@ func (fa BL) formRow() string {
 		}
 	}
 
-	rowmsg = rowmsg + fmt.Sprintf("      |%02d|", fa.B7.Digit)
+	useB7 := true
+	if len(b_optional) > 0 {
+		useB7 = b_optional[0]
+	}
+	if useB7 {
+		rowmsg = rowmsg + fmt.Sprintf("      |%02d|", fa.B7.Digit)
+	}
 	return rowmsg
 }
 
@@ -279,6 +285,17 @@ func (fa *BL) ToStringArr() []string {
 		fa.B5.Number,
 		fa.B6.Number,
 		fa.B7.Number,
+	}
+}
+
+func (fa *BL) ToStringArr6() []string {
+	return []string{
+		fa.B1.Number,
+		fa.B2.Number,
+		fa.B3.Number,
+		fa.B4.Number,
+		fa.B5.Number,
+		fa.B6.Number,
 	}
 }
 

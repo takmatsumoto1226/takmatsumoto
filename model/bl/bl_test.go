@@ -234,12 +234,12 @@ func Test_ExportbinaryAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
 	mgr.Prepare()
-	mgr.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultbl.csv")
+	mgr.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultbl.csv")
 
 }
 
 func Test_NewWithStrings(t *testing.T) {
-	fileName := "/Users/tak 1/Desktop/examplebl.csv"
+	fileName := "examplebl.csv"
 	config.LoadConfig("../../config.yaml")
 	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
 	mgr.Prepare()
@@ -273,7 +273,7 @@ func Test_NewWithStrings(t *testing.T) {
 		ftn := NewPowerWithString(record)
 		arr = append(arr, *ftn)
 	}
-	fmt.Println(arr.Presentation())
+	fmt.Println(arr.Presentation(false))
 	newtop := mgr.List[0]
 	fmt.Printf("Cost : %d\n", len(arr)*50)
 	fmt.Printf("Top:\n%s\n", newtop.simpleFormRow())

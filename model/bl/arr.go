@@ -13,10 +13,10 @@ func (fa BLList) Len() int {
 	return len(fa)
 }
 
-func (fa BLList) Presentation() string {
+func (fa BLList) Presentation(b_optional ...bool) string {
 	result := ""
 	for _, bl := range fa {
-		result = result + bl.formRow() + "\n"
+		result = result + bl.formRow(b_optional...) + "\n"
 	}
 	return result
 }
@@ -114,7 +114,7 @@ func (fa BLList) CSVExport(fn string) {
 
 	// 將資料寫入 CSV
 	for _, f := range fa {
-		if err := writer.Write(f.ToStringArr()); err != nil {
+		if err := writer.Write(f.ToStringArr6()); err != nil {
 			panic(err)
 		}
 	}
