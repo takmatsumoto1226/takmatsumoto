@@ -7,31 +7,33 @@ import (
 	"strconv"
 )
 
-type BigLotteryList []BigLottery
+type BLList []BL
 
-func (fa BigLotteryList) Len() int {
+func (fa BLList) Len() int {
 	return len(fa)
 }
 
-func (fa BigLotteryList) Presentation() {
+func (fa BLList) Presentation() string {
+	result := ""
 	for _, bl := range fa {
-		bl.formRow()
+		result = result + bl.formRow() + "\n"
 	}
+	return result
 }
 
 // Less ...
-func (fa BigLotteryList) Less(i, j int) bool {
+func (fa BLList) Less(i, j int) bool {
 	ii, _ := strconv.Atoi(fa[i].TIdx)
 	jj, _ := strconv.Atoi(fa[j].TIdx)
 	return ii > jj
 }
 
 // Swap swaps the elements with indexes i and j.
-func (fa BigLotteryList) Swap(i, j int) {
+func (fa BLList) Swap(i, j int) {
 	fa[i], fa[j] = fa[j], fa[i]
 }
 
-func (fa BigLotteryList) WithRange(r int) BigLotteryList {
+func (fa BLList) WithRange(r int) BLList {
 	al := len(fa)
 	if r > 0 {
 		return fa[al-r : al]
@@ -39,7 +41,7 @@ func (fa BigLotteryList) WithRange(r int) BigLotteryList {
 	return fa
 }
 
-func (fa BigLotteryList) CSVExport1() {
+func (fa BLList) CSVExport1() {
 	// 建立 CSV 檔案
 	file, err := os.Create("output.csv")
 	if err != nil {
@@ -66,7 +68,7 @@ func (fa BigLotteryList) CSVExport1() {
 	println("CSV 檔案輸出完成！")
 }
 
-func (fa BigLotteryList) CSVExport2() {
+func (fa BLList) CSVExport2() {
 	// 建立 CSV 檔案
 	file, err := os.Create("output.csv")
 	if err != nil {
@@ -93,12 +95,12 @@ func (fa BigLotteryList) CSVExport2() {
 	println("CSV 檔案輸出完成！")
 }
 
-func (fa BigLotteryList) Reverse() BigLotteryList {
+func (fa BLList) Reverse() BLList {
 	sort.Sort(sort.Reverse(fa))
 	return fa
 }
 
-func (fa BigLotteryList) CSVExport(fn string) {
+func (fa BLList) CSVExport(fn string) {
 	// 建立 CSV 檔案
 	file, err := os.Create(fn)
 	if err != nil {
@@ -124,4 +126,13 @@ func (fa BigLotteryList) CSVExport(fn string) {
 
 	println("CSV 檔案輸出完成！")
 
+}
+
+func (fa BLList) AdariPrice(adari *BL) int {
+	total := 0
+	// for _, pn := range fa {
+	// 	currentPrice := pn.AdariPrice(adari)
+	// 	total = total + currentPrice
+	// }
+	return total
 }

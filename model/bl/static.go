@@ -2,8 +2,8 @@ package bl
 
 import "lottery/model/df"
 
-func (ar BigLotteryList) findNumbers(numbers []string, nextplus int) BigLotteryList {
-	intersection := BigLotteryList{}
+func (ar BLList) findNumbers(numbers []string, nextplus int) BLList {
+	intersection := BLList{}
 	set := make(map[string]bool)
 
 	for i, ns := range ar {

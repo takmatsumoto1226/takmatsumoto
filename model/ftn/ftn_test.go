@@ -1244,6 +1244,7 @@ func Test_NewWithStrings(t *testing.T) {
 	}
 	fmt.Println(arr.Presentation())
 	newtop := as.List[0]
+	fmt.Printf("Cost : %d\n", len(arr)*50)
 	fmt.Printf("Top:\n%s\n", newtop.simpleFormRow())
 	fmt.Println(arr.AdariPrice(&newtop))
 }
@@ -1292,4 +1293,55 @@ func Test_AntiChoice(t *testing.T) {
 		}
 	}
 	fmt.Printf("Number:%d\n", len)
+}
+
+func Test_NumbersInHistory(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	incount := 0
+	outcount := 0
+	for i, f := range ar.List {
+		list := ar.List.WithRange(i+1, 15)
+		// fmt.Println(list.Presentation())
+		fmt.Println(f.formRow())
+		if list.NumbersInHistory(f) {
+			incount++
+			fmt.Println("完全在裡面")
+		} else {
+			outcount++
+			fmt.Println("不完全在裡面")
+		}
+		fmt.Println("")
+	}
+	fmt.Printf("完全在裡面:%d\n", incount)
+	fmt.Printf("不完全在裡面:%d\n", outcount)
+
+}
+
+func Test_NumbersExHistory(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+	incount := 0
+	outcount := 0
+	for i, f := range ar.List {
+		list := ar.List.WithRange(i+1, 10)
+		// fmt.Println(list.Presentation())
+		fmt.Println(f.formRow())
+		if list.NumbersExHistory(f) {
+			outcount++
+			fmt.Println("完全不在裡面")
+
+		} else {
+			incount++
+			fmt.Println("不完全在裡面")
+		}
+		fmt.Println("")
+	}
+	fmt.Printf("不完全在裡面:%d\n", incount)
+	fmt.Printf("完全不在裡面:%d\n", outcount)
+
 }

@@ -14,8 +14,8 @@ import (
 )
 
 type BigLotterysManager struct {
-	List          BigLotteryList
-	RevList       BigLotteryList
+	List          BLList
+	RevList       BLList
 	ballsCount    map[uint]NormalizeInfo
 	numberToIndex map[string]int
 }
@@ -45,7 +45,7 @@ func (ar *BigLotterysManager) loadAllData() {
 		logrus.Error(err)
 		return
 	}
-	var bll BigLotteryList
+	var bll BLList
 	for year := iyear; year <= now.Year(); year++ {
 		fpath, err := csv.GetPath(&info, year)
 		if err != nil {
@@ -57,14 +57,14 @@ func (ar *BigLotterysManager) loadAllData() {
 			break
 		}
 		for _, yd := range yearDatas {
-			bl := NewBigLottery(yd)
-			if bl == nil || bl.B1 == "" || bl.B1 == "00" {
+			bl := NewBL(yd)
+			if bl == nil || bl.B1.Number == "" || bl.B1.Number == "00" {
 				continue
 			}
 			bll = append(bll, *bl)
 		}
 	}
-	ar.RevList = make(BigLotteryList, len(bll))
+	ar.RevList = make(BLList, len(bll))
 	copy(ar.RevList, bll)
 	ar.List = bll
 	sort.Sort(ar.List)

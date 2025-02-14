@@ -21,17 +21,7 @@ var groupMapping = map[string]int{}
 const ballsCountFTN = 39
 const BallsOfFTN = 5
 
-// Balls ...
-type Balls []Ball
-
-// Ball
-type Ball struct {
-	Number   string `json:"number"`
-	Position int    `json:"position"`
-	Digit    int    `json:"digit"`
-	Period   int    `json:"period"`
-	Continue int    `json:"continue"`
-}
+type Ball df.IBall
 
 func (b *Ball) Illegal() bool {
 	return b.Number == "" || b.Number == "00"
@@ -52,7 +42,6 @@ func NewBallS(n string, pos int) *Ball {
 	} else {
 		return &Ball{Number: n, Position: pos, Digit: iB1}
 	}
-
 }
 
 func NewBallI(n int, pos int) *Ball {
@@ -193,6 +182,17 @@ func (fa *FTN) matchCount(n FTN) int {
 	}
 
 	return count
+}
+
+func (fa *FTN) numberInclude(b string) bool {
+
+	for _, num := range fa.ToStringArr() {
+		if num == b {
+			return true
+		}
+	}
+
+	return false
 }
 
 func (f *FTN) IsExclude(n FTN) bool {

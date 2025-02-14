@@ -30,14 +30,14 @@ func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = BigLotterysManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.RevList.Presentation()
+	fmt.Println(as.RevList.Presentation())
 }
 
 func Test_findnumbers(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var as = BigLotterysManager{numberToIndex: map[string]int{}}
 	as.Prepare()
-	as.RevList.findNumbers([]string{"03", "13", "22"}, df.Both).Presentation()
+	fmt.Println(as.RevList.findNumbers([]string{"03", "13", "22"}, df.Both).Presentation())
 }
 
 func Test_combination(t *testing.T) {
@@ -157,13 +157,13 @@ func Test_random2(t *testing.T) {
 		}
 
 		lottos := as.List.WithRange(20)
-		featuresList := BigLotteryList{}
+		featuresList := BLList{}
 		count := 0
 		for k, v := range result {
 			if v > th.Value {
 				fmt.Printf("%v:%v\n", k, v)
 				arr := strings.Split(k, "_")
-				as.List.findNumbers(arr, df.Next).Presentation()
+				fmt.Println(as.List.findNumbers(arr, df.Next).Presentation())
 
 				bl := NewPowerWithString(arr)
 				for _, l := range lottos {
@@ -177,7 +177,7 @@ func Test_random2(t *testing.T) {
 		fmt.Printf("%d , %d \n", count*50, count)
 		fmt.Println("")
 		fmt.Println("features")
-		featuresList.Presentation()
+		fmt.Println(featuresList.Presentation())
 		fmt.Printf("done Round : %02d\n", th.Round)
 	}
 
@@ -236,4 +236,46 @@ func Test_ExportbinaryAllNumber(t *testing.T) {
 	mgr.Prepare()
 	mgr.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/LotteryAi/resultbl.csv")
 
+}
+
+func Test_NewWithStrings(t *testing.T) {
+	fileName := "/Users/tak 1/Desktop/examplebl.csv"
+	config.LoadConfig("../../config.yaml")
+	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
+	mgr.Prepare()
+
+	// 打開 CSV 檔案
+	file, err := os.Open(fileName)
+	if err != nil {
+
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	// 讀取 CSV 檔案內容
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		fmt.Printf("Error reading CSV file: %v\n", err)
+		return
+	}
+
+	// 檢查是否有資料
+	if len(records) < 1 {
+		fmt.Println("No data in CSV file")
+		return
+	}
+	fmt.Println(len(records))
+
+	arr := BLList{}
+	for _, record := range records {
+		ftn := NewPowerWithString(record)
+		arr = append(arr, *ftn)
+	}
+	fmt.Println(arr.Presentation())
+	newtop := mgr.List[0]
+	fmt.Printf("Cost : %d\n", len(arr)*50)
+	fmt.Printf("Top:\n%s\n", newtop.simpleFormRow())
+	fmt.Println(arr.AdariPrice(&newtop))
 }

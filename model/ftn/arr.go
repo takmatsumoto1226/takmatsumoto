@@ -581,3 +581,29 @@ func (fa FTNArray) FeatureCSVExport(fn string) {
 	println("CSV 檔案輸出完成！")
 
 }
+
+func (fa FTNArray) NumbersInHistory(f FTN) bool {
+	matchCount := 0
+	for _, b := range f.ToStringArr() {
+		for _, f := range fa {
+			if f.numberInclude(b) {
+				matchCount++
+				break
+			}
+		}
+	}
+	return matchCount == 5
+}
+
+func (fa FTNArray) NumbersExHistory(f FTN) bool {
+	matchCount := 0
+	for _, b := range f.ToStringArr() {
+		for _, f := range fa {
+			if f.numberInclude(b) {
+				matchCount++
+				break
+			}
+		}
+	}
+	return matchCount == 0
+}

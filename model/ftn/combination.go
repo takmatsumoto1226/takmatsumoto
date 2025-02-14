@@ -3,12 +3,13 @@ package ftn
 import (
 	"fmt"
 	"lottery/config"
+	"lottery/model/df"
 	"os"
 	"path/filepath"
 )
 
 type Combination struct {
-	Balls Balls
+	Balls df.IBalls
 }
 
 func loadCombination() error {
