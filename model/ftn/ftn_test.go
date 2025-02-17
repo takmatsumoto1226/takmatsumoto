@@ -1252,10 +1252,12 @@ func Test_NewWithStrings(t *testing.T) {
 		arr = append(arr, *ftn)
 	}
 	fmt.Println(arr.Presentation())
-	newtop := as.List[0]
 	fmt.Printf("Cost : %d\n", len(arr)*50)
-	fmt.Printf("Top:\n%s\n", newtop.simpleFormRow())
-	fmt.Println(arr.AdariPrice(&newtop))
+
+	for _, t := range as.List.WithRange(0, 1) {
+		fmt.Printf("Top:\n%s\n", t.simpleFormRow())
+		fmt.Println(arr.AdariPrice(&t))
+	}
 }
 
 func Test_AntiChoice(t *testing.T) {

@@ -330,7 +330,7 @@ func (fa *BL) simpleFormRow() string {
 		for i := 1; i <= ballsCountBigLottery; i++ {
 			if fa.IBalls[bi] == i {
 				rowmsg = rowmsg + fmt.Sprintf("%02d|", fa.IBalls[bi])
-				if bi < 4 {
+				if bi < 5 {
 					bi++
 				}
 			} else {
@@ -350,18 +350,17 @@ var prizeTable = map[string]int{
 	"4+0": 4000,      // 伍獎 (幾千元)
 	"3+1": 1000,      // 陸獎 (一千元)
 	"3+0": 400,       // 柒獎 (400元)
-	"2+1": 200,       // 捌獎 (200元)
-	"1+1": 100,       // 玖獎 (100元)
-	"0+1": 100,       // 普獎 (100元)
+	"2+1": 400,       // 捌獎 (400元)
 }
 
 // 計算中獎結果
-func (fa *BL) AdariPrice(winningNumbers, specialNumbers, userNumbers []int) int {
+func (fa *BL) AdariPrice(winningNumbers, specialNumbers []int) int {
+	useNumbers := fa.IBalls[:6]
 	// 計算對中的普通號碼數量
-	matchedRegular := fa.countMatches(winningNumbers, userNumbers)
+	matchedRegular := fa.countMatches(winningNumbers, useNumbers)
 
 	// 檢查是否對中特別號
-	matchedSpecial := fa.contains(specialNumbers, userNumbers)
+	matchedSpecial := fa.contains(specialNumbers, useNumbers)
 
 	// 建立中獎分類字串
 	key := fmt.Sprintf("%d+%d", matchedRegular, matchedSpecial)

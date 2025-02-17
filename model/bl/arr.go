@@ -2,9 +2,12 @@ package bl
 
 import (
 	"encoding/csv"
+	"fmt"
+	"lottery/model/common"
 	"os"
 	"sort"
 	"strconv"
+	"time"
 )
 
 type BLList []BL
@@ -130,9 +133,98 @@ func (fa BLList) CSVExport(fn string) {
 
 func (fa BLList) AdariPrice(adari *BL) int {
 	total := 0
-	// for _, pn := range fa {
-	// 	currentPrice := pn.AdariPrice(adari)
-	// 	total = total + currentPrice
-	// }
+	for _, pn := range fa {
+		currentPrice := pn.AdariPrice(adari.IBalls[:6], adari.IBalls[6:])
+		if currentPrice > 0 {
+			fmt.Println(pn.simpleFormRow())
+		}
+		total = total + currentPrice
+	}
 	return total
+}
+
+func (fa BLList) FilterORIncludes(tops BLList, sb []int) BLList {
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterIncludes : %d\n", len(fa)))
+
+	// if len(tops) == 0 && len(sb) == 0 {
+	// 	return fa
+	// }
+	result := BLList{}
+	search := common.LIMap{}
+	for _, t := range tops {
+		for _, i := range t.Feature.IBalls {
+			search[i] = true
+		}
+	}
+
+	if len(sb) > 0 {
+		for _, i := range sb {
+			search[i] = true
+		}
+	}
+
+	if len(search) == 0 {
+		return fa
+	}
+	fmt.Println(search.Presentation())
+
+	for _, ftn := range fa {
+		for _, n := range ftn.Feature.IBalls {
+			if _, ok := search[n]; ok {
+				result = append(result, ftn)
+				break
+			}
+		}
+	}
+	return result
+}
+
+func (fa BLList) FilterANDIncludes(tops BLList, sb []int) BLList {
+	defer common.TimeTaken(time.Now(), fmt.Sprintf("FilterIncludes : %d\n", len(fa)))
+
+	// if len(tops) == 0 && len(sb) == 0 {
+	// 	return fa
+	// }
+	matchCount := len(sb)
+	result := BLList{}
+	search := common.LIMap{}
+	for _, t := range tops {
+		for _, i := range t.Feature.IBalls {
+			search[i] = true
+		}
+	}
+
+	if len(sb) > 0 {
+		for _, i := range sb {
+			search[i] = true
+		}
+	}
+
+	if len(search) == 0 {
+		return fa
+	}
+	fmt.Println(search.Presentation())
+
+	for _, ftn := range fa {
+		count := 0
+		for _, n := range ftn.Feature.IBalls {
+			if _, ok := search[n]; ok {
+				count++
+			}
+
+			if count == matchCount {
+				result = append(result, ftn)
+				break
+			}
+		}
+	}
+	return result
+}
+
+func (fa BLList) FragmentRange(indexs []int) BLList {
+	result := BLList{}
+	for _, i := range indexs {
+		result = append(result, fa[i])
+	}
+	return result
 }

@@ -28,14 +28,14 @@ func init() {
 
 func Test_listLikeExecl(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
-	var as = BigLotterysManager{numberToIndex: map[string]int{}}
+	var as = BLManager{numberToIndex: map[string]int{}}
 	as.Prepare()
 	fmt.Println(as.RevList.Presentation())
 }
 
 func Test_findnumbers(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
-	var as = BigLotterysManager{numberToIndex: map[string]int{}}
+	var as = BLManager{numberToIndex: map[string]int{}}
 	as.Prepare()
 	fmt.Println(as.RevList.findNumbers([]string{"03", "13", "22"}, df.Both).Presentation())
 }
@@ -119,7 +119,7 @@ func Test_random2(t *testing.T) {
 	// Typically a non-fixed seed should be used, such as time.Now().UnixNano().
 	// Using a fixed seed will produce the same output on every run.
 	config.LoadConfig("../../config.yaml") // 17591400
-	var as = BigLotterysManager{numberToIndex: map[string]int{}}
+	var as = BLManager{numberToIndex: map[string]int{}}
 	as.Prepare()
 
 	balls := 6
@@ -186,7 +186,7 @@ func Test_random2(t *testing.T) {
 func Test_ExportAllNumber(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
 	config.LoadConfig("../../config.yaml")
-	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
+	var mgr = BLManager{numberToIndex: map[string]int{}}
 	mgr.Prepare()
 	mgr.List.Reverse().CSVExport1()
 
@@ -232,7 +232,7 @@ func Test_ExportAllCombination(t *testing.T) {
 func Test_ExportbinaryAllNumber(t *testing.T) {
 	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
 	config.LoadConfig("../../config.yaml")
-	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
+	var mgr = BLManager{numberToIndex: map[string]int{}}
 	mgr.Prepare()
 	mgr.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultbl.csv")
 
@@ -241,7 +241,7 @@ func Test_ExportbinaryAllNumber(t *testing.T) {
 func Test_NewWithStrings(t *testing.T) {
 	fileName := "examplebl.csv"
 	config.LoadConfig("../../config.yaml")
-	var mgr = BigLotterysManager{numberToIndex: map[string]int{}}
+	var mgr = BLManager{numberToIndex: map[string]int{}}
 	mgr.Prepare()
 
 	// 打開 CSV 檔案
@@ -276,6 +276,48 @@ func Test_NewWithStrings(t *testing.T) {
 	fmt.Println(arr.Presentation(false))
 	newtop := mgr.List[0]
 	fmt.Printf("Cost : %d\n", len(arr)*50)
-	fmt.Printf("Top:\n%s\n", newtop.simpleFormRow())
+	fmt.Printf("Top:\n%s\n", newtop.formRow())
+	fmt.Println("")
 	fmt.Println(arr.AdariPrice(&newtop))
+}
+
+func Test_PickInclude(t *testing.T) {
+	config.LoadConfig("../../config.yaml")
+	var mgr = BLManager{numberToIndex: map[string]int{}}
+	mgr.Prepare()
+	fileName := "examplebl.csv"
+
+	// 打開 CSV 檔案
+	file, err := os.Open(fileName)
+	if err != nil {
+
+		fmt.Printf("Error opening file: %v\n", err)
+		return
+	}
+	defer file.Close()
+
+	// 讀取 CSV 檔案內容
+	reader := csv.NewReader(file)
+	records, err := reader.ReadAll()
+	if err != nil {
+		fmt.Printf("Error reading CSV file: %v\n", err)
+		return
+	}
+
+	// 檢查是否有資料
+	if len(records) < 1 {
+		fmt.Println("No data in CSV file")
+		return
+	}
+
+	arr := BLList{}
+	for _, record := range records {
+		ftn := NewPowerWithString(record)
+		arr = append(arr, *ftn)
+	}
+	// TODO: 尚未完成
+	// tops := mgr.List.FragmentRange([]int{})
+	// pickups := arr.FilterORIncludes(tops, []int{2, 14, 30, 40}).FilterANDIncludes(tops, []int{20, 40})
+	fmt.Println(arr.Presentation(false))
+	fmt.Println(len(arr))
 }

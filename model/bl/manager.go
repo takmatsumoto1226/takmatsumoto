@@ -13,21 +13,21 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type BigLotterysManager struct {
+type BLManager struct {
 	List          BLList
 	RevList       BLList
 	ballsCount    map[uint]NormalizeInfo
 	numberToIndex map[string]int
 }
 
-func (ar *BigLotterysManager) initNumberToIndex() {
+func (ar *BLManager) initNumberToIndex() {
 	for i := 0; i < ballsCountBigLottery; i++ {
 		key := fmt.Sprintf("%02d", i+1)
 		ar.numberToIndex[key] = i
 	}
 }
 
-func (ar *BigLotterysManager) Prepare() error {
+func (ar *BLManager) Prepare() error {
 
 	ar.initNumberToIndex()
 
@@ -36,7 +36,7 @@ func (ar *BigLotterysManager) Prepare() error {
 	return nil
 }
 
-func (ar *BigLotterysManager) loadAllData() {
+func (ar *BLManager) loadAllData() {
 	info := config.Config.HTTP.Infos[df.Info49]
 	now := time.Now()
 
