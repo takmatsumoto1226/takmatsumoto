@@ -1247,8 +1247,9 @@ func Test_NewWithStrings(t *testing.T) {
 	fmt.Println(len(records))
 
 	arr := FTNArray{}
-	for _, record := range records {
-		ftn := NewFTNWithStrings(record)
+	for idx, record := range records {
+		ftn := NewFTNWithStringsAndIndex(record, fmt.Sprintf("%3d", idx+1))
+		// ftn := NewFTNWithStrings(record)
 		arr = append(arr, *ftn)
 	}
 	fmt.Println(arr.Presentation())
@@ -1256,7 +1257,9 @@ func Test_NewWithStrings(t *testing.T) {
 
 	for _, t := range as.List.WithRange(0, 1) {
 		fmt.Printf("Top:\n%s\n", t.simpleFormRow())
-		fmt.Println(arr.AdariPrice(&t))
+		fmt.Println("")
+		total, percent := arr.AdariPrice(&t)
+		fmt.Printf("%d:%.3f%%\n", total, percent*100)
 	}
 }
 

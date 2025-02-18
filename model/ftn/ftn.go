@@ -387,6 +387,10 @@ func NewFTN(arr []string) *FTN {
 }
 
 func NewFTNWithStrings(arr []string) *FTN {
+	return NewFTNWithStringsAndIndex(arr, "")
+}
+
+func NewFTNWithStringsAndIndex(arr []string, idx string) *FTN {
 	if len(arr) == 0 {
 		return Empty()
 	}
@@ -398,7 +402,7 @@ func NewFTNWithStrings(arr []string) *FTN {
 	return &FTN{
 		Year:     "",
 		MonthDay: "",
-		LIdx:     "",
+		LIdx:     idx,
 		B1:       *NewBallI(i1, 0),
 		B2:       *NewBallI(i2, 0),
 		B3:       *NewBallI(i3, 0),

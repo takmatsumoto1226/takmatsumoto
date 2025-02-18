@@ -292,13 +292,19 @@ func (list FTNArray) findNumbers(numbers []string, t int) FTNArray {
 	return intersection
 }
 
-func (fa FTNArray) AdariPrice(adari *FTN) int {
-	total := 0
+func (fa FTNArray) AdariPrice(adari *FTN) (total int, percent float32) {
+
+	count := 0
 	for _, pn := range fa {
 		currentPrice := pn.AdariPrice(adari)
+		if currentPrice > 0 {
+			fmt.Printf("%s:%7d:%v\n", pn.LIdx, currentPrice, pn.ToStringArr())
+			count++
+		}
 		total = total + currentPrice
 	}
-	return total
+	percent = float32(count) / float32(len(fa))
+	return total, percent
 }
 
 func (ar FTNArray) IntervalBallsCountStatic(p PickParam) NormalizeInfo {
