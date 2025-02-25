@@ -21,6 +21,34 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// findCombinations 找出所有 1~39 中 5 個數字總和為 target 的組合
+func findCombinations(start, target, count int, combination []int, result *[][]int, used map[int]bool) {
+	if count == 0 {
+		if target == 0 {
+			combCopy := make([]int, len(combination))
+			copy(combCopy, combination)
+			*result = append(*result, combCopy)
+		}
+		return
+	}
+
+	for i := start; i <= 39; i++ {
+		if i > target || used[i] {
+			continue
+		}
+		used[i] = true
+		findCombinations(i+1, target-i, count-1, append(combination, i), result, used)
+		delete(used, i)
+	}
+}
+
+func getCombinations(targetSum, numCount int) [][]int {
+	var result [][]int
+	used := make(map[int]bool)
+	findCombinations(1, targetSum, numCount, []int{}, &result, used)
+	return result
+}
+
 func init() {
 	logrus.SetLevel(logrus.DebugLevel)
 }
@@ -1252,14 +1280,15 @@ func Test_NewWithStrings(t *testing.T) {
 		// ftn := NewFTNWithStrings(record)
 		arr = append(arr, *ftn)
 	}
-	fmt.Println(arr.Presentation())
+	// fmt.Println(arr.Presentation())
 	fmt.Printf("Cost : %d\n", len(arr)*50)
 
-	for _, t := range as.List.WithRange(0, 1) {
+	for _, t := range as.List.WithRange(0, 10) {
+		fmt.Printf("日期:%s\n", t.Date())
 		fmt.Printf("Top:\n%s\n", t.simpleFormRow())
 		fmt.Println("")
 		total, percent := arr.AdariPrice(&t)
-		fmt.Printf("%d:%.3f%%\n", total, percent*100)
+		fmt.Printf("%d:%.3f%%\n\n", total, percent*100)
 	}
 }
 
@@ -1358,4 +1387,38 @@ func Test_NumbersExHistory(t *testing.T) {
 	fmt.Printf("不完全在裡面:%d\n", incount)
 	fmt.Printf("完全不在裡面:%d\n", outcount)
 
+}
+
+func Test_TotalStatic(t *testing.T) {
+	defer common.TimeTaken(time.Now(), "Test_TenGroupManager")
+	config.LoadConfig("../../config.yaml")
+	var ar = FTNsManager{}
+	ar.Prepare()
+
+	static := map[string]int{}
+	for _, f := range ar.List {
+		k := fmt.Sprintf("%3d", f.Feature.SUM)
+		if v, ok := static[k]; ok {
+			static[k] = v + 1
+		} else {
+			static[k] = 1
+		}
+	}
+
+	for i := 15; i <= 185; i++ {
+		k := fmt.Sprintf("%3d", i)
+		if v, ok := static[k]; ok {
+			fmt.Printf("%s:%d\n", k, v)
+		}
+	}
+}
+
+func Test_numberdevide(t *testing.T) {
+	targetSum := 163
+	numCount := 5
+	combinations := getCombinations(targetSum, numCount)
+	for _, combination := range combinations {
+		fmt.Println(combination)
+	}
+	fmt.Println(len(combinations))
 }

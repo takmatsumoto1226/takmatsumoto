@@ -146,6 +146,7 @@ type Feature struct {
 	MultiplesOfs            [19]int `json:"multiplesofs"`
 	ContinueRowType         int     `json:"continuerowtype"`
 	Point                   float32 `json:"point"`
+	SUM                     int     `json:"sum"`
 }
 
 func (f *Feature) setKey() {
@@ -213,6 +214,10 @@ func (f *Feature) binaryKeyArray() []string {
 }
 
 func NewFeature(numbers []int, ballsCount int) *Feature {
+	sum := 0
+	for _, i := range numbers {
+		sum += i
+	}
 	oc := 0
 	ec := 0
 	gt := [5]int{0, 0, 0, 0, 0}
@@ -245,6 +250,7 @@ func NewFeature(numbers []int, ballsCount int) *Feature {
 		EvenNumberCount:         ec,
 		TailDigit:               td,
 		PrimeCount:              primec,
+		SUM:                     sum,
 	}
 	f.setContinueRowType()
 	f.setKey()

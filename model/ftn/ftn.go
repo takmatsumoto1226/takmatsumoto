@@ -289,6 +289,7 @@ func (fa *FTN) formRow() string {
 				rowmsg = rowmsg + "  |"
 			}
 		}
+		rowmsg = rowmsg + fmt.Sprintf("%3d|", fa.Feature.SUM)
 		return rowmsg
 	}
 }
