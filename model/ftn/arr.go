@@ -529,6 +529,24 @@ func (fa FTNArray) CSVExport(fn string) {
 	}
 
 	println("CSV 檔案輸出完成！")
+}
+
+func (fa FTNArray) LeastDateExport(fn string) {
+	file, err := os.Create(fn)
+	if err != nil {
+		fmt.Println("無法建立檔案：", err)
+		return
+	}
+	defer file.Close()
+
+	// 將內容寫入檔案
+	_, err = file.WriteString(fa[0].Date())
+	if err != nil {
+		fmt.Println("寫入檔案時發生錯誤：", err)
+		return
+	}
+
+	fmt.Println("內容已成功寫入檔案。")
 
 }
 

@@ -1154,6 +1154,7 @@ func Test_ExportAllNumber(t *testing.T) {
 	config.LoadConfig("../../config.yaml")
 	var ar = FTNsManager{}
 	ar.Prepare()
+	ar.List.LeastDateExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/date.csv")
 	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultftn.csv")
 
 }
@@ -1245,7 +1246,7 @@ func Test_staticNumber(t *testing.T) {
 }
 
 func Test_NewWithStrings(t *testing.T) {
-	fileName := "exampleftn.csv"
+	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_LSTM_ftn_20250227_T20250226_156_5.csv"
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
