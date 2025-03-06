@@ -6,6 +6,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
 )
 
@@ -30,4 +31,12 @@ func main() {
 	case <-term:
 		logrus.Infof("User term")
 	}
+}
+
+func initGINServer(env string) (*gin.Engine, error) {
+	e := gin.Default()
+	gstatics := e.Group("statics")
+	gstatics.POST("/numbers")
+	e.Run()
+	return nil, nil
 }

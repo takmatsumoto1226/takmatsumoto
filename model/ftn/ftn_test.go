@@ -1178,7 +1178,7 @@ func Test_ExportFeatureAllNumber(t *testing.T) {
 }
 
 func Test_staticNumber(t *testing.T) {
-	fileName := "exampleftn.csv"
+	fileName := "resultftn.csv"
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
@@ -1243,10 +1243,70 @@ func Test_staticNumber(t *testing.T) {
 		k := fmt.Sprintf("%d", f)
 		fmt.Printf("%s:%d\n", k, valueCounts[k])
 	}
+	SaveToJSON("ftnStatic.csv", sortedCounts)
+}
+
+func SaveToJSON(filename string, data interface{}) error {
+	// 轉換為 JSON 格式並縮進輸出
+	jsonData, err := json.MarshalIndent(data, "", "  ")
+	if err != nil {
+		return fmt.Errorf("JSON 轉換失敗: %v", err)
+	}
+
+	// 寫入檔案
+	err = os.WriteFile(filename, jsonData, 0644)
+	if err != nil {
+		return fmt.Errorf("檔案寫入失敗: %v", err)
+	}
+
+	fmt.Printf("JSON 資料已儲存至 %s\n", filename)
+	return nil
+}
+
+// 定義輸入數據結構
+type InputData struct {
+	Key   string `json:"Key"`
+	Value int    `json:"Value"`
+}
+
+// 定義 ECharts 輸出格式
+type EChartsData struct {
+	XAxis struct {
+		Type string   `json:"type"`
+		Data []string `json:"data"`
+	} `json:"xAxis"`
+	YAxis struct {
+		Type string `json:"type"`
+	} `json:"yAxis"`
+	Series []struct {
+		Data []int  `json:"data"`
+		Type string `json:"type"`
+	} `json:"series"`
+}
+
+// 轉換函數
+func convertToEChartsFormat(data []InputData) EChartsData {
+	var result EChartsData
+	result.XAxis.Type = "category"
+	result.YAxis.Type = "value"
+	result.Series = []struct {
+		Data []int  `json:"data"`
+		Type string `json:"type"`
+	}{{Type: "bar"}}
+
+	// 填充數據
+	for _, item := range data {
+		result.XAxis.Data = append(result.XAxis.Data, item.Key)
+		result.Series[0].Data = append(result.Series[0].Data, item.Value)
+	}
+
+	return result
 }
 
 func Test_NewWithStrings(t *testing.T) {
-	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_LSTM_ftn_20250227_T20250226_156_5.csv"
+	// CSV_LSTM_ftn_20250306_T20250305_250_10
+	// CSV_LSTM_ftn_20250306_T20250305_250_10_Bio
+	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_LSTM_ftn_20250306_T20250305_250_10_Bio.csv"
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
@@ -1273,23 +1333,28 @@ func Test_NewWithStrings(t *testing.T) {
 		fmt.Println("No data in CSV file")
 		return
 	}
-	fmt.Println(len(records))
 
 	arr := FTNArray{}
-	for idx, record := range records {
+	for idx, record := range records[:] {
 		ftn := NewFTNWithStringsAndIndex(record, fmt.Sprintf("%3d", idx+1))
-		// ftn := NewFTNWithStrings(record)
+		// if as.List.NumbersInHistory(*ftn) {
+		// 	ftn.formRow()
+		// }
 		arr = append(arr, *ftn)
 	}
 	// fmt.Println(arr.Presentation())
-	fmt.Printf("Cost : %d\n", len(arr)*50)
-
-	for _, t := range as.List.WithRange(0, 10) {
+	fmt.Println(len(arr))
+	cost := len(arr) * 50
+	fmt.Printf("Cost : %d\n", cost)
+	returnMoney := 0
+	for _, t := range as.List.WithRange(1, 1) {
 		fmt.Printf("日期:%s\n", t.Date())
 		fmt.Printf("Top:\n%s\n", t.simpleFormRow())
 		fmt.Println("")
 		total, percent := arr.AdariPrice(&t)
+		returnMoney = returnMoney + total
 		fmt.Printf("%d:%.3f%%\n\n", total, percent*100)
+		fmt.Printf("benefit:%.3f%%\n", (float64(returnMoney)/float64(cost))*100)
 	}
 }
 
