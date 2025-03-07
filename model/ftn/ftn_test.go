@@ -1306,7 +1306,8 @@ func convertToEChartsFormat(data []InputData) EChartsData {
 func Test_NewWithStrings(t *testing.T) {
 	// CSV_LSTM_ftn_20250306_T20250305_250_10
 	// CSV_LSTM_ftn_20250306_T20250305_250_10_Bio
-	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_LSTM_ftn_20250306_T20250305_250_10_Bio.csv"
+	// CSV_LSTM_ftn_20250306_T20250305_250_10_Bio_L9
+	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_LSTM_ftn_20250306_T20250305_250_10_Bio_L9.csv"
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
@@ -1347,7 +1348,7 @@ func Test_NewWithStrings(t *testing.T) {
 	cost := len(arr) * 50
 	fmt.Printf("Cost : %d\n", cost)
 	returnMoney := 0
-	for _, t := range as.List.WithRange(1, 1) {
+	for _, t := range as.List.WithRange(0, 1) {
 		fmt.Printf("日期:%s\n", t.Date())
 		fmt.Printf("Top:\n%s\n", t.simpleFormRow())
 		fmt.Println("")
