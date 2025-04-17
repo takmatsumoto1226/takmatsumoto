@@ -531,6 +531,33 @@ func (fa FTNArray) CSVExport(fn string) {
 	println("CSV 檔案輸出完成！")
 }
 
+func (fa FTNArray) CSVWordsExport(fn string) {
+	// 建立 CSV 檔案
+	file, err := os.Create(fn)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	// 建立 CSV writer
+	writer := csv.NewWriter(file)
+	defer writer.Flush()
+
+	// 將資料寫入 CSV
+	for _, f := range fa {
+		if err := writer.Write(f.ToWordArr()); err != nil {
+			panic(err)
+		}
+	}
+
+	// 檢查是否有錯誤
+	if err := writer.Error(); err != nil {
+		panic(err)
+	}
+
+	println("CSV 檔案輸出完成！")
+}
+
 func (fa FTNArray) LeastDateExport(fn string) {
 	file, err := os.Create(fn)
 	if err != nil {
@@ -602,7 +629,7 @@ func (fa FTNArray) FeatureCSVExport(fn string) {
 		panic(err)
 	}
 
-	println("CSV 檔案輸出完成！")
+	println(fn + " CSV 檔案輸出完成！")
 
 }
 

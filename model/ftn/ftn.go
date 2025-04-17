@@ -18,6 +18,14 @@ var ballPeriotStatic = map[int]int{}
 var ballContinueStatic = map[int]int{}
 var groupMapping = map[string]int{}
 
+var numberToWord = map[int]string{
+	1: "我", 2: "你", 3: "他", 4: "她", 5: "是", 6: "不", 7: "在", 8: "有", 9: "的",
+	10: "和", 11: "天", 12: "地", 13: "山", 14: "水", 15: "風", 16: "雲", 17: "花", 18: "樹",
+	19: "鳥", 20: "狗", 21: "跑", 22: "走", 23: "看", 24: "聽", 25: "說", 26: "吃", 27: "喝",
+	28: "睡", 29: "笑", 30: "哭", 31: "快", 32: "慢", 33: "高", 34: "低", 35: "大", 36: "小",
+	37: "好", 38: "壞", 39: "美",
+}
+
 const ballsCountFTN = 39
 const BallsOfFTN = 5
 
@@ -261,6 +269,16 @@ func Ball39() []string {
 
 func (fa *FTN) ToStringArr() []string {
 	return []string{fa.B1.Number, fa.B2.Number, fa.B3.Number, fa.B4.Number, fa.B5.Number}
+}
+
+func (fa *FTN) ToWordArr() []string {
+	return []string{
+		numberToWord[fa.B1.Digit],
+		numberToWord[fa.B2.Digit],
+		numberToWord[fa.B3.Digit],
+		numberToWord[fa.B4.Digit],
+		numberToWord[fa.B5.Digit],
+	}
 }
 
 func (fa *FTN) ToIntArr() []int {

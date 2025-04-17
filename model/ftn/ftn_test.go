@@ -1156,6 +1156,7 @@ func Test_ExportAllNumber(t *testing.T) {
 	ar.Prepare()
 	ar.List.LeastDateExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/date.csv")
 	ar.List.Reverse().CSVExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultftn.csv")
+	// ar.List.Reverse().CSVWordsExport("/Users/tak 1/Documents/gitlab_project/pythonaiprediction/resultftnw.csv")
 
 }
 
@@ -1304,15 +1305,13 @@ func convertToEChartsFormat(data []InputData) EChartsData {
 }
 
 func Test_NewWithStrings(t *testing.T) {
-	// CSV_LSTM_ftn_20250306_T20250305_250_10
-	// CSV_LSTM_ftn_20250306_T20250305_250_10_Bio
-	// CSV_LSTM_ftn_20250306_T20250305_250_10_Bio_L9
-	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_LSTM_ftn_20250306_T20250305_250_10_Bio_L9.csv"
+	// CSV_Transformer_ftn_20250321_T20250320_250_5_Bio_freq_bert
+	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_LSTM_ftn_20250307_T20250306_250_10.csv"
 	config.LoadConfig("../../config.yaml")
 	var as = FTNsManager{}
 	as.Prepare()
 
-	// 打開 CSV 檔案
+	// 打開 CSV 檔案Y
 	file, err := os.Open(fileName)
 	if err != nil {
 
@@ -1343,14 +1342,14 @@ func Test_NewWithStrings(t *testing.T) {
 		// }
 		arr = append(arr, *ftn)
 	}
-	// fmt.Println(arr.Presentation())
+	fmt.Println(arr.Continue2s().Presentation())
 	fmt.Println(len(arr))
 	cost := len(arr) * 50
 	fmt.Printf("Cost : %d\n", cost)
 	returnMoney := 0
 	for _, t := range as.List.WithRange(0, 1) {
 		fmt.Printf("日期:%s\n", t.Date())
-		fmt.Printf("Top:\n%s\n", t.simpleFormRow())
+		fmt.Printf("Top:\n%s\n", t.formRow())
 		fmt.Println("")
 		total, percent := arr.AdariPrice(&t)
 		returnMoney = returnMoney + total
@@ -1360,7 +1359,7 @@ func Test_NewWithStrings(t *testing.T) {
 }
 
 func Test_AntiChoice(t *testing.T) {
-	fileName := "exampleftn.csv"
+	fileName := "/Users/tak 1/Documents/gitlab_project/pythonaiprediction/CSV_Transformer_ftn_20250319_T20250318_250_5_Bio_freq.csv"
 
 	// 打開 CSV 檔案
 	file, err := os.Open(fileName)
