@@ -1,7 +1,7 @@
 package main
 
 import (
-	"lottery/api/ftn"
+	api "lottery/api/ftn"
 	"lottery/cmd"
 	"os"
 	"os/signal"
@@ -45,7 +45,7 @@ func main() {
 func initGINServer(env string) (*gin.Engine, error) {
 	e := gin.Default()
 	ftnGroup := e.Group("ftn")
-	ftnGroup.POST("list", ftn.FTNListCtx)
+	ftnGroup.POST("list", api.FTNListCtx)
 
 	gstatics := e.Group("statics")
 	gstatics.POST("/numbers")
