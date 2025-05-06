@@ -25,7 +25,7 @@ type Cache struct {
 	ttl time.Duration
 }
 
-func NewLotteryDB(dbPath string) (*LotteryDB, error) {
+func NewLotteryDB(dbPath string) (*Cache, error) {
 	db, err := sql.Open("sqlite3", dbPath)
 	if err != nil {
 		return nil, err
@@ -37,13 +37,8 @@ func NewLotteryDB(dbPath string) (*LotteryDB, error) {
 	return ldb, nil
 }
 
-// 關閉 DB
-func (ldb *Cache) Close() {
-	ldb.db.Close()
-}
-
 // New 建立新的快取物件，指定檔案路徑與TTL時間
-func (ldb *Cache) migrate() error {
+func (c *Cache) migrate() error {
 	createTableSQL := `
 	CREATE TABLE IF NOT EXISTS record (
 		year VARCHAR(4),
@@ -57,7 +52,7 @@ func (ldb *Cache) migrate() error {
 		total_index INTEGER,
 		PRIMARY KEY (year, month_day, year_index)
 	);`
-	_, err := ldb.db.Exec(createTableSQL)
+	_, err := c.db.Exec(createTableSQL)
 	if err != nil {
 		log.Println("migrate error:", err)
 	}
@@ -65,8 +60,8 @@ func (ldb *Cache) migrate() error {
 }
 
 // Set 寫入快取資料
-func (ldb *Cache) InsertRecord(r Record) error {
-	_, err := ldb.db.Exec(`INSERT OR REPLACE INTO record
+func (c *Cache) InsertRecord(r Record) error {
+	_, err := c.db.Exec(`INSERT OR REPLACE INTO record
 		(year, month_day, year_index, num1, num2, num3, num4, num5, total_index)
 		VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		r.Year, r.MonthDay, r.YearIndex, r.Num1, r.Num2, r.Num3, r.Num4, r.Num5, r.TotalIndex)
@@ -74,9 +69,9 @@ func (ldb *Cache) InsertRecord(r Record) error {
 }
 
 // 查資料
-func (ldb *Cache) GetRecord(year, monthDay string, yearIndex int) (Record, bool) {
+func (c *Cache) GetRecord(year, monthDay string, yearIndex int) (Record, bool) {
 	var r Record
-	err := ldb.db.QueryRow(`SELECT year, month_day, year_index, num1, num2, num3, num4, num5, total_index
+	err := c.db.QueryRow(`SELECT year, month_day, year_index, num1, num2, num3, num4, num5, total_index
 		FROM record WHERE year = ? AND month_day = ? AND year_index = ?`,
 		year, monthDay, yearIndex).
 		Scan(&r.Year, &r.MonthDay, &r.YearIndex, &r.Num1, &r.Num2, &r.Num3, &r.Num4, &r.Num5, &r.TotalIndex)
