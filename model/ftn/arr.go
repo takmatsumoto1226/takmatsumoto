@@ -323,10 +323,10 @@ func (ar FTNArray) IntervalBallsCountStatic(p PickParam) NormalizeInfo {
 		FTNIntervalCount[numberToIndex[t.B4.Number]]++
 		FTNIntervalCount[numberToIndex[t.B5.Number]]++
 		for i := 0; i < ballsCountFTN; i++ {
-			if i != numberToIndex[t.B1.Number] ||
-				i != numberToIndex[t.B2.Number] ||
-				i != numberToIndex[t.B3.Number] ||
-				i != numberToIndex[t.B4.Number] ||
+			if i != numberToIndex[t.B1.Number] &&
+				i != numberToIndex[t.B2.Number] &&
+				i != numberToIndex[t.B3.Number] &&
+				i != numberToIndex[t.B4.Number] &&
 				i != numberToIndex[t.B5.Number] {
 				disappearCount[i]++
 			} else {
@@ -344,7 +344,7 @@ func (ar FTNArray) IntervalBallsCountStatic(p PickParam) NormalizeInfo {
 		disarr = append(disarr, c)
 	}
 
-	return NormalizeInfo{AppearBalls: arr, Param: p}
+	return NormalizeInfo{AppearBalls: arr, DisappearBalls: disarr, Param: p}
 }
 
 func (ar FTNArray) BallsCountStatic() BallsCount {
@@ -358,10 +358,10 @@ func (ar FTNArray) BallsCountStatic() BallsCount {
 		FTNIntervalCount[numberToIndex[t.B4.Number]]++
 		FTNIntervalCount[numberToIndex[t.B5.Number]]++
 		for i := 0; i < ballsCountFTN; i++ {
-			if i != numberToIndex[t.B1.Number] ||
-				i != numberToIndex[t.B2.Number] ||
-				i != numberToIndex[t.B3.Number] ||
-				i != numberToIndex[t.B4.Number] ||
+			if i != numberToIndex[t.B1.Number] &&
+				i != numberToIndex[t.B2.Number] &&
+				i != numberToIndex[t.B3.Number] &&
+				i != numberToIndex[t.B4.Number] &&
 				i != numberToIndex[t.B5.Number] {
 				disappearCount[i]++
 			} else {

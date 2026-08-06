@@ -185,7 +185,6 @@ func (fa BLList) FilterANDIncludes(tops BLList, sb []int) BLList {
 	// if len(tops) == 0 && len(sb) == 0 {
 	// 	return fa
 	// }
-	matchCount := len(sb)
 	result := BLList{}
 	search := common.LIMap{}
 	for _, t := range tops {
@@ -203,6 +202,7 @@ func (fa BLList) FilterANDIncludes(tops BLList, sb []int) BLList {
 	if len(search) == 0 {
 		return fa
 	}
+	matchCount := len(search)
 	fmt.Println(search.Presentation())
 
 	for _, ftn := range fa {

@@ -36,21 +36,18 @@ func (fa PowerList) FilterHighFreqNumber(highFreqs PowerList, p PickParam) Power
 	for _, b := range numbers {
 		result = append(result, fa.findNumbers([]string{b}, df.None)...)
 	}
-	return result
+	return result.Distinct()
 }
 
 func (fa PowerList) Distinct() PowerList {
 	fmt.Printf("Distinct : %d\n", len(fa))
 	results := PowerList{}
-	tmp := map[string]Power{}
+	tmp := map[string]bool{}
 	for _, f := range fa {
-		if _, ok := tmp[f.Key()]; !ok {
-			tmp[f.Key()] = f
+		if !tmp[f.Key()] {
+			tmp[f.Key()] = true
+			results = append(results, f)
 		}
-	}
-
-	for _, v := range tmp {
-		results = append(results, v)
 	}
 	return results
 }

@@ -25,11 +25,11 @@ func (ar PowerList) IntervalBallsCountStatic(p PickParam) Balls {
 		FTNIntervalCount[numberToIndex[t.B5.Number]]++
 		FTNIntervalCount[numberToIndex[t.B6.Number]]++
 		for i := 0; i < ballsCountPower; i++ {
-			if i != numberToIndex[t.B1.Number] ||
-				i != numberToIndex[t.B2.Number] ||
-				i != numberToIndex[t.B3.Number] ||
-				i != numberToIndex[t.B4.Number] ||
-				i != numberToIndex[t.B5.Number] ||
+			if i != numberToIndex[t.B1.Number] &&
+				i != numberToIndex[t.B2.Number] &&
+				i != numberToIndex[t.B3.Number] &&
+				i != numberToIndex[t.B4.Number] &&
+				i != numberToIndex[t.B5.Number] &&
 				i != numberToIndex[t.B6.Number] {
 				disappearCount[i]++
 			} else {
@@ -63,7 +63,9 @@ func (ar PowerList) StaticContinue2Percent(i interf.Interval) float64 {
 	count := 0
 	for i, f := range sr {
 		if f.Feature.IsContinue2() {
-			sr[i+1].ShowRow()
+			if i+1 < len(sr) {
+				sr[i+1].ShowRow()
+			}
 			f.ShowRow()
 			fmt.Println("")
 			count++
@@ -77,7 +79,9 @@ func (pl PowerList) StaticContinue3Percent() float64 {
 	for i, f := range pl {
 		if f.Feature.IsContinue3() {
 			f.ShowRow()
-			pl[i+1].ShowRow()
+			if i+1 < len(pl) {
+				pl[i+1].ShowRow()
+			}
 			fmt.Println("")
 			count++
 		}
@@ -90,7 +94,9 @@ func (pl PowerList) StaticContinue22Percent() float64 {
 	for i, f := range pl {
 		if f.Feature.IsContinue22() && !f.Feature.IsContinue4() {
 			f.ShowRow()
-			pl[i+1].ShowRow()
+			if i+1 < len(pl) {
+				pl[i+1].ShowRow()
+			}
 			fmt.Println("")
 			count++
 		}
@@ -107,7 +113,9 @@ func (ar PowerList) StaticContinue4Percent(i interf.Interval) float64 {
 	count := 0
 	for i, f := range sr {
 		if f.Feature.IsContinue4() {
-			sr[i+1].ShowRow()
+			if i+1 < len(sr) {
+				sr[i+1].ShowRow()
+			}
 			f.ShowRow()
 			fmt.Println("")
 			count++
@@ -121,7 +129,9 @@ func (pl PowerList) StaticContinue32Percent() float64 {
 	for i, f := range pl {
 		if f.Feature.IsContinue2() && f.Feature.IsContinue3() {
 			f.ShowRow()
-			pl[i+1].ShowRow()
+			if i+1 < len(pl) {
+				pl[i+1].ShowRow()
+			}
 			fmt.Println("")
 			count++
 		}

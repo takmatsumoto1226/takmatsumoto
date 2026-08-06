@@ -357,7 +357,9 @@ func (fa FTNArray) FilterPeriodN(n, p int) FTNArray {
 	for i, f := range fa {
 		if f.B1.Disappear(n, p) || f.B2.Disappear(n, p) || f.B3.Disappear(n, p) || f.B4.Disappear(n, p) || f.B5.Disappear(n, p) {
 			result = append(result, f)
-			result = append(result, fa[i+1])
+			if i+1 < len(fa) {
+				result = append(result, fa[i+1])
+			}
 			result = append(result, *Empty())
 		}
 	}
