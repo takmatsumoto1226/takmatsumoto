@@ -2,7 +2,7 @@ package main
 
 import (
 	"lottery/api"
-	ftnapi "lottery/api/ftn"
+	lotteryapi "lottery/api/lottery"
 	"lottery/cmd"
 	"lottery/config"
 	"os"
@@ -29,21 +29,25 @@ func main() {
 		os.Exit(1)
 	}
 
-	store := ftnapi.NewStore()
-	if err := store.Reload(); err != nil {
-		logrus.WithError(err).Error("載入今彩539資料失敗")
+	stores := []*lotteryapi.Store{}
+	for _, g := range lotteryapi.Games() {
+		stores = append(stores, lotteryapi.NewStore(g))
 	}
-	cmd.OnRawDataUpdated(func() {
-		if err := store.Reload(); err != nil {
-			logrus.WithError(err).Error("重新載入今彩539資料失敗")
+	reloadAll := func() {
+		for _, s := range stores {
+			if err := s.Reload(); err != nil {
+				logrus.WithError(err).Errorf("載入%s資料失敗", s.Game.Name)
+			}
 		}
-	})
+	}
+	reloadAll()
+	cmd.OnRawDataUpdated(reloadAll)
 
 	addr := config.Config.Server.Addr
 	if addr == "" {
 		addr = ":8080"
 	}
-	e := initGINServer(store)
+	e := initGINServer(stores)
 	go func() {
 		if err := e.Run(addr); err != nil {
 			logrus.WithError(err).Fatal("api server 啟動失敗")
@@ -59,14 +63,17 @@ func main() {
 	}
 }
 
-func initGINServer(store *ftnapi.Store) *gin.Engine {
+func initGINServer(stores []*lotteryapi.Store) *gin.Engine {
 	e := gin.New()
 	e.Use(gin.Logger(), gin.Recovery())
 
 	v1 := e.Group("/api/v1")
-	v1.GET("/health", ftnapi.HealthHandler(store))
+	v1.GET("/health", lotteryapi.HealthHandler(stores))
 
 	authed := v1.Group("", api.APIKeyAuth(config.Config.Server.APIKey))
-	ftnapi.Register(authed.Group("/ftn"), store)
+	authed.GET("/games", lotteryapi.GamesHandler(stores))
+	for _, s := range stores {
+		lotteryapi.Register(authed.Group("/"+s.Game.Code), s)
+	}
 	return e
 }

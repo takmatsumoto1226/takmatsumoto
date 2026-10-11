@@ -37,6 +37,13 @@ type PowerManager struct {
 	Combinations  [][]int
 }
 
+// LoadHistory 只載入歷史開獎資料(新到舊)
+func LoadHistory() PowerList {
+	ar := PowerManager{}
+	ar.loadAllData()
+	return ar.List
+}
+
 func (ar *PowerManager) Prepare() error {
 
 	initNumberToIndex()
@@ -71,7 +78,7 @@ func (ar *PowerManager) loadAllData() error {
 		}
 		for _, yd := range yearDatas {
 			ftn := NewPower(yd)
-			if ftn.B1.Number == "" || ftn.B1.Number == "00" {
+			if ftn == nil || ftn.B1.Number == "" || ftn.B1.Number == "00" {
 				continue
 			}
 			ftns = append(ftns, *ftn)

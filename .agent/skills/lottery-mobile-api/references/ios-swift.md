@@ -12,6 +12,13 @@ enum ApiConfig {
                              ?? "http://localhost:8080/api/v1")!
     static let apiKey = Bundle.main.object(forInfoDictionaryKey: "API_KEY") as? String ?? ""
 }
+
+/// Path code of each game. Rules come from GET /games.
+enum GameCode: String, CaseIterable {
+    case ftn   // 今彩539
+    case bl    // 大樂透
+    case pw    // 威力彩
+}
 ```
 
 ## Models
@@ -23,11 +30,32 @@ struct Envelope<T: Decodable>: Decodable {
     let data: T?
 }
 
+struct SpecialSpec: Codable, Hashable {
+    let name: String
+    let maxNumber: Int
+    let samePool: Bool
+    let userPick: Bool
+}
+
+struct Prize: Codable, Hashable {
+    let main: Int
+    let special: Bool
+    let name: String
+}
+
+struct GameInfo: Codable, Hashable, Identifiable {
+    let code, name: String
+    let maxNumber, pickCount, bigFrom: Int
+    let special: SpecialSpec?
+    let prizes: [Prize]
+    var id: String { code }
+}
+
 struct Features: Codable, Hashable {
     let sum, odd, even, big, small, prime: Int
-    let tenGroup: [Int]
+    let tenGroup: [Int]       // length varies by game
     let fullTenGroup: Bool
-    let consecutive: String   // none, 2, 3, 4, 5, 22, 32; keep unknown values
+    let consecutive: String   // open set: none, 2, 3, 22, 32, 222, ...
     let ac, span: Int
     let mod3: [Int]
     let tailSum, sameTailGroups, maxGap, minGap: Int
@@ -38,6 +66,7 @@ struct Draw: Codable, Hashable, Identifiable {
     let date: String          // YYYY-MM-DD local date
     let yearIndex: Int
     let numbers: [Int]
+    let special: Int?         // bl 特別號 / pw 第二區; nil for ftn
     let features: Features
     var id: String { period }
 }
@@ -55,26 +84,38 @@ struct NumberStat: Codable, Hashable, Identifiable {
 
 struct NumberStats: Codable {
     let window, totalDraws: Int
-    let expectedWindow: Double
     let latestPeriod: String
+    let expectedWindow: Double
     let numbers: [NumberStat]
+    let specialExpectedWindow: Double?
+    let special: [NumberStat]?   // bl / pw only
 }
 
-struct HistoryMatch: Codable { let match5, match4, match3, match2: Int }
+struct MatchCount: Codable, Hashable {
+    let main: Int
+    let special: Bool
+    let count: Int
+    let prize: String?        // nil when the combination wins nothing
+}
 
 struct AnalyzeResult: Codable {
     let numbers: [Int]
+    let special: Int?
     let features: Features
-    let history: HistoryMatch
+    let history: [MatchCount]
     let totalDraws: Int
     let lastMatch3: Draw?
 }
 
-struct Health: Codable {
-    let status: String
+struct GameHealth: Codable {
     let draws: Int
     let latestPeriod: String?
     let latestDate: String?
+}
+
+struct Health: Codable {
+    let status: String        // ok, partial, data_not_ready
+    let games: [String: GameHealth]
 }
 ```
 
@@ -119,7 +160,6 @@ final class LotteryAPI {
         let status = (response as? HTTPURLResponse)?.statusCode
 
         guard let env = try? decoder.decode(Envelope<T>.self, from: data) else {
-            // error envelopes have no data; decode code/message only
             if let e = try? decoder.decode(Envelope<Empty>.self, from: data) {
                 throw ApiError(code: e.code, message: e.message, httpStatus: status)
             }
@@ -133,27 +173,40 @@ final class LotteryAPI {
 
     func health() async throws -> Health { try await request("health") }
 
-    func draws(limit: Int = 20, offset: Int = 0, from: String? = nil, to: String? = nil) async throws -> DrawPage {
+    func games() async throws -> [GameInfo] { try await request("games") }
+
+    func draws(_ game: GameCode, limit: Int = 20, offset: Int = 0, from: String? = nil, to: String? = nil) async throws -> DrawPage {
         var q = [URLQueryItem(name: "limit", value: "\(limit)"), URLQueryItem(name: "offset", value: "\(offset)")]
         if let from { q.append(.init(name: "from", value: from)) }
         if let to { q.append(.init(name: "to", value: to)) }
-        return try await request("ftn/draws", query: q)
+        return try await request("\(game.rawValue)/draws", query: q)
     }
 
-    func latestDraw() async throws -> Draw { try await request("ftn/draws/latest") }
+    func latestDraw(_ game: GameCode) async throws -> Draw { try await request("\(game.rawValue)/draws/latest") }
 
-    func draw(period: String) async throws -> Draw { try await request("ftn/draws/\(period)") }
-
-    func numberStats(window: Int = 100) async throws -> NumberStats {
-        try await request("ftn/numbers/stats", query: [.init(name: "window", value: "\(window)")])
+    func draw(_ game: GameCode, period: String) async throws -> Draw {
+        try await request("\(game.rawValue)/draws/\(period)")
     }
 
-    func analyze(_ numbers: [Int]) async throws -> AnalyzeResult {
-        guard numbers.count == 5, Set(numbers).count == 5, numbers.allSatisfy({ (1...39).contains($0) }) else {
-            throw ApiError(code: 40001, message: "需選 5 個不重複的 1~39 號碼", httpStatus: nil)
+    func numberStats(_ game: GameCode, window: Int = 100) async throws -> NumberStats {
+        try await request("\(game.rawValue)/numbers/stats", query: [.init(name: "window", value: "\(window)")])
+    }
+
+    /// `rules` comes from games(); validates before sending.
+    func analyze(_ rules: GameInfo, numbers: [Int], special: Int? = nil) async throws -> AnalyzeResult {
+        guard numbers.count == rules.pickCount, Set(numbers).count == rules.pickCount,
+              numbers.allSatisfy({ (1...rules.maxNumber).contains($0) }) else {
+            throw ApiError(code: 40001, message: "需選 \(rules.pickCount) 個不重複的 1~\(rules.maxNumber) 號碼", httpStatus: nil)
         }
-        struct Body: Encodable { let numbers: [Int] }
-        return try await request("ftn/analyze", method: "POST", body: Body(numbers: numbers))
+        if let sp = rules.special, sp.userPick {
+            guard let special, (1...sp.maxNumber).contains(special) else {
+                throw ApiError(code: 40001, message: "需選 1 個 1~\(sp.maxNumber) 的\(sp.name)號碼", httpStatus: nil)
+            }
+        } else if special != nil {
+            throw ApiError(code: 40001, message: "\(rules.name)不需另外選特別號", httpStatus: nil)
+        }
+        struct Body: Encodable { let numbers: [Int]; let special: Int? }  // nil is omitted by JSONEncoder
+        return try await request("\(rules.code)/analyze", method: "POST", body: Body(numbers: numbers, special: special))
     }
 }
 ```
@@ -170,3 +223,27 @@ In the Debug Info.plist:
 ```
 
 On a real device reaching a LAN IP, iOS also shows the local-network permission prompt; add `NSLocalNetworkUsageDescription`.
+
+## Game menu (SwiftUI)
+
+All three games must appear. Entries come from `/games`, with a built-in fallback.
+
+```swift
+private let fallbackGames: [(code: String, name: String)] = [("ftn", "今彩539"), ("bl", "大樂透"), ("pw", "威力彩")]
+
+struct GameMenu: View {
+    let games: [GameInfo]?          // nil while loading or when /games failed
+    @AppStorage("selectedGame") private var selected = "ftn"
+
+    var body: some View {
+        let entries = games?.map { (code: $0.code, name: $0.name) } ?? fallbackGames
+        TabView(selection: $selected) {
+            ForEach(entries, id: \.code) { entry in
+                GameHomeView(gameCode: entry.code)   // hosts 開獎紀錄 / 號碼統計 / 選號分析
+                    .tabItem { Label(entry.name, systemImage: "die.face.5") }
+                    .tag(entry.code)
+            }
+        }
+    }
+}
+```

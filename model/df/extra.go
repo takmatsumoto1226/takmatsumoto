@@ -1,23 +1,36 @@
 package df
 
+import (
+	"sort"
+	"strconv"
+)
+
 // 以下特徵皆假設 IBalls 已由小到大排序
 
-var continueRowTypeNames = map[int]string{
-	ContinueRowNone: "none",
-	ContinueRow2:    "2",
-	ContinueRow3:    "3",
-	ContinueRow4:    "4",
-	ContinueRow5:    "5",
-	ContinueRow22:   "22",
-	ContinueRow32:   "32",
-}
-
-// ContinueRowTypeName 連號型態的文字表示
-func ContinueRowTypeName(t int) string {
-	if n, ok := continueRowTypeNames[t]; ok {
-		return n
+// ConsecutivePattern 連號型態, 各組連號長度由大到小串接
+// 例 : 無連號 "none", 一組2連 "2", 3連+2連 "32", 三組2連 "222"
+func (f *Feature) ConsecutivePattern() string {
+	runs := []int{}
+	run := 1
+	for i := 1; i <= len(f.IBalls); i++ {
+		if i < len(f.IBalls) && f.IBalls[i]-f.IBalls[i-1] == 1 {
+			run++
+			continue
+		}
+		if run >= 2 {
+			runs = append(runs, run)
+		}
+		run = 1
 	}
-	return "unknown"
+	if len(runs) == 0 {
+		return "none"
+	}
+	sort.Sort(sort.Reverse(sort.IntSlice(runs)))
+	pattern := ""
+	for _, r := range runs {
+		pattern += strconv.Itoa(r)
+	}
+	return pattern
 }
 
 // AC 值 : 號碼兩兩差值的種類數 - (球數 - 1)

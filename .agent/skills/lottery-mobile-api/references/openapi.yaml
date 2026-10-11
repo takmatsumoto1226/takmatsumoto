@@ -1,8 +1,10 @@
 openapi: 3.0.3
 info:
-  title: Lottery 539 API
-  version: 1.0.0
-  description: 今彩539 draw history, number statistics and pick analysis. All responses use the {code, message, data} envelope.
+  title: Lottery API
+  version: 2.0.0
+  description: |
+    今彩539 (ftn), 大樂透 (bl) and 威力彩 (pw) draw history, number statistics, game rules and pick analysis.
+    All responses use the {code, message, data} envelope. All example values are real responses.
 servers:
   - url: http://localhost:8080/api/v1
     description: Local development
@@ -11,7 +13,7 @@ security:
 paths:
   /health:
     get:
-      summary: Service status
+      summary: Service status per game
       security: []
       responses:
         "200":
@@ -27,11 +29,96 @@ paths:
               example:
                 code: 0
                 message: ok
-                data: { status: ok, draws: 5841, latestPeriod: "5990", latestDate: "2026-10-10", loadedAt: "2026-10-11T17:05:10+08:00" }
-  /ftn/draws:
+                data:
+                  status: ok
+                  games:
+                    ftn: { draws: 5840, latestPeriod: "5990", latestDate: "2026-10-10", loadedAt: "2026-10-11T19:37:33+08:00" }
+                    bl: { draws: 2438, latestPeriod: "2489", latestDate: "2026-10-09", loadedAt: "2026-10-11T19:37:33+08:00" }
+                    pw: { draws: 1903, latestPeriod: "1953", latestDate: "2026-10-08", loadedAt: "2026-10-11T19:37:33+08:00" }
+  /games:
+    get:
+      summary: Rules of every game
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data:
+                        type: array
+                        items: { $ref: "#/components/schemas/GameInfo" }
+              example:
+                code: 0
+                message: ok
+                data:
+                  - code: ftn
+                    name: 今彩539
+                    maxNumber: 39
+                    pickCount: 5
+                    bigFrom: 20
+                    prizes:
+                      - { main: 5, special: false, name: 頭獎 }
+                      - { main: 4, special: false, name: 貳獎 }
+                      - { main: 3, special: false, name: 參獎 }
+                      - { main: 2, special: false, name: 肆獎 }
+                  - code: bl
+                    name: 大樂透
+                    maxNumber: 49
+                    pickCount: 6
+                    bigFrom: 25
+                    special: { name: 特別號, maxNumber: 49, samePool: true, userPick: false }
+                    prizes:
+                      - { main: 6, special: false, name: 頭獎 }
+                      - { main: 5, special: true, name: 貳獎 }
+                      - { main: 5, special: false, name: 參獎 }
+                      - { main: 4, special: true, name: 肆獎 }
+                      - { main: 4, special: false, name: 伍獎 }
+                      - { main: 3, special: true, name: 陸獎 }
+                      - { main: 2, special: true, name: 柒獎 }
+                      - { main: 3, special: false, name: 普獎 }
+                  - code: pw
+                    name: 威力彩
+                    maxNumber: 38
+                    pickCount: 6
+                    bigFrom: 20
+                    special: { name: 第二區, maxNumber: 8, samePool: false, userPick: true }
+                    prizes:
+                      - { main: 6, special: true, name: 頭獎 }
+                      - { main: 6, special: false, name: 貳獎 }
+                      - { main: 5, special: true, name: 參獎 }
+                      - { main: 5, special: false, name: 肆獎 }
+                      - { main: 4, special: true, name: 伍獎 }
+                      - { main: 4, special: false, name: 陸獎 }
+                      - { main: 3, special: true, name: 柒獎 }
+                      - { main: 2, special: true, name: 捌獎 }
+                      - { main: 3, special: false, name: 玖獎 }
+                      - { main: 1, special: true, name: 普獎 }
+  /{game}:
+    get:
+      summary: Rules of one game
+      parameters:
+        - $ref: "#/components/parameters/Game"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/GameInfo" }
+        "401": { $ref: "#/components/responses/Error" }
+  /{game}/draws:
     get:
       summary: Paged draw history, newest first
       parameters:
+        - $ref: "#/components/parameters/Game"
         - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 20 } }
         - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
         - { name: from, in: query, description: inclusive, YYYY-MM-DD, schema: { type: string, format: date } }
@@ -50,9 +137,11 @@ paths:
         "400": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
-  /ftn/draws/latest:
+  /{game}/draws/latest:
     get:
       summary: Latest draw
+      parameters:
+        - $ref: "#/components/parameters/Game"
       responses:
         "200":
           description: OK
@@ -64,22 +153,47 @@ paths:
                   - type: object
                     properties:
                       data: { $ref: "#/components/schemas/Draw" }
-              example:
-                code: 0
-                message: ok
-                data:
-                  period: "5990"
-                  date: "2026-10-10"
-                  yearIndex: 246
-                  numbers: [14, 21, 23, 32, 34]
-                  features: { sum: 124, odd: 2, even: 3, big: 4, small: 1, prime: 1, tenGroup: [0, 1, 2, 2], fullTenGroup: false, consecutive: none, ac: 3, span: 20, mod3: [1, 1, 3], tailSum: 14, sameTailGroups: 1, maxGap: 9, minGap: 2 }
+              examples:
+                ftn:
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      period: "5990"
+                      date: "2026-10-10"
+                      yearIndex: 246
+                      numbers: [14, 21, 23, 32, 34]
+                      features: { sum: 124, odd: 2, even: 3, big: 4, small: 1, prime: 1, tenGroup: [0, 1, 2, 2], fullTenGroup: false, consecutive: none, ac: 3, span: 20, mod3: [1, 1, 3], tailSum: 14, sameTailGroups: 1, maxGap: 9, minGap: 2 }
+                bl:
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      period: "2489"
+                      date: "2026-10-09"
+                      yearIndex: 95
+                      numbers: [3, 9, 11, 25, 34, 41]
+                      special: 27
+                      features: { sum: 123, odd: 5, even: 1, big: 3, small: 3, prime: 3, tenGroup: [2, 1, 1, 1, 1], fullTenGroup: true, consecutive: none, ac: 9, span: 38, mod3: [2, 2, 2], tailSum: 23, sameTailGroups: 1, maxGap: 14, minGap: 2 }
+                pw:
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      period: "1953"
+                      date: "2026-10-08"
+                      yearIndex: 81
+                      numbers: [4, 23, 27, 28, 29, 38]
+                      special: 5
+                      features: { sum: 149, odd: 3, even: 3, big: 5, small: 1, prime: 2, tenGroup: [1, 0, 4, 1], fullTenGroup: false, consecutive: "3", ac: 9, span: 34, mod3: [1, 2, 3], tailSum: 39, sameTailGroups: 1, maxGap: 19, minGap: 1 }
         "401": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
-  /ftn/draws/{period}:
+  /{game}/draws/{period}:
     get:
       summary: One draw by global period number
       parameters:
-        - { name: period, in: path, required: true, schema: { type: string }, example: "5990" }
+        - $ref: "#/components/parameters/Game"
+        - { name: period, in: path, required: true, schema: { type: string }, example: "2489" }
       responses:
         "200":
           description: OK
@@ -94,10 +208,11 @@ paths:
         "401": { $ref: "#/components/responses/Error" }
         "404": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
-  /ftn/numbers/stats:
+  /{game}/numbers/stats:
     get:
-      summary: Per-number statistics
+      summary: Per-number statistics (main numbers, plus special for bl/pw)
       parameters:
+        - $ref: "#/components/parameters/Game"
         - { name: window, in: query, description: number of most recent draws to count, 1..totalDraws, schema: { type: integer, minimum: 1, default: 100 } }
       responses:
         "200":
@@ -110,29 +225,51 @@ paths:
                   - type: object
                     properties:
                       data: { $ref: "#/components/schemas/NumberStats" }
-              example:
-                code: 0
-                message: ok
-                data:
-                  window: 100
-                  totalDraws: 5841
-                  expectedWindow: 12.82
-                  latestPeriod: "5990"
-                  numbers:
-                    - { number: 1, windowCount: 11, totalCount: 779, omission: 8, maxOmission: 44 }
-                    - { number: 37, windowCount: 10, totalCount: 813, omission: 48, maxOmission: 48 }
+              examples:
+                pw:
+                  summary: pw (arrays truncated to the first element)
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      window: 100
+                      totalDraws: 1903
+                      latestPeriod: "1953"
+                      expectedWindow: 15.789473684210526
+                      numbers:
+                        - { number: 1, windowCount: 11, totalCount: 307, omission: 3, maxOmission: 31 }
+                      specialExpectedWindow: 12.5
+                      special:
+                        - { number: 1, windowCount: 11, totalCount: 230, omission: 3, maxOmission: 39 }
+                ftn:
+                  summary: ftn (array truncated; no special fields)
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      window: 100
+                      totalDraws: 5840
+                      latestPeriod: "5990"
+                      expectedWindow: 12.820512820512821
+                      numbers:
+                        - { number: 37, windowCount: 10, totalCount: 813, omission: 48, maxOmission: 48 }
         "400": { $ref: "#/components/responses/Error" }
         "401": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
-  /ftn/analyze:
+  /{game}/analyze:
     post:
-      summary: Features and history matches of a 5-number pick
+      summary: Features and history matches of a pick
+      parameters:
+        - $ref: "#/components/parameters/Game"
       requestBody:
         required: true
         content:
           application/json:
             schema: { $ref: "#/components/schemas/AnalyzeRequest" }
-            example: { numbers: [3, 7, 15, 17, 30] }
+            examples:
+              ftn: { value: { numbers: [3, 7, 15, 17, 30] } }
+              bl: { value: { numbers: [3, 9, 11, 25, 34, 41] } }
+              pw: { value: { numbers: [4, 23, 27, 28, 29, 38], special: 5 } }
       responses:
         "200":
           description: OK
@@ -144,26 +281,75 @@ paths:
                   - type: object
                     properties:
                       data: { $ref: "#/components/schemas/AnalyzeResult" }
-              example:
-                code: 0
-                message: ok
-                data:
-                  numbers: [3, 7, 15, 17, 30]
-                  features: { sum: 72, odd: 4, even: 1, big: 1, small: 4, prime: 3, tenGroup: [2, 2, 1, 0], fullTenGroup: false, consecutive: none, ac: 6, span: 27, mod3: [3, 1, 1], tailSum: 22, sameTailGroups: 1, maxGap: 13, minGap: 2 }
-                  history: { match5: 1, match4: 3, match3: 58, match2: 562 }
-                  totalDraws: 5841
-                  lastMatch3:
-                    period: "5988"
-                    date: "2026-10-08"
-                    yearIndex: 244
-                    numbers: [3, 7, 15, 17, 30]
-                    features: { sum: 72, odd: 4, even: 1, big: 1, small: 4, prime: 3, tenGroup: [2, 2, 1, 0], fullTenGroup: false, consecutive: none, ac: 6, span: 27, mod3: [3, 1, 1], tailSum: 22, sameTailGroups: 1, maxGap: 13, minGap: 2 }
+              examples:
+                ftn:
+                  summary: ftn, lastMatch3 omitted for brevity
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      numbers: [3, 7, 15, 17, 30]
+                      features: { sum: 72, odd: 4, even: 1, big: 1, small: 4, prime: 3, tenGroup: [2, 2, 1, 0], fullTenGroup: false, consecutive: none, ac: 6, span: 27, mod3: [3, 1, 1], tailSum: 22, sameTailGroups: 1, maxGap: 13, minGap: 2 }
+                      history:
+                        - { main: 5, special: false, count: 1, prize: 頭獎 }
+                        - { main: 4, special: false, count: 3, prize: 貳獎 }
+                        - { main: 3, special: false, count: 58, prize: 參獎 }
+                        - { main: 2, special: false, count: 562, prize: 肆獎 }
+                        - { main: 1, special: false, count: 2373 }
+                      totalDraws: 5840
+                bl:
+                  summary: bl, lastMatch3 omitted for brevity
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      numbers: [3, 9, 11, 25, 34, 41]
+                      features: { sum: 123, odd: 5, even: 1, big: 3, small: 3, prime: 3, tenGroup: [2, 1, 1, 1, 1], fullTenGroup: true, consecutive: none, ac: 9, span: 38, mod3: [2, 2, 2], tailSum: 23, sameTailGroups: 1, maxGap: 14, minGap: 2 }
+                      history:
+                        - { main: 6, special: false, count: 1, prize: 頭獎 }
+                        - { main: 5, special: true, count: 0, prize: 貳獎 }
+                        - { main: 5, special: false, count: 0, prize: 參獎 }
+                        - { main: 4, special: true, count: 0, prize: 肆獎 }
+                        - { main: 4, special: false, count: 3, prize: 伍獎 }
+                        - { main: 3, special: true, count: 1, prize: 陸獎 }
+                        - { main: 3, special: false, count: 39, prize: 普獎 }
+                        - { main: 2, special: true, count: 26, prize: 柒獎 }
+                        - { main: 2, special: false, count: 283 }
+                        - { main: 1, special: true, count: 130 }
+                        - { main: 1, special: false, count: 905 }
+                      totalDraws: 2438
+                pw:
+                  summary: pw, lastMatch3 omitted for brevity
+                  value:
+                    code: 0
+                    message: ok
+                    data:
+                      numbers: [4, 23, 27, 28, 29, 38]
+                      special: 5
+                      features: { sum: 149, odd: 3, even: 3, big: 5, small: 1, prime: 2, tenGroup: [1, 0, 4, 1], fullTenGroup: false, consecutive: "3", ac: 9, span: 34, mod3: [1, 2, 3], tailSum: 39, sameTailGroups: 1, maxGap: 19, minGap: 1 }
+                      history:
+                        - { main: 6, special: true, count: 1, prize: 頭獎 }
+                        - { main: 6, special: false, count: 0, prize: 貳獎 }
+                        - { main: 5, special: true, count: 0, prize: 參獎 }
+                        - { main: 5, special: false, count: 0, prize: 肆獎 }
+                        - { main: 4, special: true, count: 1, prize: 伍獎 }
+                        - { main: 4, special: false, count: 3, prize: 陸獎 }
+                        - { main: 3, special: true, count: 5, prize: 柒獎 }
+                        - { main: 3, special: false, count: 69, prize: 玖獎 }
+                        - { main: 2, special: true, count: 49, prize: 捌獎 }
+                        - { main: 2, special: false, count: 344 }
+                        - { main: 1, special: true, count: 115, prize: 普獎 }
+                        - { main: 1, special: false, count: 716 }
+                      totalDraws: 1903
         "400":
-          description: Invalid numbers
+          description: Invalid pick
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Envelope" }
-              example: { code: 40001, message: numbers must contain exactly 5 numbers }
+              examples:
+                count: { value: { code: 40001, message: numbers must contain exactly 6 numbers } }
+                pwSpecialMissing: { value: { code: 40001, message: special is required for pw } }
+                blSpecialSent: { value: { code: 40001, message: special is not allowed for bl } }
         "401": { $ref: "#/components/responses/Error" }
         "503": { $ref: "#/components/responses/Error" }
 components:
@@ -173,6 +359,13 @@ components:
       in: header
       name: X-API-Key
       description: Required only when server.api_key is set in the backend config.
+  parameters:
+    Game:
+      name: game
+      in: path
+      required: true
+      description: ftn = 今彩539, bl = 大樂透, pw = 威力彩. Unknown codes return a plain 404 without envelope.
+      schema: { type: string, enum: [ftn, bl, pw] }
   responses:
     Error:
       description: Error envelope (no data)
@@ -183,7 +376,7 @@ components:
             invalidParam: { value: { code: 40001, message: "limit must be an integer between 1 and 200" } }
             unauthorized: { value: { code: 40101, message: invalid or missing api key } }
             notFound: { value: { code: 40401, message: period not found } }
-            notReady: { value: { code: 50301, message: draw data not loaded } }
+            notReady: { value: { code: 50301, message: pw draw data not loaded } }
   schemas:
     Envelope:
       type: object
@@ -192,15 +385,48 @@ components:
         code: { type: integer, description: "0 = success; 40001 invalid param; 40101 unauthorized; 40401 not found; 50301 data not ready" }
         message: { type: string }
         data: {}
-    Health:
+    GameHealth:
       type: object
-      required: [status, draws]
+      required: [draws]
       properties:
-        status: { type: string, enum: [ok, data_not_ready] }
         draws: { type: integer }
         latestPeriod: { type: string }
         latestDate: { type: string, format: date }
         loadedAt: { type: string, format: date-time }
+    Health:
+      type: object
+      required: [status, games]
+      properties:
+        status: { type: string, enum: [ok, partial, data_not_ready] }
+        games:
+          type: object
+          additionalProperties: { $ref: "#/components/schemas/GameHealth" }
+    SpecialSpec:
+      type: object
+      required: [name, maxNumber, samePool, userPick]
+      properties:
+        name: { type: string, description: 特別號 / 第二區 }
+        maxNumber: { type: integer }
+        samePool: { type: boolean, description: drawn from the main pool and matched against the user's main picks (bl) }
+        userPick: { type: boolean, description: the user picks a separate special number (pw) }
+    Prize:
+      type: object
+      required: [main, special, name]
+      properties:
+        main: { type: integer }
+        special: { type: boolean }
+        name: { type: string }
+    GameInfo:
+      type: object
+      required: [code, name, maxNumber, pickCount, bigFrom, prizes]
+      properties:
+        code: { type: string }
+        name: { type: string }
+        maxNumber: { type: integer }
+        pickCount: { type: integer }
+        bigFrom: { type: integer, description: numbers >= bigFrom count as big }
+        special: { $ref: "#/components/schemas/SpecialSpec" }
+        prizes: { type: array, items: { $ref: "#/components/schemas/Prize" } }
     Features:
       type: object
       required: [sum, odd, even, big, small, prime, tenGroup, fullTenGroup, consecutive, ac, span, mod3, tailSum, sameTailGroups, maxGap, minGap]
@@ -208,12 +434,12 @@ components:
         sum: { type: integer }
         odd: { type: integer }
         even: { type: integer }
-        big: { type: integer, description: count of numbers >= 20 }
-        small: { type: integer, description: count of numbers < 20 }
+        big: { type: integer, description: count of numbers >= bigFrom }
+        small: { type: integer, description: count of numbers < bigFrom }
         prime: { type: integer }
-        tenGroup: { type: array, items: { type: integer }, minItems: 4, maxItems: 4, description: "counts in 1-10, 11-20, 21-30, 31-39" }
+        tenGroup: { type: array, items: { type: integer }, description: "counts in 1-10, 11-20, ...; length 4 for ftn/pw, 5 for bl" }
         fullTenGroup: { type: boolean }
-        consecutive: { type: string, description: "none, 2, 3, 4, 5, 22, 32; treat unknown values as other" }
+        consecutive: { type: string, description: "run lengths longest first: none, 2, 3, 22, 32, 222, 33, ...; open set" }
         ac: { type: integer }
         span: { type: integer }
         mod3: { type: array, items: { type: integer }, minItems: 3, maxItems: 3, description: "counts with remainder 0, 1, 2" }
@@ -225,10 +451,11 @@ components:
       type: object
       required: [period, date, yearIndex, numbers, features]
       properties:
-        period: { type: string, description: global period id }
+        period: { type: string, description: global period id, no leading zeros }
         date: { type: string, format: date }
         yearIndex: { type: integer, description: index within the year }
-        numbers: { type: array, items: { type: integer, minimum: 1, maximum: 39 }, minItems: 5, maxItems: 5 }
+        numbers: { type: array, items: { type: integer }, description: main numbers, ascending }
+        special: { type: integer, description: bl 特別號 / pw 第二區; absent for ftn }
         features: { $ref: "#/components/schemas/Features" }
     DrawPage:
       type: object
@@ -242,39 +469,43 @@ components:
       type: object
       required: [number, windowCount, totalCount, omission, maxOmission]
       properties:
-        number: { type: integer, minimum: 1, maximum: 39 }
+        number: { type: integer }
         windowCount: { type: integer }
         totalCount: { type: integer }
         omission: { type: integer, description: draws since last appearance }
         maxOmission: { type: integer, description: longest historical absence }
     NumberStats:
       type: object
-      required: [window, totalDraws, expectedWindow, latestPeriod, numbers]
+      required: [window, totalDraws, latestPeriod, expectedWindow, numbers]
       properties:
         window: { type: integer }
         totalDraws: { type: integer }
-        expectedWindow: { type: number, description: "window * 5 / 39, the average count under pure chance" }
         latestPeriod: { type: string }
-        numbers: { type: array, items: { $ref: "#/components/schemas/NumberStat" }, minItems: 39, maxItems: 39 }
+        expectedWindow: { type: number, description: "window * pickCount / maxNumber, the average count under pure chance" }
+        numbers: { type: array, items: { $ref: "#/components/schemas/NumberStat" }, description: one entry per number 1..maxNumber }
+        specialExpectedWindow: { type: number, description: "window / special.maxNumber; bl/pw only" }
+        special: { type: array, items: { $ref: "#/components/schemas/NumberStat" }, description: "one entry per number 1..special.maxNumber; bl/pw only" }
     AnalyzeRequest:
       type: object
       required: [numbers]
       properties:
-        numbers: { type: array, items: { type: integer, minimum: 1, maximum: 39 }, minItems: 5, maxItems: 5, uniqueItems: true }
-    HistoryMatch:
+        numbers: { type: array, items: { type: integer }, uniqueItems: true, description: exactly pickCount numbers in 1..maxNumber }
+        special: { type: integer, description: "required for pw (1..8); must be absent for ftn and bl" }
+    MatchCount:
       type: object
-      required: [match5, match4, match3, match2]
+      required: [main, special, count]
       properties:
-        match5: { type: integer }
-        match4: { type: integer }
-        match3: { type: integer }
-        match2: { type: integer }
+        main: { type: integer }
+        special: { type: boolean }
+        count: { type: integer }
+        prize: { type: string, description: prize name; absent when the combination wins nothing }
     AnalyzeResult:
       type: object
       required: [numbers, features, history, totalDraws]
       properties:
         numbers: { type: array, items: { type: integer } }
+        special: { type: integer }
         features: { $ref: "#/components/schemas/Features" }
-        history: { $ref: "#/components/schemas/HistoryMatch" }
+        history: { type: array, items: { $ref: "#/components/schemas/MatchCount" }, description: "main desc, special true first" }
         totalDraws: { type: integer }
         lastMatch3: { $ref: "#/components/schemas/Draw" }

@@ -27,6 +27,13 @@ func (ar *BLManager) initNumberToIndex() {
 	}
 }
 
+// LoadHistory 只載入歷史開獎資料(新到舊)
+func LoadHistory() BLList {
+	ar := BLManager{numberToIndex: map[string]int{}}
+	ar.loadAllData()
+	return ar.List
+}
+
 func (ar *BLManager) Prepare() error {
 
 	ar.initNumberToIndex()

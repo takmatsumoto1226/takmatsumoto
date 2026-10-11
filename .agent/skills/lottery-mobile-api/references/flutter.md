@@ -18,6 +18,13 @@ class ApiConfig {
       defaultValue: 'http://10.0.2.2:8080/api/v1');
   static const apiKey = String.fromEnvironment('API_KEY');
 }
+
+/// Path code of each game. Rules (ranges, prizes) come from GET /games, not from here.
+enum GameCode {
+  ftn, // 今彩539
+  bl,  // 大樂透
+  pw;  // 威力彩
+}
 ```
 
 ## Envelope and errors
@@ -55,7 +62,7 @@ class LotteryApi {
               headers: {
                 if (ApiConfig.apiKey.isNotEmpty) 'X-API-Key': ApiConfig.apiKey,
               },
-              // let us read the error envelope instead of throwing on 4xx/5xx
+              // read the error envelope instead of throwing on 4xx/5xx
               validateStatus: (_) => true,
             ));
 
@@ -79,59 +86,104 @@ class LotteryApi {
     return parse(body['data']);
   }
 
-  Future<Health> health() =>
-      _call(_dio.get('/health'), (d) => Health.fromJson(d as Map<String, dynamic>));
+  Map<String, dynamic> _map(Object? d) => d as Map<String, dynamic>;
 
-  Future<DrawPage> draws({int limit = 20, int offset = 0, String? from, String? to}) =>
+  Future<Health> health() => _call(_dio.get('/health'), (d) => Health.fromJson(_map(d)));
+
+  Future<List<GameInfo>> games() => _call(_dio.get('/games'),
+      (d) => (d as List).map((e) => GameInfo.fromJson(_map(e))).toList());
+
+  Future<DrawPage> draws(GameCode game, {int limit = 20, int offset = 0, String? from, String? to}) =>
       _call(
-        _dio.get('/ftn/draws', queryParameters: {
+        _dio.get('/${game.name}/draws', queryParameters: {
           'limit': limit,
           'offset': offset,
           if (from != null) 'from': from,
           if (to != null) 'to': to,
         }),
-        (d) => DrawPage.fromJson(d as Map<String, dynamic>),
+        (d) => DrawPage.fromJson(_map(d)),
       );
 
-  Future<Draw> latestDraw() =>
-      _call(_dio.get('/ftn/draws/latest'), (d) => Draw.fromJson(d as Map<String, dynamic>));
+  Future<Draw> latestDraw(GameCode game) =>
+      _call(_dio.get('/${game.name}/draws/latest'), (d) => Draw.fromJson(_map(d)));
 
-  Future<Draw> draw(String period) =>
-      _call(_dio.get('/ftn/draws/$period'), (d) => Draw.fromJson(d as Map<String, dynamic>));
+  Future<Draw> draw(GameCode game, String period) =>
+      _call(_dio.get('/${game.name}/draws/$period'), (d) => Draw.fromJson(_map(d)));
 
-  Future<NumberStats> numberStats({int window = 100}) => _call(
-      _dio.get('/ftn/numbers/stats', queryParameters: {'window': window}),
-      (d) => NumberStats.fromJson(d as Map<String, dynamic>));
+  Future<NumberStats> numberStats(GameCode game, {int window = 100}) => _call(
+      _dio.get('/${game.name}/numbers/stats', queryParameters: {'window': window}),
+      (d) => NumberStats.fromJson(_map(d)));
 
-  Future<AnalyzeResult> analyze(List<int> numbers) {
-    validatePick(numbers);
-    return _call(_dio.post('/ftn/analyze', data: {'numbers': numbers}),
-        (d) => AnalyzeResult.fromJson(d as Map<String, dynamic>));
+  /// [rules] comes from games(); validates before sending.
+  Future<AnalyzeResult> analyze(GameInfo rules, List<int> numbers, {int? special}) {
+    validatePick(rules, numbers, special);
+    return _call(
+        _dio.post('/${rules.code}/analyze', data: {
+          'numbers': numbers,
+          if (special != null) 'special': special,
+        }),
+        (d) => AnalyzeResult.fromJson(_map(d)));
   }
 }
 
-void validatePick(List<int> numbers) {
-  if (numbers.length != 5 ||
-      numbers.toSet().length != 5 ||
-      numbers.any((n) => n < 1 || n > 39)) {
-    throw ArgumentError('需選 5 個不重複的 1~39 號碼');
+void validatePick(GameInfo rules, List<int> numbers, int? special) {
+  if (numbers.length != rules.pickCount ||
+      numbers.toSet().length != rules.pickCount ||
+      numbers.any((n) => n < 1 || n > rules.maxNumber)) {
+    throw ArgumentError('需選 ${rules.pickCount} 個不重複的 1~${rules.maxNumber} 號碼');
+  }
+  final sp = rules.special;
+  if (sp != null && sp.userPick) {
+    if (special == null || special < 1 || special > sp.maxNumber) {
+      throw ArgumentError('需選 1 個 1~${sp.maxNumber} 的${sp.name}號碼');
+    }
+  } else if (special != null) {
+    throw ArgumentError('${rules.name}不需另外選特別號');
   }
 }
 ```
 
 ## Models
 
-Hand-written below for clarity; `json_serializable` / `freezed` is fine if the project already uses it. Keep `period` a `String`.
+Hand-written below for clarity; `json_serializable` / `freezed` is fine if the project already uses it. Keep `period` a `String`; `special` fields are nullable.
 
 ```dart
 // lib/data/api/models.dart
 List<int> _ints(Object? v) => (v as List).map((e) => e as int).toList();
 
+class SpecialSpec {
+  final String name;
+  final int maxNumber;
+  final bool samePool, userPick;
+  SpecialSpec.fromJson(Map<String, dynamic> j)
+      : name = j['name'], maxNumber = j['maxNumber'], samePool = j['samePool'], userPick = j['userPick'];
+}
+
+class Prize {
+  final int main;
+  final bool special;
+  final String name;
+  Prize.fromJson(Map<String, dynamic> j) : main = j['main'], special = j['special'], name = j['name'];
+}
+
+class GameInfo {
+  final String code, name;
+  final int maxNumber, pickCount, bigFrom;
+  final SpecialSpec? special;
+  final List<Prize> prizes;
+  GameInfo.fromJson(Map<String, dynamic> j)
+      : code = j['code'], name = j['name'],
+        maxNumber = j['maxNumber'], pickCount = j['pickCount'], bigFrom = j['bigFrom'],
+        special = j['special'] == null ? null : SpecialSpec.fromJson(j['special']),
+        prizes = (j['prizes'] as List).map((e) => Prize.fromJson(e)).toList();
+}
+
 class Features {
   final int sum, odd, even, big, small, prime, ac, span, tailSum, sameTailGroups, maxGap, minGap;
-  final List<int> tenGroup, mod3;
+  final List<int> tenGroup; // length varies by game
+  final List<int> mod3;
   final bool fullTenGroup;
-  final String consecutive; // none, 2, 3, 4, 5, 22, 32 (unknown -> keep string)
+  final String consecutive; // open set: none, 2, 3, 22, 32, 222, ...
 
   Features.fromJson(Map<String, dynamic> j)
       : sum = j['sum'], odd = j['odd'], even = j['even'],
@@ -147,6 +199,7 @@ class Draw {
   final DateTime date; // local date, no time
   final int yearIndex;
   final List<int> numbers;
+  final int? special; // bl 特別號 / pw 第二區; null for ftn
   final Features features;
 
   Draw.fromJson(Map<String, dynamic> j)
@@ -154,6 +207,7 @@ class Draw {
         date = DateTime.parse(j['date']),
         yearIndex = j['yearIndex'],
         numbers = _ints(j['numbers']),
+        special = j['special'],
         features = Features.fromJson(j['features']);
 }
 
@@ -174,61 +228,120 @@ class NumberStat {
         omission = j['omission'], maxOmission = j['maxOmission'];
 }
 
+List<NumberStat>? _stats(Object? v) =>
+    v == null ? null : (v as List).map((e) => NumberStat.fromJson(e)).toList();
+
 class NumberStats {
   final int window, totalDraws;
-  final double expectedWindow;
   final String latestPeriod;
+  final double expectedWindow;
   final List<NumberStat> numbers;
+  final double? specialExpectedWindow;
+  final List<NumberStat>? special; // bl / pw only
+
   NumberStats.fromJson(Map<String, dynamic> j)
-      : window = j['window'], totalDraws = j['totalDraws'],
+      : window = j['window'], totalDraws = j['totalDraws'], latestPeriod = j['latestPeriod'],
         expectedWindow = (j['expectedWindow'] as num).toDouble(),
-        latestPeriod = j['latestPeriod'],
-        numbers = (j['numbers'] as List).map((e) => NumberStat.fromJson(e)).toList();
+        numbers = _stats(j['numbers'])!,
+        specialExpectedWindow = (j['specialExpectedWindow'] as num?)?.toDouble(),
+        special = _stats(j['special']);
 }
 
-class HistoryMatch {
-  final int match5, match4, match3, match2;
-  HistoryMatch.fromJson(Map<String, dynamic> j)
-      : match5 = j['match5'], match4 = j['match4'], match3 = j['match3'], match2 = j['match2'];
+class MatchCount {
+  final int main, count;
+  final bool special;
+  final String? prize; // null when the combination wins nothing
+  MatchCount.fromJson(Map<String, dynamic> j)
+      : main = j['main'], special = j['special'], count = j['count'], prize = j['prize'];
 }
 
 class AnalyzeResult {
   final List<int> numbers;
+  final int? special;
   final Features features;
-  final HistoryMatch history;
+  final List<MatchCount> history;
   final int totalDraws;
   final Draw? lastMatch3;
   AnalyzeResult.fromJson(Map<String, dynamic> j)
       : numbers = _ints(j['numbers']),
+        special = j['special'],
         features = Features.fromJson(j['features']),
-        history = HistoryMatch.fromJson(j['history']),
+        history = (j['history'] as List).map((e) => MatchCount.fromJson(e)).toList(),
         totalDraws = j['totalDraws'],
         lastMatch3 = j['lastMatch3'] == null ? null : Draw.fromJson(j['lastMatch3']);
 }
 
-class Health {
-  final String status;
+class GameHealth {
   final int draws;
   final String? latestPeriod, latestDate;
+  GameHealth.fromJson(Map<String, dynamic> j)
+      : draws = j['draws'], latestPeriod = j['latestPeriod'], latestDate = j['latestDate'];
+}
+
+class Health {
+  final String status; // ok, partial, data_not_ready
+  final Map<String, GameHealth> games;
   Health.fromJson(Map<String, dynamic> j)
-      : status = j['status'], draws = j['draws'],
-        latestPeriod = j['latestPeriod'], latestDate = j['latestDate'];
+      : status = j['status'],
+        games = (j['games'] as Map<String, dynamic>)
+            .map((k, v) => MapEntry(k, GameHealth.fromJson(v)));
 }
 ```
 
 ## Platform setup for local http
 
 - Android: in `android/app/src/debug/AndroidManifest.xml` add `android:usesCleartextTraffic="true"` to `<application>` (debug only).
-- iOS: add an `NSAppTransportSecurity` → `NSAllowsLocalNetworking = YES` entry in the debug Info.plist.
+- iOS: add `NSAppTransportSecurity` → `NSAllowsLocalNetworking = YES` in the debug Info.plist.
 
 ## Test
 
 ```dart
+test('decodes ftn draw without special', () {
+  final d = Draw.fromJson(jsonDecode(ftnLatestSample)['data']);
+  expect(d.special, isNull);
+  expect(d.features.tenGroup.length, 4);
+});
+
 test('decodes error envelope', () async {
   final dio = Dio()..httpClientAdapter = /* mock adapter returning
-      400 {"code":40001,"message":"numbers must contain exactly 5 numbers"} */;
+      400 {"code":40001,"message":"special is required for pw"} */;
   final api = LotteryApi(dio: dio);
-  expect(() => api.analyze([1, 2, 3, 4, 5]),
+  expect(() => api.draws(GameCode.pw),
       throwsA(isA<ApiException>().having((e) => e.code, 'code', 40001)));
 });
 ```
+
+## Game menu
+
+All three games must appear. Entries come from `games()`, with a built-in fallback.
+
+```dart
+// lib/ui/game_menu.dart
+const fallbackGames = [
+  (code: 'ftn', name: '今彩539'),
+  (code: 'bl', name: '大樂透'),
+  (code: 'pw', name: '威力彩'),
+];
+
+class GameMenu extends StatelessWidget {
+  const GameMenu({super.key, required this.games, required this.selected, required this.onSelect});
+
+  final List<GameInfo>? games; // null while loading or when /games failed
+  final String selected;       // game code
+  final ValueChanged<String> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    final entries = games?.map((g) => (code: g.code, name: g.name)).toList() ?? fallbackGames;
+    return NavigationBar(
+      selectedIndex: entries.indexWhere((e) => e.code == selected).clamp(0, entries.length - 1),
+      onDestinationSelected: (i) => onSelect(entries[i].code),
+      destinations: [
+        for (final e in entries) NavigationDestination(icon: const Icon(Icons.casino_outlined), label: e.name),
+      ],
+    );
+  }
+}
+```
+
+Persist `selected` with `shared_preferences`, and route the three per-game screens by code (e.g. `go_router` paths `/:game/draws`, `/:game/stats`, `/:game/analyze`).
