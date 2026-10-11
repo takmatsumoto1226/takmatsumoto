@@ -127,7 +127,7 @@ func (ar PowerList) StaticContinue4Percent(i interf.Interval) float64 {
 func (pl PowerList) StaticContinue32Percent() float64 {
 	count := 0
 	for i, f := range pl {
-		if f.Feature.IsContinue2() && f.Feature.IsContinue3() {
+		if f.Feature.IsContinue32() {
 			f.ShowRow()
 			if i+1 < len(pl) {
 				pl[i+1].ShowRow()

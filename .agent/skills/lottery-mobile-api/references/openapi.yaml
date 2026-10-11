@@ -1,0 +1,280 @@
+openapi: 3.0.3
+info:
+  title: Lottery 539 API
+  version: 1.0.0
+  description: 今彩539 draw history, number statistics and pick analysis. All responses use the {code, message, data} envelope.
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local development
+security:
+  - ApiKey: []
+paths:
+  /health:
+    get:
+      summary: Service status
+      security: []
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Health" }
+              example:
+                code: 0
+                message: ok
+                data: { status: ok, draws: 5841, latestPeriod: "5990", latestDate: "2026-10-10", loadedAt: "2026-10-11T17:05:10+08:00" }
+  /ftn/draws:
+    get:
+      summary: Paged draw history, newest first
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 20 } }
+        - { name: offset, in: query, schema: { type: integer, minimum: 0, default: 0 } }
+        - { name: from, in: query, description: inclusive, YYYY-MM-DD, schema: { type: string, format: date } }
+        - { name: to, in: query, description: inclusive, YYYY-MM-DD, schema: { type: string, format: date } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/DrawPage" }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /ftn/draws/latest:
+    get:
+      summary: Latest draw
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Draw" }
+              example:
+                code: 0
+                message: ok
+                data:
+                  period: "5990"
+                  date: "2026-10-10"
+                  yearIndex: 246
+                  numbers: [14, 21, 23, 32, 34]
+                  features: { sum: 124, odd: 2, even: 3, big: 4, small: 1, prime: 1, tenGroup: [0, 1, 2, 2], fullTenGroup: false, consecutive: none, ac: 3, span: 20, mod3: [1, 1, 3], tailSum: 14, sameTailGroups: 1, maxGap: 9, minGap: 2 }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /ftn/draws/{period}:
+    get:
+      summary: One draw by global period number
+      parameters:
+        - { name: period, in: path, required: true, schema: { type: string }, example: "5990" }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/Draw" }
+        "401": { $ref: "#/components/responses/Error" }
+        "404": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /ftn/numbers/stats:
+    get:
+      summary: Per-number statistics
+      parameters:
+        - { name: window, in: query, description: number of most recent draws to count, 1..totalDraws, schema: { type: integer, minimum: 1, default: 100 } }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/NumberStats" }
+              example:
+                code: 0
+                message: ok
+                data:
+                  window: 100
+                  totalDraws: 5841
+                  expectedWindow: 12.82
+                  latestPeriod: "5990"
+                  numbers:
+                    - { number: 1, windowCount: 11, totalCount: 779, omission: 8, maxOmission: 44 }
+                    - { number: 37, windowCount: 10, totalCount: 813, omission: 48, maxOmission: 48 }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+  /ftn/analyze:
+    post:
+      summary: Features and history matches of a 5-number pick
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AnalyzeRequest" }
+            example: { numbers: [3, 7, 15, 17, 30] }
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/Envelope"
+                  - type: object
+                    properties:
+                      data: { $ref: "#/components/schemas/AnalyzeResult" }
+              example:
+                code: 0
+                message: ok
+                data:
+                  numbers: [3, 7, 15, 17, 30]
+                  features: { sum: 72, odd: 4, even: 1, big: 1, small: 4, prime: 3, tenGroup: [2, 2, 1, 0], fullTenGroup: false, consecutive: none, ac: 6, span: 27, mod3: [3, 1, 1], tailSum: 22, sameTailGroups: 1, maxGap: 13, minGap: 2 }
+                  history: { match5: 1, match4: 3, match3: 58, match2: 562 }
+                  totalDraws: 5841
+                  lastMatch3:
+                    period: "5988"
+                    date: "2026-10-08"
+                    yearIndex: 244
+                    numbers: [3, 7, 15, 17, 30]
+                    features: { sum: 72, odd: 4, even: 1, big: 1, small: 4, prime: 3, tenGroup: [2, 2, 1, 0], fullTenGroup: false, consecutive: none, ac: 6, span: 27, mod3: [3, 1, 1], tailSum: 22, sameTailGroups: 1, maxGap: 13, minGap: 2 }
+        "400":
+          description: Invalid numbers
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Envelope" }
+              example: { code: 40001, message: numbers must contain exactly 5 numbers }
+        "401": { $ref: "#/components/responses/Error" }
+        "503": { $ref: "#/components/responses/Error" }
+components:
+  securitySchemes:
+    ApiKey:
+      type: apiKey
+      in: header
+      name: X-API-Key
+      description: Required only when server.api_key is set in the backend config.
+  responses:
+    Error:
+      description: Error envelope (no data)
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Envelope" }
+          examples:
+            invalidParam: { value: { code: 40001, message: "limit must be an integer between 1 and 200" } }
+            unauthorized: { value: { code: 40101, message: invalid or missing api key } }
+            notFound: { value: { code: 40401, message: period not found } }
+            notReady: { value: { code: 50301, message: draw data not loaded } }
+  schemas:
+    Envelope:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: integer, description: "0 = success; 40001 invalid param; 40101 unauthorized; 40401 not found; 50301 data not ready" }
+        message: { type: string }
+        data: {}
+    Health:
+      type: object
+      required: [status, draws]
+      properties:
+        status: { type: string, enum: [ok, data_not_ready] }
+        draws: { type: integer }
+        latestPeriod: { type: string }
+        latestDate: { type: string, format: date }
+        loadedAt: { type: string, format: date-time }
+    Features:
+      type: object
+      required: [sum, odd, even, big, small, prime, tenGroup, fullTenGroup, consecutive, ac, span, mod3, tailSum, sameTailGroups, maxGap, minGap]
+      properties:
+        sum: { type: integer }
+        odd: { type: integer }
+        even: { type: integer }
+        big: { type: integer, description: count of numbers >= 20 }
+        small: { type: integer, description: count of numbers < 20 }
+        prime: { type: integer }
+        tenGroup: { type: array, items: { type: integer }, minItems: 4, maxItems: 4, description: "counts in 1-10, 11-20, 21-30, 31-39" }
+        fullTenGroup: { type: boolean }
+        consecutive: { type: string, description: "none, 2, 3, 4, 5, 22, 32; treat unknown values as other" }
+        ac: { type: integer }
+        span: { type: integer }
+        mod3: { type: array, items: { type: integer }, minItems: 3, maxItems: 3, description: "counts with remainder 0, 1, 2" }
+        tailSum: { type: integer }
+        sameTailGroups: { type: integer }
+        maxGap: { type: integer }
+        minGap: { type: integer }
+    Draw:
+      type: object
+      required: [period, date, yearIndex, numbers, features]
+      properties:
+        period: { type: string, description: global period id }
+        date: { type: string, format: date }
+        yearIndex: { type: integer, description: index within the year }
+        numbers: { type: array, items: { type: integer, minimum: 1, maximum: 39 }, minItems: 5, maxItems: 5 }
+        features: { $ref: "#/components/schemas/Features" }
+    DrawPage:
+      type: object
+      required: [items, total, limit, offset]
+      properties:
+        items: { type: array, items: { $ref: "#/components/schemas/Draw" } }
+        total: { type: integer }
+        limit: { type: integer }
+        offset: { type: integer }
+    NumberStat:
+      type: object
+      required: [number, windowCount, totalCount, omission, maxOmission]
+      properties:
+        number: { type: integer, minimum: 1, maximum: 39 }
+        windowCount: { type: integer }
+        totalCount: { type: integer }
+        omission: { type: integer, description: draws since last appearance }
+        maxOmission: { type: integer, description: longest historical absence }
+    NumberStats:
+      type: object
+      required: [window, totalDraws, expectedWindow, latestPeriod, numbers]
+      properties:
+        window: { type: integer }
+        totalDraws: { type: integer }
+        expectedWindow: { type: number, description: "window * 5 / 39, the average count under pure chance" }
+        latestPeriod: { type: string }
+        numbers: { type: array, items: { $ref: "#/components/schemas/NumberStat" }, minItems: 39, maxItems: 39 }
+    AnalyzeRequest:
+      type: object
+      required: [numbers]
+      properties:
+        numbers: { type: array, items: { type: integer, minimum: 1, maximum: 39 }, minItems: 5, maxItems: 5, uniqueItems: true }
+    HistoryMatch:
+      type: object
+      required: [match5, match4, match3, match2]
+      properties:
+        match5: { type: integer }
+        match4: { type: integer }
+        match3: { type: integer }
+        match2: { type: integer }
+    AnalyzeResult:
+      type: object
+      required: [numbers, features, history, totalDraws]
+      properties:
+        numbers: { type: array, items: { type: integer } }
+        features: { $ref: "#/components/schemas/Features" }
+        history: { $ref: "#/components/schemas/HistoryMatch" }
+        totalDraws: { type: integer }
+        lastMatch3: { $ref: "#/components/schemas/Draw" }

@@ -31,8 +31,15 @@ type Combination struct {
 	Template string `yaml:"template"`
 }
 
+// Server api server 設定
+type Server struct {
+	Addr   string `yaml:"addr"`    // 預設 :8080
+	APIKey string `yaml:"api_key"` // 空字串表示不檢查
+}
+
 // Param ...
 type Param struct {
+	Server           Server        `yaml:"server"`
 	HTTP             HTTP          `yaml:"http"`
 	Local            Local         `yaml:"local"`
 	AokURLs          []DocInfo     `yaml:"aokurls"`

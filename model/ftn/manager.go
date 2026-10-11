@@ -39,6 +39,10 @@ func (ar *FTNsManager) loadAllData() {
 	info := config.Config.HTTP.Infos[df.InfoFTN]
 	now := time.Now()
 
+	// NewFTN 依讀入順序累計遺漏/連開期數, 重新載入前必須清空
+	ballPeriotStatic = map[int]int{}
+	ballContinueStatic = map[int]int{}
+
 	iyear, err := strconv.Atoi(info.BaseYear)
 	if err != nil {
 		logrus.Error(err)
@@ -66,6 +70,14 @@ func (ar *FTNsManager) loadAllData() {
 	sort.Sort(ftns)
 	ar.List = ftns
 
+}
+
+// LoadHistory 只載入歷史開獎資料(新到舊), 不產生全組合
+func LoadHistory() FTNArray {
+	initNumberToIndex()
+	ar := FTNsManager{}
+	ar.loadAllData()
+	return ar.List
 }
 
 func (ar *FTNsManager) Prepare() error {

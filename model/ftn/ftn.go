@@ -355,7 +355,7 @@ func NewFTN(arr []string) *FTN {
 		B5 := *NewBallS(arr[arrIdxB5], 0)
 
 		arrInt := []int{B1.Digit, B2.Digit, B3.Digit, B4.Digit, B5.Digit}
-		for i := 0; i < ballsCountFTN; i++ {
+		for i := 1; i <= ballsCountFTN; i++ {
 			if i == B1.Digit {
 				B1.Period = ballPeriotStatic[i]
 				ballPeriotStatic[i] = 0

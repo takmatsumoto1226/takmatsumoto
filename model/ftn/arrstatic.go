@@ -127,7 +127,7 @@ func (ar FTNArray) StaticFullTenGroupPercent() float64 {
 			count++
 		}
 	}
-	return (count / float64(len(ar)-1)) * 100
+	return (count / float64(len(ar))) * 100
 }
 
 func (ar FTNArray) StaticExclude(r int, show bool) float64 {

@@ -152,6 +152,8 @@ func (fa FTNArray) FilterPickBySpecConfition(cts []int) FTNArray {
 				result = append(result, ftn)
 			} else if ct == df.ContinueRow22 && ftn.Feature.IsContinue22() {
 				result = append(result, ftn)
+			} else if ct == df.ContinueRow32 && ftn.Feature.IsContinue32() {
+				result = append(result, ftn)
 			}
 		}
 	}

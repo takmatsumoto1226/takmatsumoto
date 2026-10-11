@@ -3,6 +3,7 @@ package cmd
 import (
 	"lottery/config"
 	"lottery/model/common"
+	"sync"
 	"time"
 
 	"github.com/sirupsen/logrus"
@@ -23,6 +24,18 @@ func start(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
+var (
+	rawDataMu      sync.Mutex
+	rawDataUpdated func()
+)
+
+// OnRawDataUpdated 每日抓完資料後呼叫
+func OnRawDataUpdated(fn func()) {
+	rawDataMu.Lock()
+	defer rawDataMu.Unlock()
+	rawDataUpdated = fn
+}
+
 func checkRawData() {
 
 	for {
@@ -37,5 +50,12 @@ func checkRawData() {
 		case <-time.After(nt.Sub(time.Now())):
 		}
 		common.GetAll()
+
+		rawDataMu.Lock()
+		fn := rawDataUpdated
+		rawDataMu.Unlock()
+		if fn != nil {
+			fn()
+		}
 	}
 }

@@ -1,8 +1,10 @@
 package main
 
 import (
-	api "lottery/api/ftn"
+	"lottery/api"
+	ftnapi "lottery/api/ftn"
 	"lottery/cmd"
+	"lottery/config"
 	"os"
 	"os/signal"
 	"syscall"
@@ -27,11 +29,26 @@ func main() {
 		os.Exit(1)
 	}
 
-	e, err := initGINServer("")
-	if err != nil {
-		logrus.WithError(err).Logger.Exit(1)
+	store := ftnapi.NewStore()
+	if err := store.Reload(); err != nil {
+		logrus.WithError(err).Error("載入今彩539資料失敗")
 	}
-	go e.Run()
+	cmd.OnRawDataUpdated(func() {
+		if err := store.Reload(); err != nil {
+			logrus.WithError(err).Error("重新載入今彩539資料失敗")
+		}
+	})
+
+	addr := config.Config.Server.Addr
+	if addr == "" {
+		addr = ":8080"
+	}
+	e := initGINServer(store)
+	go func() {
+		if err := e.Run(addr); err != nil {
+			logrus.WithError(err).Fatal("api server 啟動失敗")
+		}
+	}()
 
 	// Observe signal notification
 	term := make(chan os.Signal, 1)
@@ -42,12 +59,14 @@ func main() {
 	}
 }
 
-func initGINServer(env string) (*gin.Engine, error) {
-	e := gin.Default()
-	ftnGroup := e.Group("ftn")
-	ftnGroup.POST("list", api.FTNListCtx)
+func initGINServer(store *ftnapi.Store) *gin.Engine {
+	e := gin.New()
+	e.Use(gin.Logger(), gin.Recovery())
 
-	gstatics := e.Group("statics")
-	gstatics.POST("/numbers")
-	return e, nil
+	v1 := e.Group("/api/v1")
+	v1.GET("/health", ftnapi.HealthHandler(store))
+
+	authed := v1.Group("", api.APIKeyAuth(config.Config.Server.APIKey))
+	ftnapi.Register(authed.Group("/ftn"), store)
+	return e
 }

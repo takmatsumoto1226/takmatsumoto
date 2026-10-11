@@ -2,7 +2,6 @@ package common
 
 import (
 	"encoding/csv"
-	"log"
 	"os"
 )
 
@@ -11,7 +10,7 @@ func ReadCSV(fullpath string) ([][]string, error) {
 
 	f, err := os.Open(fullpath)
 	if err != nil {
-		log.Fatal(err)
+		return [][]string{}, err
 	}
 	defer f.Close()
 

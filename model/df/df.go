@@ -86,7 +86,7 @@ const (
 	TailDigit0
 )
 
-var Primes = []byte{1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
+var Primes = []byte{2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47}
 
 const (
 	FilterOddCount = iota
@@ -270,6 +270,8 @@ func DefaultFeature() *Feature {
 func (f *Feature) setContinueRowType() {
 	if f.IsContinue2() {
 		f.ContinueRowType = ContinueRow2
+	} else if f.IsContinue32() {
+		f.ContinueRowType = ContinueRow32
 	} else if f.IsContinue3() {
 		f.ContinueRowType = ContinueRow3
 	} else if f.IsContinue4() {
@@ -278,8 +280,6 @@ func (f *Feature) setContinueRowType() {
 		f.ContinueRowType = ContinueRow5
 	} else if f.IsContinue22() {
 		f.ContinueRowType = ContinueRow22
-	} else if f.IsContinue2() && f.IsContinue3() {
-		f.ContinueRowType = ContinueRow32
 	} else {
 		f.ContinueRowType = ContinueRowNone
 	}
@@ -371,7 +371,7 @@ func (fa *Feature) IsContinue2() bool {
 			break
 		}
 	}
-	return continues && !fa.IsContinue3() && !fa.IsContinue4() && !fa.IsContinue5() && !fa.IsContinue22()
+	return continues && !fa.IsContinue3() && !fa.IsContinue4() && !fa.IsContinue5() && !fa.IsContinue22() && !fa.IsContinue32()
 }
 func (fa *Feature) IsContinue3() bool {
 	continues := false
@@ -381,7 +381,25 @@ func (fa *Feature) IsContinue3() bool {
 			break
 		}
 	}
-	return (continues) && !fa.IsContinue4() && !fa.IsContinue5()
+	return (continues) && !fa.IsContinue4() && !fa.IsContinue5() && !fa.IsContinue32()
+}
+
+// IsContinue32 一組3連號加一組2連號, 例如 01 02 03 05 06
+func (fa *Feature) IsContinue32() bool {
+	count := 0
+	run, maxRun := 1, 1
+	for i := 0; i < len(fa.IBalls)-1; i++ {
+		if fa.IBalls[i+1]-fa.IBalls[i] == 1 {
+			count++
+			run++
+		} else {
+			run = 1
+		}
+		if run > maxRun {
+			maxRun = run
+		}
+	}
+	return count == 3 && maxRun == 3
 }
 
 func (fa *Feature) IsContinue4() bool {
@@ -407,18 +425,20 @@ func (fa *Feature) IsContinue5() bool {
 }
 
 func (fa *Feature) IsContinueN(n int) bool {
-	count := 0
 	tl := len(fa.IBalls) - (n - 1)
 	for i := 0; i < tl; i++ {
-		count = 0
+		count := 0
 		car := fa.IBalls[i : i+n]
 		for k := 0; k < n-1; k++ {
 			if car[k+1]-car[k] == 1 {
 				count++
 			}
 		}
+		if count == n-1 {
+			return true
+		}
 	}
-	return count == n-1
+	return false
 }
 
 func (fa *Feature) IsContinue22() bool {
@@ -463,19 +483,19 @@ func (f *Feature) GroupTenPresentation() string {
 }
 
 func (f *Feature) IsContinueNo() bool {
-	return !f.IsContinue2() && !f.IsContinue3() && !f.IsContinue4() && !f.IsContinue5() && !f.IsContinue22()
+	return !f.IsContinue2() && !f.IsContinue3() && !f.IsContinue4() && !f.IsContinue5() && !f.IsContinue22() && !f.IsContinue32()
 }
 
 func (f *Feature) IsJump2() bool {
-	return f.IBalls[0]-f.IBalls[1] == 1 || f.IBalls[1]-f.IBalls[2] == 1 || f.IBalls[2]-f.IBalls[3] == 1 || f.IBalls[3]-f.IBalls[4] == 1
+	return f.IBalls[1]-f.IBalls[0] == 1 || f.IBalls[2]-f.IBalls[1] == 1 || f.IBalls[3]-f.IBalls[2] == 1 || f.IBalls[4]-f.IBalls[3] == 1
 }
 
 func (f *Feature) IsJump3() bool {
-	return (f.IBalls[0]-f.IBalls[1] == 1 && f.IBalls[1]-f.IBalls[2] == 1) || (f.IBalls[1]-f.IBalls[2] == 1 && f.IBalls[2]-f.IBalls[3] == 1) || (f.IBalls[2]-f.IBalls[3] == 1 && f.IBalls[3]-f.IBalls[4] == 1)
+	return (f.IBalls[1]-f.IBalls[0] == 1 && f.IBalls[2]-f.IBalls[1] == 1) || (f.IBalls[2]-f.IBalls[1] == 1 && f.IBalls[3]-f.IBalls[2] == 1) || (f.IBalls[3]-f.IBalls[2] == 1 && f.IBalls[4]-f.IBalls[3] == 1)
 }
 
 func (f *Feature) IsJump4() bool {
-	return f.IBalls[0]-f.IBalls[1] == 1 && f.IBalls[1]-f.IBalls[2] == 1 && f.IBalls[2]-f.IBalls[3] == 1 && f.IBalls[3]-f.IBalls[4] == 1
+	return f.IBalls[1]-f.IBalls[0] == 1 && f.IBalls[2]-f.IBalls[1] == 1 && f.IBalls[3]-f.IBalls[2] == 1 && f.IBalls[4]-f.IBalls[3] == 1
 }
 
 func (f *Feature) IsFullTenGroup() bool {
