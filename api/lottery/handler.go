@@ -19,13 +19,19 @@ const (
 )
 
 type handler struct {
-	store *Store
-	game  *Game
+	store         *Store
+	game          *Game
+	freeDrawLimit int
+}
+
+// Options 路由設定
+type Options struct {
+	FreeDrawLimit int // 免費用戶只能使用最新幾期, 0 表示不限
 }
 
 // Register 註冊單一彩種路由
-func Register(r gin.IRouter, s *Store) {
-	h := &handler{store: s, game: s.Game}
+func Register(r gin.IRouter, s *Store, opts Options) {
+	h := &handler{store: s, game: s.Game, freeDrawLimit: opts.FreeDrawLimit}
 	r.GET("", h.gameInfo)
 	r.GET("/draws", h.listDraws)
 	r.GET("/draws/latest", h.latestDraw)
@@ -74,14 +80,22 @@ func HealthHandler(stores []*Store) gin.HandlerFunc {
 	}
 }
 
-// records 取得資料, 沒資料時直接回錯誤
-func (h *handler) records(c *gin.Context) ([]Record, bool) {
-	records, _ := h.store.snapshot()
+// records 取得資料(新到舊), 免費用戶只取最新 freeDrawLimit 期; limited 表示有被截斷.
+// 沒資料時直接回錯誤
+func (h *handler) records(c *gin.Context) (records []Record, limited bool, ok bool) {
+	records, _ = h.store.snapshot()
 	if len(records) == 0 {
 		api.Fail(c, http.StatusServiceUnavailable, api.CodeDataNotReady, h.game.Code+" draw data not loaded")
-		return nil, false
+		return nil, false, false
 	}
-	return records, true
+	if h.freeDrawLimit > 0 && !api.IsPremium(c) && len(records) > h.freeDrawLimit {
+		return records[:h.freeDrawLimit], true, true
+	}
+	return records, false, true
+}
+
+func premiumRequired(c *gin.Context, msg string) {
+	api.Fail(c, http.StatusForbidden, api.CodePremiumRequired, msg)
 }
 
 func queryInt(c *gin.Context, key string, def, min, max int) (int, error) {
@@ -137,7 +151,7 @@ func (h *handler) listDraws(c *gin.Context) {
 		return
 	}
 
-	records, ok := h.records(c)
+	records, limited, ok := h.records(c)
 	if !ok {
 		return
 	}
@@ -153,7 +167,7 @@ func (h *handler) listDraws(c *gin.Context) {
 		}
 	}
 
-	page := DrawPage{Items: []Draw{}, Total: len(matched), Limit: limit, Offset: offset}
+	page := DrawPage{Items: []Draw{}, Total: len(matched), Limit: limit, Offset: offset, Limited: limited}
 	for i := offset; i < len(matched) && i < offset+limit; i++ {
 		page.Items = append(page.Items, h.game.newDraw(&matched[i]))
 	}
@@ -162,7 +176,7 @@ func (h *handler) listDraws(c *gin.Context) {
 
 // GET /{game}/draws/latest
 func (h *handler) latestDraw(c *gin.Context) {
-	records, ok := h.records(c)
+	records, _, ok := h.records(c)
 	if !ok {
 		return
 	}
@@ -171,12 +185,17 @@ func (h *handler) latestDraw(c *gin.Context) {
 
 // GET /{game}/draws/:period
 func (h *handler) getDraw(c *gin.Context) {
-	if _, ok := h.records(c); !ok {
+	records, limited, ok := h.records(c)
+	if !ok {
 		return
 	}
-	r, ok := h.store.findPeriod(c.Param("period"))
+	r, idx, ok := h.store.findPeriod(c.Param("period"))
 	if !ok {
 		api.Fail(c, http.StatusNotFound, api.CodeNotFound, "period not found")
+		return
+	}
+	if limited && idx >= len(records) {
+		premiumRequired(c, fmt.Sprintf("free users can only view the latest %d draws", len(records)))
 		return
 	}
 	api.OK(c, h.game.newDraw(&r))
@@ -221,13 +240,22 @@ func numberStats(records []Record, max, window int, pick func(r *Record) []int) 
 
 // GET /{game}/numbers/stats?window=100
 func (h *handler) numberStats(c *gin.Context) {
-	records, ok := h.records(c)
+	records, limited, ok := h.records(c)
 	if !ok {
 		return
 	}
-	window, err := queryInt(c, "window", defaultWindow, 1, len(records))
+	def := defaultWindow
+	if def > len(records) {
+		def = len(records)
+	}
+	full, _ := h.store.snapshot()
+	window, err := queryInt(c, "window", def, 1, len(full))
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, api.CodeInvalidParam, err.Error())
+		return
+	}
+	if window > len(records) {
+		premiumRequired(c, fmt.Sprintf("free users can only use window up to %d", len(records)))
 		return
 	}
 
@@ -235,6 +263,7 @@ func (h *handler) numberStats(c *gin.Context) {
 	result := NumberStats{
 		Window:         window,
 		TotalDraws:     len(records),
+		Limited:        limited,
 		LatestPeriod:   records[0].Period,
 		ExpectedWindow: float64(window*g.PickCount) / float64(g.MaxNumber),
 		Numbers:        numberStats(records, g.MaxNumber, window, func(r *Record) []int { return r.Numbers }),
@@ -295,7 +324,7 @@ func (h *handler) analyze(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, api.CodeInvalidParam, err.Error())
 		return
 	}
-	records, ok := h.records(c)
+	records, limited, ok := h.records(c)
 	if !ok {
 		return
 	}
@@ -317,6 +346,7 @@ func (h *handler) analyze(c *gin.Context) {
 		Special:    req.Special,
 		Features:   g.newFeatures(numbers),
 		TotalDraws: len(records),
+		Limited:    limited,
 	}
 	for i := range records {
 		r := &records[i]

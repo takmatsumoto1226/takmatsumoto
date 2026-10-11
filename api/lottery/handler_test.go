@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"testing"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
@@ -17,6 +18,10 @@ func rec(period, date string, special int, numbers ...int) Record {
 }
 
 func newTestRouter(key string) (*gin.Engine, []*Store) {
+	return newTestRouterWith(key, "", 0)
+}
+
+func newTestRouterWith(key, premiumSecret string, freeLimit int) (*gin.Engine, []*Store) {
 	gin.SetMode(gin.TestMode)
 	stores := []*Store{
 		NewStoreWithRecords(FTN(), []Record{
@@ -41,10 +46,11 @@ func newTestRouter(key string) (*gin.Engine, []*Store) {
 	e := gin.New()
 	v1 := e.Group("/api/v1")
 	v1.GET("/health", HealthHandler(stores))
-	authed := v1.Group("", api.APIKeyAuth(key))
+	authed := v1.Group("", api.APIKeyAuth(key), api.PremiumAuth(premiumSecret))
+	authed.GET("/me", api.MeHandler(freeLimit))
 	authed.GET("/games", GamesHandler(stores))
 	for _, s := range stores {
-		Register(authed.Group("/"+s.Game.Code), s)
+		Register(authed.Group("/"+s.Game.Code), s, Options{FreeDrawLimit: freeLimit})
 	}
 	return e, stores
 }
@@ -312,7 +318,7 @@ func TestDataNotReady(t *testing.T) {
 	stores := []*Store{NewStore(PW()), NewStoreWithRecords(FTN(), []Record{rec("1", "20260101", 0, 1, 2, 3, 4, 5)})}
 	e := gin.New()
 	e.GET("/health", HealthHandler(stores))
-	Register(e.Group("/pw"), stores[0])
+	Register(e.Group("/pw"), stores[0], Options{})
 
 	status, env := do(e, http.MethodGet, "/pw/draws/latest", "", nil)
 	a.Equal(http.StatusServiceUnavailable, status)
@@ -322,4 +328,92 @@ func TestDataNotReady(t *testing.T) {
 	var h Health
 	a.NoError(json.Unmarshal(env.Data, &h))
 	a.Equal("partial", h.Status)
+}
+
+func TestFreeDrawLimit(t *testing.T) {
+	a := assert.New(t)
+	const secret = "test-secret"
+	e, _ := newTestRouterWith("", secret, 2) // ftn 3 期, 免費只能看最新 2 期
+	token, err := api.IssuePremiumToken(secret, "user1", time.Now().Add(time.Hour))
+	a.NoError(err)
+	premium := map[string]string{api.HeaderPremiumToken: token}
+
+	// 列表 : 免費只回 2 期, total 也是 2
+	_, env := do(e, http.MethodGet, "/api/v1/ftn/draws?limit=10", "", nil)
+	var page DrawPage
+	a.NoError(json.Unmarshal(env.Data, &page))
+	a.Equal(2, page.Total)
+	a.Len(page.Items, 2)
+	a.True(page.Limited)
+	a.Equal("5989", page.Items[1].Period)
+
+	_, env = do(e, http.MethodGet, "/api/v1/ftn/draws?limit=10", "", premium)
+	a.NoError(json.Unmarshal(env.Data, &page))
+	a.Equal(3, page.Total)
+	a.False(page.Limited)
+
+	// 日期篩選也不能拿到舊資料
+	_, env = do(e, http.MethodGet, "/api/v1/ftn/draws?from=2026-10-08&to=2026-10-08", "", nil)
+	a.NoError(json.Unmarshal(env.Data, &page))
+	a.Equal(0, page.Total)
+
+	// 單期 : 超出範圍回 403
+	status, env := do(e, http.MethodGet, "/api/v1/ftn/draws/5988", "", nil)
+	a.Equal(http.StatusForbidden, status)
+	a.Equal(api.CodePremiumRequired, env.Code)
+	status, _ = do(e, http.MethodGet, "/api/v1/ftn/draws/5989", "", nil)
+	a.Equal(http.StatusOK, status)
+	status, _ = do(e, http.MethodGet, "/api/v1/ftn/draws/5988", "", premium)
+	a.Equal(http.StatusOK, status)
+
+	// 統計 : 免費預設 window = 2, 超過回 403
+	_, env = do(e, http.MethodGet, "/api/v1/ftn/numbers/stats", "", nil)
+	var s NumberStats
+	a.NoError(json.Unmarshal(env.Data, &s))
+	a.Equal(2, s.Window)
+	a.Equal(2, s.TotalDraws)
+	a.True(s.Limited)
+	a.Equal(0, s.Numbers[2].TotalCount) // 3 只在最舊的 5988 出現
+	status, env = do(e, http.MethodGet, "/api/v1/ftn/numbers/stats?window=3", "", nil)
+	a.Equal(http.StatusForbidden, status)
+	a.Equal(api.CodePremiumRequired, env.Code)
+	status, _ = do(e, http.MethodGet, "/api/v1/ftn/numbers/stats?window=3", "", premium)
+	a.Equal(http.StatusOK, status)
+	status, _ = do(e, http.MethodGet, "/api/v1/ftn/numbers/stats?window=4", "", nil)
+	a.Equal(http.StatusBadRequest, status)
+
+	// 分析 : 免費只比對最新 2 期, 不會透露 5988
+	_, env = do(e, http.MethodPost, "/api/v1/ftn/analyze", `{"numbers":[3,7,15,17,30]}`, nil)
+	var r AnalyzeResult
+	a.NoError(json.Unmarshal(env.Data, &r))
+	a.True(r.Limited)
+	a.Equal(2, r.TotalDraws)
+	a.Equal(0, findMatch(r.History, 5, false).Count)
+	a.Nil(r.LastMatch3)
+	_, env = do(e, http.MethodPost, "/api/v1/ftn/analyze", `{"numbers":[3,7,15,17,30]}`, premium)
+	a.NoError(json.Unmarshal(env.Data, &r))
+	a.Equal(1, findMatch(r.History, 5, false).Count)
+
+	// latest 不受影響
+	status, _ = do(e, http.MethodGet, "/api/v1/ftn/draws/latest", "", nil)
+	a.Equal(http.StatusOK, status)
+
+	// me
+	_, env = do(e, http.MethodGet, "/api/v1/me", "", nil)
+	var me api.Entitlement
+	a.NoError(json.Unmarshal(env.Data, &me))
+	a.False(me.Premium)
+	a.Equal(2, me.FreeDrawLimit)
+	_, env = do(e, http.MethodGet, "/api/v1/me", "", premium)
+	a.NoError(json.Unmarshal(env.Data, &me))
+	a.True(me.Premium)
+	a.Equal("user1", me.User)
+
+	// 無效 / 過期憑證回 401
+	expired, _ := api.IssuePremiumToken(secret, "user1", time.Now().Add(-time.Second))
+	for _, tk := range []string{expired, token + "x", "garbage"} {
+		status, env = do(e, http.MethodGet, "/api/v1/ftn/draws", "", map[string]string{api.HeaderPremiumToken: tk})
+		a.Equal(http.StatusUnauthorized, status, tk)
+		a.Equal(api.CodePremiumTokenInvalid, env.Code)
+	}
 }

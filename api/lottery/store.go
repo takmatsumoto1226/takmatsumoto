@@ -166,12 +166,13 @@ func (s *Store) snapshot() ([]Record, time.Time) {
 	return s.records, s.loadedAt
 }
 
-func (s *Store) findPeriod(period string) (Record, bool) {
+// findPeriod 依期數查詢, 回傳資料與其在新到舊列表中的位置
+func (s *Store) findPeriod(period string) (Record, int, bool) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	i, ok := s.byPeriod[period]
 	if !ok {
-		return Record{}, false
+		return Record{}, 0, false
 	}
-	return s.records[i], true
+	return s.records[i], i, true
 }

@@ -9,14 +9,18 @@ import (
 
 // 業務錯誤碼
 const (
-	CodeOK             = 0
-	CodeInvalidParam   = 40001
-	CodeUnauthorized   = 40101
-	CodeNotFound       = 40401
-	CodeDataNotReady   = 50301
-	HeaderAPIKey       = "X-API-Key"
-	MessageOK          = "ok"
-	MessageUnauthorize = "invalid or missing api key"
+	CodeOK           = 0
+	CodeInvalidParam = 40001
+	CodeUnauthorized = 40101
+	// 付費憑證無效或過期
+	CodePremiumTokenInvalid = 40102
+	// 超出免費範圍, 需付費
+	CodePremiumRequired = 40301
+	CodeNotFound        = 40401
+	CodeDataNotReady    = 50301
+	HeaderAPIKey        = "X-API-Key"
+	MessageOK           = "ok"
+	MessageUnauthorize  = "invalid or missing api key"
 )
 
 // Response 統一回傳格式
