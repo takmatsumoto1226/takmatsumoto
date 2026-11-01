@@ -104,10 +104,10 @@ func TestDedupPeriods(t *testing.T) {
 	})
 	records, _ := s.snapshot()
 	a.Len(records, 7)
-	r37, ok := s.findPeriod("37")
+	r37, _, ok := s.findPeriod("37")
 	a.True(ok)
 	a.Equal("20040510", r37.Date())
-	r, ok := s.findPeriod("3791")
+	r, _, ok := s.findPeriod("3791")
 	a.True(ok)
 	a.Equal("20191009", r.Date())
 }
