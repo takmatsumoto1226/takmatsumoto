@@ -29,12 +29,13 @@ func newGameInfo(g *Game) GameInfo {
 
 // Draw 一期開獎
 type Draw struct {
-	Period    string   `json:"period"`            // 總期數
-	Date      string   `json:"date"`              // YYYY-MM-DD
-	YearIndex int      `json:"yearIndex"`         // 當年第幾期
-	Numbers   []int    `json:"numbers"`           // 主號, 由小到大
-	Special   *int     `json:"special,omitempty"` // 大樂透特別號 / 威力彩第二區
-	Features  Features `json:"features"`
+	Period     string         `json:"period"`               // 總期數
+	Date       string         `json:"date"`                 // YYYY-MM-DD
+	YearIndex  int            `json:"yearIndex"`            // 當年第幾期
+	Numbers    []int          `json:"numbers"`              // 主號, 由小到大
+	Special    *int           `json:"special,omitempty"`    // 大樂透特別號 / 威力彩第二區
+	Features   Features       `json:"features"`
+	Transition *df.Transition `json:"transition,omitempty"` // 與前期號碼的關係特徵 (最舊一期無前期時省略)
 }
 
 // Features 主號組合特徵
@@ -88,13 +89,29 @@ func (g *Game) newFeatures(numbers []int) Features {
 	}
 }
 
+func (g *Game) newTransition(numbers []int, history []Record) *df.Transition {
+	if len(history) == 0 {
+		return nil
+	}
+	hist := make([][]int, len(history))
+	for i := range history {
+		hist[i] = history[i].Numbers
+	}
+	return df.NewTransition(numbers, hist, g.MaxNumber, df.DefaultColdOmissionThreshold)
+}
+
 func (g *Game) newDraw(r *Record) Draw {
+	return g.newDrawWithHistory(r, nil)
+}
+
+func (g *Game) newDrawWithHistory(r *Record, history []Record) Draw {
 	d := Draw{
-		Period:    r.Period,
-		Date:      r.Year + "-" + r.MonthDay[:2] + "-" + r.MonthDay[2:],
-		YearIndex: r.YearIndex,
-		Numbers:   append([]int(nil), r.Numbers...),
-		Features:  g.newFeatures(r.Numbers),
+		Period:     r.Period,
+		Date:       r.Year + "-" + r.MonthDay[:2] + "-" + r.MonthDay[2:],
+		YearIndex:  r.YearIndex,
+		Numbers:    append([]int(nil), r.Numbers...),
+		Features:   g.newFeatures(r.Numbers),
+		Transition: g.newTransition(r.Numbers, history),
 	}
 	if g.Special != nil {
 		sp := r.Special
@@ -150,13 +167,14 @@ type MatchCount struct {
 
 // AnalyzeResult 分析結果
 type AnalyzeResult struct {
-	Numbers    []int        `json:"numbers"`
-	Special    *int         `json:"special,omitempty"`
-	Features   Features     `json:"features"`
-	History    []MatchCount `json:"history"` // 主號對中數由多到少
-	TotalDraws int          `json:"totalDraws"`
-	Limited    bool         `json:"limited"`              // true : 免費用戶, 只比對最新幾期
-	LastMatch3 *Draw        `json:"lastMatch3,omitempty"` // 最近一次主號對中 3 個以上的期別
+	Numbers    []int          `json:"numbers"`
+	Special    *int           `json:"special,omitempty"`
+	Features   Features       `json:"features"`
+	Transition *df.Transition `json:"transition,omitempty"` // 相對於最新一期與歷史的前後期關係特徵
+	History    []MatchCount   `json:"history"`              // 主號對中數由多到少
+	TotalDraws int            `json:"totalDraws"`
+	Limited    bool           `json:"limited"`              // true : 免費用戶, 只比對最新幾期
+	LastMatch3 *Draw          `json:"lastMatch3,omitempty"` // 最近一次主號對中 3 個以上的期別
 }
 
 // GameHealth 單一彩種資料狀態

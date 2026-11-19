@@ -156,20 +156,24 @@ func (h *handler) listDraws(c *gin.Context) {
 		return
 	}
 
-	matched := records
+	matchedIdx := make([]int, 0, len(records))
 	if from != "" || to != "" {
-		matched = []Record{}
-		for _, r := range records {
+		for i, r := range records {
 			date := r.Date()
 			if (from == "" || date >= from) && (to == "" || date <= to) {
-				matched = append(matched, r)
+				matchedIdx = append(matchedIdx, i)
 			}
+		}
+	} else {
+		for i := range records {
+			matchedIdx = append(matchedIdx, i)
 		}
 	}
 
-	page := DrawPage{Items: []Draw{}, Total: len(matched), Limit: limit, Offset: offset, Limited: limited}
-	for i := offset; i < len(matched) && i < offset+limit; i++ {
-		page.Items = append(page.Items, h.game.newDraw(&matched[i]))
+	page := DrawPage{Items: []Draw{}, Total: len(matchedIdx), Limit: limit, Offset: offset, Limited: limited}
+	for i := offset; i < len(matchedIdx) && i < offset+limit; i++ {
+		origIdx := matchedIdx[i]
+		page.Items = append(page.Items, h.game.newDrawWithHistory(&records[origIdx], records[origIdx+1:]))
 	}
 	api.OK(c, page)
 }
@@ -180,7 +184,7 @@ func (h *handler) latestDraw(c *gin.Context) {
 	if !ok {
 		return
 	}
-	api.OK(c, h.game.newDraw(&records[0]))
+	api.OK(c, h.game.newDrawWithHistory(&records[0], records[1:]))
 }
 
 // GET /{game}/draws/:period
@@ -198,7 +202,11 @@ func (h *handler) getDraw(c *gin.Context) {
 		premiumRequired(c, fmt.Sprintf("free users can only view the latest %d draws", len(records)))
 		return
 	}
-	api.OK(c, h.game.newDraw(&r))
+	var prev []Record
+	if idx+1 < len(records) {
+		prev = records[idx+1:]
+	}
+	api.OK(c, h.game.newDrawWithHistory(&r, prev))
 }
 
 // numberStats 統計 1..max 每個號碼, pick 取出每期要統計的號碼
@@ -345,6 +353,7 @@ func (h *handler) analyze(c *gin.Context) {
 		Numbers:    numbers,
 		Special:    req.Special,
 		Features:   g.newFeatures(numbers),
+		Transition: g.newTransition(numbers, records),
 		TotalDraws: len(records),
 		Limited:    limited,
 	}
@@ -366,7 +375,7 @@ func (h *handler) analyze(c *gin.Context) {
 		}
 		counts[matchKey{m, sp}]++
 		if m >= 3 && result.LastMatch3 == nil {
-			d := g.newDraw(r)
+			d := g.newDrawWithHistory(r, records[i+1:])
 			result.LastMatch3 = &d
 		}
 	}

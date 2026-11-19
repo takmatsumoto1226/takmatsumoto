@@ -417,3 +417,62 @@ func TestFreeDrawLimit(t *testing.T) {
 		a.Equal(api.CodePremiumTokenInvalid, env.Code)
 	}
 }
+
+func TestTransitionAPI(t *testing.T) {
+	a := assert.New(t)
+	e, _ := newTestRouter("")
+
+	// 5988: [3, 7, 15, 17, 30]
+	// 5989: [20, 23, 25, 27, 31]
+	// 5990: [14, 21, 23, 32, 34]
+	// 5990 相對於 5989:
+	// - 重號: 23 (repeatCount=1, repeatNumbers=[23])
+	// - 鄰號: 21 (20+1), 32 (31+1) => neighborCount=2, neighborPlus=2, neighborMinus=0
+	// - 孤號: 14, 34 => isolatedCount=2
+	// - 斷區回補: 5989 十位分區 [0, 1, 3, 1] (1-10 斷區), 5990 在 1-10 也是 0 => gapZoneRefill=0
+	// - sumDiff: (14+21+23+32+34) - (20+23+25+27+31) = 124 - 126 = -2
+	status, env := do(e, http.MethodGet, "/api/v1/ftn/draws/latest", "", nil)
+	a.Equal(http.StatusOK, status)
+	var latest Draw
+	a.NoError(json.Unmarshal(env.Data, &latest))
+	a.NotNil(latest.Transition)
+	a.Equal(1, latest.Transition.RepeatCount)
+	a.Equal([]int{23}, latest.Transition.RepeatNumbers)
+	a.Equal(2, latest.Transition.NeighborCount)
+	a.Equal(2, latest.Transition.NeighborPlus)
+	a.Equal(2, latest.Transition.IsolatedCount)
+	a.Equal(-2, latest.Transition.SumDiff)
+	a.Equal(2, latest.Transition.MaxRepeatStreak) // 23 連 2 期
+	a.Equal(3, latest.Transition.MaxDiagonalRun)  // 30->31->32 斜三連
+
+	// 最舊一期 5988 無前期 => Transition 應為 nil
+	status, env = do(e, http.MethodGet, "/api/v1/ftn/draws/5988", "", nil)
+	a.Equal(http.StatusOK, status)
+	var oldest Draw
+	a.NoError(json.Unmarshal(env.Data, &oldest))
+	a.Nil(oldest.Transition)
+
+	// 日期篩選只取 5989，仍應相對於 5988 算出 Transition
+	status, env = do(e, http.MethodGet, "/api/v1/ftn/draws?from=2026-10-09&to=2026-10-09", "", nil)
+	a.Equal(http.StatusOK, status)
+	var page DrawPage
+	a.NoError(json.Unmarshal(env.Data, &page))
+	a.Len(page.Items, 1)
+	a.NotNil(page.Items[0].Transition)
+	a.Equal(0, page.Items[0].Transition.RepeatCount)
+	a.Equal(1, page.Items[0].Transition.NeighborPlus) // 31 from 30
+
+	// POST /analyze: 以最新一期 5990 [14, 21, 23, 32, 34] 為上一期
+	// 選號 [15, 22, 23, 33, 39]:
+	// - 15 (14+1), 22 (被 21, 23 夾 => sandwich=1), 23 (重號, 且 5989/5990 連開 => streak=3), 33 (被 32, 34 夾 => sandwich=2), 39 (孤號)
+	status, env = do(e, http.MethodPost, "/api/v1/ftn/analyze", `{"numbers":[15,22,23,33,39]}`, nil)
+	a.Equal(http.StatusOK, status)
+	var res AnalyzeResult
+	a.NoError(json.Unmarshal(env.Data, &res))
+	a.NotNil(res.Transition)
+	a.Equal(1, res.Transition.RepeatCount)
+	a.Equal(3, res.Transition.MaxRepeatStreak)
+	a.Equal(2, res.Transition.SandwichCount)
+	a.Equal(3, res.Transition.NeighborCount)
+	a.Equal(1, res.Transition.IsolatedCount)
+}
