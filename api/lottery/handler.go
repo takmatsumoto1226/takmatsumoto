@@ -14,6 +14,7 @@ import (
 const (
 	defaultLimit  = 20
 	maxLimit      = 200
+	drawsPageSize = 1 // /draws 每次只回傳一筆, limit 超過時自動縮成此值
 	defaultWindow = 100
 	queryDate     = "2006-01-02"
 )
@@ -22,16 +23,18 @@ type handler struct {
 	store         *Store
 	game          *Game
 	freeDrawLimit int
+	maxDrawLimit  int
 }
 
 // Options 路由設定
 type Options struct {
 	FreeDrawLimit int // 免費用戶只能使用最新幾期, 0 表示不限
+	MaxDrawLimit  int // 所有用戶(含付費)只能使用最新幾期, 0 表示不限; 用來暫停全歷史查詢
 }
 
 // Register 註冊單一彩種路由
 func Register(r gin.IRouter, s *Store, opts Options) {
-	h := &handler{store: s, game: s.Game, freeDrawLimit: opts.FreeDrawLimit}
+	h := &handler{store: s, game: s.Game, freeDrawLimit: opts.FreeDrawLimit, maxDrawLimit: opts.MaxDrawLimit}
 	r.GET("", h.gameInfo)
 	r.GET("/draws", h.listDraws)
 	r.GET("/draws/latest", h.latestDraw)
@@ -80,22 +83,55 @@ func HealthHandler(stores []*Store) gin.HandlerFunc {
 	}
 }
 
-// records 取得資料(新到舊), 免費用戶只取最新 freeDrawLimit 期; limited 表示有被截斷.
-// 沒資料時直接回錯誤
+// freeCapped 目前請求的上限是否來自免費額度(付費可解除), 否則來自 maxDrawLimit
+func (h *handler) freeCapped(c *gin.Context) bool {
+	return h.freeDrawLimit > 0 && !api.IsPremium(c) && (h.maxDrawLimit == 0 || h.freeDrawLimit < h.maxDrawLimit)
+}
+
+// drawLimit 目前請求可使用的最新期數, 0 表示不限
+func (h *handler) drawLimit(c *gin.Context) int {
+	if h.freeCapped(c) {
+		return h.freeDrawLimit
+	}
+	return h.maxDrawLimit
+}
+
+// records 取得資料(新到舊), 只取最新 drawLimit 期 (免費用戶 freeDrawLimit, 所有用戶 maxDrawLimit);
+// limited 表示有被截斷. 沒資料時直接回錯誤
 func (h *handler) records(c *gin.Context) (records []Record, limited bool, ok bool) {
+	return h.recordsUpTo(c, h.drawLimit(c))
+}
+
+// analyzeRecords 對獎用資料: 只回統計結果不回整份歷史, 所以不受 maxDrawLimit 限制;
+// 付費用戶比對全歷史, 免費用戶仍只比對最新 freeDrawLimit 期
+func (h *handler) analyzeRecords(c *gin.Context) (records []Record, limited bool, ok bool) {
+	n := 0
+	if !api.IsPremium(c) {
+		n = h.freeDrawLimit
+	}
+	return h.recordsUpTo(c, n)
+}
+
+// recordsUpTo 取最新 n 期(新到舊), n <= 0 表示不限; limited 表示有被截斷. 沒資料時直接回錯誤
+func (h *handler) recordsUpTo(c *gin.Context, n int) (records []Record, limited bool, ok bool) {
 	records, _ = h.store.snapshot()
 	if len(records) == 0 {
 		api.Fail(c, http.StatusServiceUnavailable, api.CodeDataNotReady, h.game.Code+" draw data not loaded")
 		return nil, false, false
 	}
-	if h.freeDrawLimit > 0 && !api.IsPremium(c) && len(records) > h.freeDrawLimit {
-		return records[:h.freeDrawLimit], true, true
+	if n > 0 && len(records) > n {
+		return records[:n], true, true
 	}
 	return records, false, true
 }
 
-func premiumRequired(c *gin.Context, msg string) {
-	api.Fail(c, http.StatusForbidden, api.CodePremiumRequired, msg)
+// limitExceeded 請求超出可用期數: 免費額度回 premium required, 全站上限回 history unavailable
+func (h *handler) limitExceeded(c *gin.Context, detail string) {
+	if h.freeCapped(c) {
+		api.Fail(c, http.StatusForbidden, api.CodePremiumRequired, "free users "+detail)
+		return
+	}
+	api.Fail(c, http.StatusForbidden, api.CodeHistoryUnavailable, "full history is temporarily unavailable, "+detail)
 }
 
 func queryInt(c *gin.Context, key string, def, min, max int) (int, error) {
@@ -128,7 +164,7 @@ func (h *handler) gameInfo(c *gin.Context) {
 	api.OK(c, newGameInfo(h.game))
 }
 
-// GET /{game}/draws?limit=20&offset=0&from=2026-01-01&to=2026-12-31
+// GET /{game}/draws?offset=0&from=2026-01-01&to=2026-12-31 (每次只回傳 drawsPageSize 筆, 用 offset 翻頁)
 func (h *handler) listDraws(c *gin.Context) {
 	limit, err := queryInt(c, "limit", defaultLimit, 1, maxLimit)
 	if err != nil {
@@ -149,6 +185,10 @@ func (h *handler) listDraws(c *gin.Context) {
 	if err != nil {
 		api.Fail(c, http.StatusBadRequest, api.CodeInvalidParam, err.Error())
 		return
+	}
+
+	if limit > drawsPageSize {
+		limit = drawsPageSize
 	}
 
 	records, limited, ok := h.records(c)
@@ -199,7 +239,7 @@ func (h *handler) getDraw(c *gin.Context) {
 		return
 	}
 	if limited && idx >= len(records) {
-		premiumRequired(c, fmt.Sprintf("free users can only view the latest %d draws", len(records)))
+		h.limitExceeded(c, fmt.Sprintf("can only view the latest %d draws", len(records)))
 		return
 	}
 	var prev []Record
@@ -263,7 +303,7 @@ func (h *handler) numberStats(c *gin.Context) {
 		return
 	}
 	if window > len(records) {
-		premiumRequired(c, fmt.Sprintf("free users can only use window up to %d", len(records)))
+		h.limitExceeded(c, fmt.Sprintf("can only use window up to %d", len(records)))
 		return
 	}
 
@@ -332,7 +372,7 @@ func (h *handler) analyze(c *gin.Context) {
 		api.Fail(c, http.StatusBadRequest, api.CodeInvalidParam, err.Error())
 		return
 	}
-	records, limited, ok := h.records(c)
+	records, limited, ok := h.analyzeRecords(c)
 	if !ok {
 		return
 	}

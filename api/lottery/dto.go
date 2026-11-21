@@ -126,7 +126,7 @@ type DrawPage struct {
 	Total  int    `json:"total"`
 	Limit  int    `json:"limit"`
 	Offset int    `json:"offset"`
-	// Limited true : 免費用戶, 只回最新幾期, total 也只計算這些
+	// Limited true : 有期數上限(免費額度或全站上限), 只回最新幾期, total 也只計算這些
 	Limited bool `json:"limited"`
 }
 
@@ -143,7 +143,7 @@ type NumberStat struct {
 type NumberStats struct {
 	Window                int          `json:"window"`
 	TotalDraws            int          `json:"totalDraws"`
-	Limited               bool         `json:"limited"` // true : 免費用戶, 只統計最新幾期
+	Limited               bool         `json:"limited"` // true : 有期數上限, 只統計最新幾期
 	LatestPeriod          string       `json:"latestPeriod"`
 	ExpectedWindow        float64      `json:"expectedWindow"` // 隨機下 window 期內每個主號的期望次數
 	Numbers               []NumberStat `json:"numbers"`
@@ -173,7 +173,7 @@ type AnalyzeResult struct {
 	Transition *df.Transition `json:"transition,omitempty"` // 相對於最新一期與歷史的前後期關係特徵
 	History    []MatchCount   `json:"history"`              // 主號對中數由多到少
 	TotalDraws int            `json:"totalDraws"`
-	Limited    bool           `json:"limited"`              // true : 免費用戶, 只比對最新幾期
+	Limited    bool           `json:"limited"`              // true : 有期數上限, 只比對最新幾期
 	LastMatch3 *Draw          `json:"lastMatch3,omitempty"` // 最近一次主號對中 3 個以上的期別
 }
 

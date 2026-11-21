@@ -18,10 +18,10 @@ func rec(period, date string, special int, numbers ...int) Record {
 }
 
 func newTestRouter(key string) (*gin.Engine, []*Store) {
-	return newTestRouterWith(key, "", 0)
+	return newTestRouterWith(key, "", Options{})
 }
 
-func newTestRouterWith(key, premiumSecret string, freeLimit int) (*gin.Engine, []*Store) {
+func newTestRouterWith(key, premiumSecret string, opts Options) (*gin.Engine, []*Store) {
 	gin.SetMode(gin.TestMode)
 	stores := []*Store{
 		NewStoreWithRecords(FTN(), []Record{
@@ -47,10 +47,10 @@ func newTestRouterWith(key, premiumSecret string, freeLimit int) (*gin.Engine, [
 	v1 := e.Group("/api/v1")
 	v1.GET("/health", HealthHandler(stores))
 	authed := v1.Group("", api.APIKeyAuth(key), api.PremiumAuth(premiumSecret))
-	authed.GET("/me", api.MeHandler(freeLimit))
+	authed.GET("/me", api.MeHandler(opts.FreeDrawLimit, opts.MaxDrawLimit))
 	authed.GET("/games", GamesHandler(stores))
 	for _, s := range stores {
-		Register(authed.Group("/"+s.Game.Code), s, Options{FreeDrawLimit: freeLimit})
+		Register(authed.Group("/"+s.Game.Code), s, opts)
 	}
 	return e, stores
 }
@@ -141,13 +141,20 @@ func TestListDraws(t *testing.T) {
 	var page DrawPage
 	a.NoError(json.Unmarshal(env.Data, &page))
 	a.Equal(3, page.Total)
-	a.Len(page.Items, 2)
+	a.Len(page.Items, 1) // 每次只回傳一筆, limit 會被縮成 1
+	a.Equal(1, page.Limit)
 	a.Equal("5990", page.Items[0].Period)
 	a.Equal("2026-10-10", page.Items[0].Date)
 	a.Equal([]int{14, 21, 23, 32, 34}, page.Items[0].Numbers)
 	a.Nil(page.Items[0].Special)
 	a.Equal(124, page.Items[0].Features.Sum)
 	a.Len(page.Items[0].Features.TenGroup, 4)
+
+	// 用 offset 翻頁
+	_, env = do(e, http.MethodGet, "/api/v1/ftn/draws?offset=1", "", nil)
+	a.NoError(json.Unmarshal(env.Data, &page))
+	a.Len(page.Items, 1)
+	a.Equal("5989", page.Items[0].Period)
 
 	_, env = do(e, http.MethodGet, "/api/v1/ftn/draws?from=2026-10-09&to=2026-10-09", "", nil)
 	a.NoError(json.Unmarshal(env.Data, &page))
@@ -333,7 +340,7 @@ func TestDataNotReady(t *testing.T) {
 func TestFreeDrawLimit(t *testing.T) {
 	a := assert.New(t)
 	const secret = "test-secret"
-	e, _ := newTestRouterWith("", secret, 2) // ftn 3 期, 免費只能看最新 2 期
+	e, _ := newTestRouterWith("", secret, Options{FreeDrawLimit: 2}) // ftn 3 期, 免費只能看最新 2 期
 	token, err := api.IssuePremiumToken(secret, "user1", time.Now().Add(time.Hour))
 	a.NoError(err)
 	premium := map[string]string{api.HeaderPremiumToken: token}
@@ -343,9 +350,9 @@ func TestFreeDrawLimit(t *testing.T) {
 	var page DrawPage
 	a.NoError(json.Unmarshal(env.Data, &page))
 	a.Equal(2, page.Total)
-	a.Len(page.Items, 2)
+	a.Len(page.Items, 1)
 	a.True(page.Limited)
-	a.Equal("5989", page.Items[1].Period)
+	a.Equal("5990", page.Items[0].Period)
 
 	_, env = do(e, http.MethodGet, "/api/v1/ftn/draws?limit=10", "", premium)
 	a.NoError(json.Unmarshal(env.Data, &page))
@@ -475,4 +482,63 @@ func TestTransitionAPI(t *testing.T) {
 	a.Equal(2, res.Transition.SandwichCount)
 	a.Equal(3, res.Transition.NeighborCount)
 	a.Equal(1, res.Transition.IsolatedCount)
+}
+
+func TestMaxDrawLimit(t *testing.T) {
+	a := assert.New(t)
+	const secret = "test-secret"
+	// ftn 3 期, 暫不提供全歷史: 所有人最多 2 期, 免費只能 1 期
+	e, _ := newTestRouterWith("", secret, Options{FreeDrawLimit: 1, MaxDrawLimit: 2})
+	token, err := api.IssuePremiumToken(secret, "user1", time.Now().Add(time.Hour))
+	a.NoError(err)
+	premium := map[string]string{api.HeaderPremiumToken: token}
+
+	// 付費也只能拿到 2 期
+	_, env := do(e, http.MethodGet, "/api/v1/ftn/draws?limit=10", "", premium)
+	var page DrawPage
+	a.NoError(json.Unmarshal(env.Data, &page))
+	a.Equal(2, page.Total)
+	a.True(page.Limited)
+
+	// 免費仍是 1 期, 超出回 premium required
+	status, env := do(e, http.MethodGet, "/api/v1/ftn/draws/5989", "", nil)
+	a.Equal(http.StatusForbidden, status)
+	a.Equal(api.CodePremiumRequired, env.Code)
+
+	// 付費超出全站上限回 history unavailable
+	status, _ = do(e, http.MethodGet, "/api/v1/ftn/draws/5989", "", premium)
+	a.Equal(http.StatusOK, status)
+	status, env = do(e, http.MethodGet, "/api/v1/ftn/draws/5988", "", premium)
+	a.Equal(http.StatusForbidden, status)
+	a.Equal(api.CodeHistoryUnavailable, env.Code)
+	status, env = do(e, http.MethodGet, "/api/v1/ftn/numbers/stats?window=3", "", premium)
+	a.Equal(http.StatusForbidden, status)
+	a.Equal(api.CodeHistoryUnavailable, env.Code)
+
+	// 對獎例外: 付費用戶比對全歷史, 不受 maxDrawLimit 限制
+	_, env = do(e, http.MethodPost, "/api/v1/ftn/analyze", `{"numbers":[3,7,15,17,30]}`, premium)
+	var r AnalyzeResult
+	a.NoError(json.Unmarshal(env.Data, &r))
+	a.False(r.Limited)
+	a.Equal(3, r.TotalDraws)
+	a.Equal(1, findMatch(r.History, 5, false).Count) // 5988 超出 maxDrawLimit 仍會比對到
+	a.NotNil(r.LastMatch3)
+
+	// 免費用戶仍只比對最新 freeDrawLimit 期
+	_, env = do(e, http.MethodPost, "/api/v1/ftn/analyze", `{"numbers":[3,7,15,17,30]}`, nil)
+	a.NoError(json.Unmarshal(env.Data, &r))
+	a.True(r.Limited)
+	a.Equal(1, r.TotalDraws)
+	a.Equal(0, findMatch(r.History, 5, false).Count)
+
+	// 免費額度 >= 全站上限時, 免費用戶也回 history unavailable (付費無法解除)
+	e, _ = newTestRouterWith("", secret, Options{FreeDrawLimit: 2, MaxDrawLimit: 2})
+	status, env = do(e, http.MethodGet, "/api/v1/ftn/draws/5988", "", nil)
+	a.Equal(http.StatusForbidden, status)
+	a.Equal(api.CodeHistoryUnavailable, env.Code)
+
+	_, env = do(e, http.MethodGet, "/api/v1/me", "", premium)
+	var me api.Entitlement
+	a.NoError(json.Unmarshal(env.Data, &me))
+	a.Equal(2, me.MaxDrawLimit)
 }

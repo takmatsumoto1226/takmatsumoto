@@ -38,5 +38,6 @@ combinations:
 server:
   addr: ":8080"
   api_key: ""
-  free_draw_limit: 20   # 免費用戶只能看最新 20 期, 0 表示不限
+  free_draw_limit: 0    # 開發階段暫時不限制; 正式上線前改回 20 (免費用戶只能看最新 20 期), 0 表示不限
+  max_draw_limit: 100   # 所有用戶(含付費)可用的最新期數上限, 暫不提供全歷史查詢; 0 表示不限
   premium_secret: ""    # 付費憑證密鑰, 正式環境請設定一組長亂數且不要 commit

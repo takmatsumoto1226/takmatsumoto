@@ -105,12 +105,13 @@ type Entitlement struct {
 	User             string `json:"user,omitempty"`
 	PremiumExpiresAt string `json:"premiumExpiresAt,omitempty"`
 	FreeDrawLimit    int    `json:"freeDrawLimit"` // 免費用戶可看的最新期數, 0 表示不限
+	MaxDrawLimit     int    `json:"maxDrawLimit"`  // 所有用戶(含付費)可看的最新期數上限, 0 表示不限
 }
 
 // MeHandler GET /me
-func MeHandler(freeDrawLimit int) gin.HandlerFunc {
+func MeHandler(freeDrawLimit, maxDrawLimit int) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		e := Entitlement{Premium: IsPremium(c), FreeDrawLimit: freeDrawLimit}
+		e := Entitlement{Premium: IsPremium(c), FreeDrawLimit: freeDrawLimit, MaxDrawLimit: maxDrawLimit}
 		if e.Premium {
 			e.User = c.GetString(ctxPremiumUser)
 			if t, ok := c.Get(ctxPremiumExpires); ok {

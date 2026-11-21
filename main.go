@@ -72,9 +72,9 @@ func initGINServer(stores []*lotteryapi.Store) *gin.Engine {
 
 	srv := config.Config.Server
 	authed := v1.Group("", api.APIKeyAuth(srv.APIKey), api.PremiumAuth(srv.PremiumSecret))
-	authed.GET("/me", api.MeHandler(srv.FreeDrawLimit))
+	authed.GET("/me", api.MeHandler(srv.FreeDrawLimit, srv.MaxDrawLimit))
 	authed.GET("/games", lotteryapi.GamesHandler(stores))
-	opts := lotteryapi.Options{FreeDrawLimit: srv.FreeDrawLimit}
+	opts := lotteryapi.Options{FreeDrawLimit: srv.FreeDrawLimit, MaxDrawLimit: srv.MaxDrawLimit}
 	for _, s := range stores {
 		lotteryapi.Register(authed.Group("/"+s.Game.Code), s, opts)
 	}

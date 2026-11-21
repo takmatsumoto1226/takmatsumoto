@@ -91,6 +91,12 @@ Configured under `server:` in `config.yaml`:
      - `GET /{game}/draws/:period` for a period older than `freeDrawLimit` returns `403` (`code: 40301`).
      - `GET /{game}/numbers/stats?window=W` with `W > freeDrawLimit` returns `403` (`code: 40301`).
      - `POST /{game}/analyze` only matches against the newest `freeDrawLimit` draws.
+4. **Global History Cap (`server.max_draw_limit`)** — full-history queries are temporarily disabled:
+   - When `max_draw_limit > 0`, **all users including premium** are truncated to the newest `N` draws (`"limited": true`).
+   - Exceeding it returns `403` with `code: 40302` (`CodeHistoryUnavailable`); exceeding only the free tier still returns `40301`.
+   - Set to `0` to re-enable full history for premium users. `/api/v1/me` exposes it as `maxDrawLimit`.
+   - **Exception:** `POST /{game}/analyze` ignores `max_draw_limit` (`h.analyzeRecords`) because it returns only aggregate stats — premium users match against full history; free users are still limited to `free_draw_limit`.
+5. **`GET /{game}/draws` page size**: returns only **1 draw per request** (`drawsPageSize` in `handler.go`) for all users. A larger `limit` is silently clamped to 1 (`limit > 200` is still a `400`); clients page with `offset`. `total` still reports the full matched count.
 
 ### Error Codes (`api/common.go`)
 | Constant | Code | HTTP Status | Meaning |
@@ -100,6 +106,7 @@ Configured under `server:` in `config.yaml`:
 | `CodeUnauthorized` | `40101` | 401 | Missing or invalid `X-API-Key` |
 | `CodePremiumTokenInvalid` | `40102` | 401 | Invalid or expired `X-Premium-Token` |
 | `CodePremiumRequired` | `40301` | 403 | Requested data exceeds free tier limit |
+| `CodeHistoryUnavailable` | `40302` | 403 | Requested data exceeds `max_draw_limit` (full history temporarily unavailable) |
 | `CodeNotFound` | `40401` | 404 | Draw period not found |
 | `CodeDataNotReady` | `50301` | 503 | Store has 0 loaded records |
 

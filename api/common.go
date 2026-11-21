@@ -16,11 +16,13 @@ const (
 	CodePremiumTokenInvalid = 40102
 	// 超出免費範圍, 需付費
 	CodePremiumRequired = 40301
-	CodeNotFound        = 40401
-	CodeDataNotReady    = 50301
-	HeaderAPIKey        = "X-API-Key"
-	MessageOK           = "ok"
-	MessageUnauthorize  = "invalid or missing api key"
+	// 超出所有用戶可查詢的期數上限(暫不提供全歷史查詢)
+	CodeHistoryUnavailable = 40302
+	CodeNotFound           = 40401
+	CodeDataNotReady       = 50301
+	HeaderAPIKey           = "X-API-Key"
+	MessageOK              = "ok"
+	MessageUnauthorize     = "invalid or missing api key"
 )
 
 // Response 統一回傳格式

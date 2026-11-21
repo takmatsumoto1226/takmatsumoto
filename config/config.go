@@ -36,6 +36,7 @@ type Server struct {
 	Addr          string `yaml:"addr"`            // 預設 :8080
 	APIKey        string `yaml:"api_key"`         // 空字串表示不檢查
 	FreeDrawLimit int    `yaml:"free_draw_limit"` // 免費用戶可看的最新期數, 0 表示不限
+	MaxDrawLimit  int    `yaml:"max_draw_limit"`  // 所有用戶(含付費)可看的最新期數上限, 0 表示不限(開放全歷史)
 	PremiumSecret string `yaml:"premium_secret"`  // 簽發/驗證付費憑證的密鑰, 空字串表示無法成為付費用戶
 }
 
